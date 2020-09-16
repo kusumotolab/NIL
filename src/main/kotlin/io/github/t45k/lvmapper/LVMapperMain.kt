@@ -11,7 +11,6 @@ import kotlin.math.min
 // 一旦リストに保持する
 // スケーラビリティを考えると将来的にDBを使うかも
 // IDはリストとかDBのインデックスで大丈夫そう
-// SCCの論文読むとメソッドの数は高々4000くらい？
 class LVMapperMain(private val config: LVMapperConfig) {
     companion object {
         private const val WINDOW_SIZE = 3

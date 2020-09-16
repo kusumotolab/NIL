@@ -5,6 +5,7 @@ import org.eclipse.core.runtime.NullProgressMonitor
 import org.eclipse.jdt.core.dom.AST
 import org.eclipse.jdt.core.dom.ASTParser
 import org.eclipse.jdt.core.dom.ASTVisitor
+import org.eclipse.jdt.core.dom.Block
 import org.eclipse.jdt.core.dom.CompilationUnit
 import org.eclipse.jdt.core.dom.MethodDeclaration
 import java.io.File
@@ -18,15 +19,15 @@ class AST(private val file: File) {
         val methods: MutableList<CodeBlock> = mutableListOf()
         val visitor = object : ASTVisitor() {
             override fun visit(node: MethodDeclaration?): Boolean {
-                if (node != null)
-                    methods.add(
-                        CodeBlock(
-                            file,
-                            compilationUnit.getLineNumber(node.startPosition),
-                            compilationUnit.getLineNumber(node.startPosition + node.length),
-                            node.toString(),
-                        )
+                val body: Block = node?.body ?: return false
+                methods.add(
+                    CodeBlock(
+                        file,
+                        compilationUnit.getLineNumber(body.startPosition),
+                        compilationUnit.getLineNumber(body.startPosition + body.length),
+                        body.toString(),
                     )
+                )
                 return false
             }
         }
