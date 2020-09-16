@@ -16,7 +16,7 @@ class AST(private val file: File) {
 
     fun extractBlocks(): List<CodeBlock> {
         val methods: MutableList<CodeBlock> = mutableListOf()
-        object : ASTVisitor() {
+        val visitor = object : ASTVisitor() {
             override fun visit(node: MethodDeclaration?): Boolean {
                 if (node != null)
                     methods.add(
@@ -30,6 +30,7 @@ class AST(private val file: File) {
                 return false
             }
         }
+        compilationUnit.accept(visitor)
         return methods
     }
 }

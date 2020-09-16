@@ -7,7 +7,7 @@ import org.eclipse.jdt.core.compiler.ITerminalSymbols.TokenNameRBRACE
 import org.eclipse.jdt.core.compiler.ITerminalSymbols.TokenNameSEMICOLON
 import kotlin.math.absoluteValue
 
-fun prettyPrint(text: String): List<Int> =
+fun format(text: String): List<Int> =
     ToolFactory
         .createScanner(false, false, true, "14", "14", true)
         .also { it.source = text.toCharArray() }
