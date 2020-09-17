@@ -13,10 +13,16 @@ fun format(text: String): List<Int> =
         .also { it.source = text.toCharArray() }
         .let { scanner ->
             generateSequence { 0 }
-                .map { scanner.nextToken }
+                .map {
+                    try {
+                        scanner.nextToken
+                    } catch (e: Exception) {
+                        TokenNameEOF
+                    }
+                }
                 .takeWhile { it != TokenNameEOF }
                 .fold(mutableListOf<Int>() to mutableListOf<Int>(), { acc, symbol ->
-                    return@fold if (symbol.isSeparator()) {
+                    if (symbol.isSeparator()) {
                         acc.first.also {
                             if (acc.second.isNotEmpty()) it.add(acc.second.hashCode().absoluteValue)
                         } to mutableListOf()

@@ -18,7 +18,7 @@ class LVMapperMain(private val config: LVMapperConfig) {
     }
 
     fun run() {
-        val tokenizedCodeBlocks: List<CodeBlock> = collectSourceFiles(config.dir)
+        val codeBlocks: List<CodeBlock> = collectSourceFiles(config.dir)
             .flatMap(this::collectBlocks)
             .toList()
             .blockingGet()
@@ -29,7 +29,7 @@ class LVMapperMain(private val config: LVMapperConfig) {
 
         val hashTable: MutableMap<Int, MutableList<Int>> = mutableMapOf()
         val seedsFrequencyStore: MutableList<Map<Int, Int>> = mutableListOf()
-        val clonePairs = tokenizedCodeBlocks
+        val clonePairs = codeBlocks
             .flatMapIndexed { index, codeBlock ->
                 val seedsFrequency: Map<Int, Int> = createSeed(codeBlock.prettyPrint)
                 val clonePairs: List<Pair<Int, Int>> =
@@ -38,17 +38,17 @@ class LVMapperMain(private val config: LVMapperConfig) {
                             isSharingSeeds(
                                 seedsFrequency,
                                 seedsFrequencyStore[it],
-                                chooseDenominator(index, it, tokenizedCodeBlocks)
+                                chooseDenominator(index, it, codeBlocks)
                             )
                         }
-                        .filter { verify(index, it, tokenizedCodeBlocks) }
+                        .filter { verify(index, it, codeBlocks) }
                         .map { index to it }
 
                 seedsFrequencyStore.add(seedsFrequency)
                 seedsFrequency.keys.forEach { hashTable.getOrPut(it) { mutableListOf() }.add(index) }
                 return@flatMapIndexed clonePairs
             }
-            .map { tokenizedCodeBlocks[it.first].text to tokenizedCodeBlocks[it.second].text }
+            .map { codeBlocks[it.first].text to codeBlocks[it.second].text }
 
         println()
     }
@@ -110,7 +110,13 @@ class LVMapperMain(private val config: LVMapperConfig) {
 
     private fun collectBlocks(sourceFile: File): Observable<CodeBlock> =
         Observable.just(sourceFile)
-            .flatMap { AST(it).extractBlocks().toObservable() }
+            .flatMap {
+                try {
+                    AST(it).extractBlocks().toObservable()
+                } catch (e: Exception) {
+                    Observable.empty()
+                }
+            }
 }
 
 fun main(args: Array<String>) {
