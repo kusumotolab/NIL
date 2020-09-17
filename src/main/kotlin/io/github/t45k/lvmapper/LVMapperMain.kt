@@ -18,7 +18,7 @@ class LVMapperMain(private val config: LVMapperConfig) {
     }
 
     fun run() {
-        val codeBlocks: List<CodeBlock> = collectSourceFiles(config.dir)
+        val codeBlocks: List<CodeBlock> = collectSourceFiles(config.src)
             .flatMap(this::collectBlocks)
             .toList()
             .blockingGet()
@@ -46,11 +46,11 @@ class LVMapperMain(private val config: LVMapperConfig) {
 
                 seedsFrequencyStore.add(seedsFrequency)
                 seedsFrequency.keys.forEach { hashTable.getOrPut(it) { mutableListOf() }.add(index) }
-                return@flatMapIndexed clonePairs
+                clonePairs
             }
             .map { codeBlocks[it.first].text to codeBlocks[it.second].text }
 
-        println()
+        println(clonePairs.size)
     }
 
     /*

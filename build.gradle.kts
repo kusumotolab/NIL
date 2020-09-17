@@ -7,6 +7,7 @@
 plugins {
     // Apply the Kotlin JVM plugin to add support for Kotlin.
     id("org.jetbrains.kotlin.jvm") version "1.4.10"
+    id("com.github.johnrengelman.shadow") version "6.0.0"
 
     // Apply the application plugin to add support for building a CLI application.
     application
@@ -40,5 +41,11 @@ dependencies {
 
 application {
     // Define the main class for the application.
-    mainClassName = "io.github.t45k.lvmapper.AppKt"
+    mainClassName = "io.github.t45k.lvmapper.LVMapperMainKt"
+}
+
+val jar by tasks.getting(Jar::class) {
+    manifest {
+        attributes["Main-Class"] = "io.github.t45k.lvmapper.LVMapperMainKt"
+    }
 }
