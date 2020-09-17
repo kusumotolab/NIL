@@ -18,6 +18,7 @@ class LVMapperMain(private val config: LVMapperConfig) {
     }
 
     fun run() {
+        val startTime = System.currentTimeMillis()
         val codeBlocks: List<CodeBlock> = collectSourceFiles(config.src)
             .flatMap(this::collectBlocks)
             .toList()
@@ -50,7 +51,10 @@ class LVMapperMain(private val config: LVMapperConfig) {
             }
             .map { codeBlocks[it.first].text to codeBlocks[it.second].text }
 
+        val endTime = System.currentTimeMillis()
+
         println(clonePairs.size)
+        println("time: ${(endTime - startTime)/1000} seconds")
     }
 
     /*
