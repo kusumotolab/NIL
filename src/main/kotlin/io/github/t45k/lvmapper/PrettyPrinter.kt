@@ -5,7 +5,6 @@ import org.eclipse.jdt.core.compiler.ITerminalSymbols.TokenNameEOF
 import org.eclipse.jdt.core.compiler.ITerminalSymbols.TokenNameLBRACE
 import org.eclipse.jdt.core.compiler.ITerminalSymbols.TokenNameRBRACE
 import org.eclipse.jdt.core.compiler.ITerminalSymbols.TokenNameSEMICOLON
-import kotlin.math.absoluteValue
 
 fun format(text: String): List<Int> =
     ToolFactory
@@ -24,7 +23,7 @@ fun format(text: String): List<Int> =
                 .fold(mutableListOf<Int>() to mutableListOf<Int>(), { acc, symbol ->
                     if (symbol.isSeparator()) {
                         acc.first.also {
-                            if (acc.second.isNotEmpty()) it.add(acc.second.hashCode().absoluteValue)
+                            if (acc.second.isNotEmpty()) it.add(acc.second.hashCode())
                         } to mutableListOf()
                     } else {
                         acc.first to acc.second.also { it.add(symbol) }

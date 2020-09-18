@@ -4,7 +4,6 @@ import io.github.t45k.lvmapper.entity.CodeBlock
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.kotlin.toObservable
 import java.io.File
-import kotlin.math.absoluteValue
 import kotlin.math.max
 import kotlin.math.min
 
@@ -14,7 +13,7 @@ import kotlin.math.min
 class LVMapperMain(private val config: LVMapperConfig) {
     companion object {
         private const val WINDOW_SIZE = 3
-        private const val FILTERING_THRESHOLD = 0.7
+        private const val FILTERING_THRESHOLD = 70
     }
 
     fun run() {
@@ -29,45 +28,36 @@ class LVMapperMain(private val config: LVMapperConfig) {
             .toList()
 
         val hashTable: MutableMap<Int, MutableList<Int>> = mutableMapOf()
-        val seedsFrequencyStore: MutableList<Map<Int, Int>> = mutableListOf()
-        val clonePairs = codeBlocks
+        val clonePairs: List<Pair<Int, Int>> = codeBlocks
             .flatMapIndexed { index, codeBlock ->
                 val seedsFrequency: Map<Int, Int> = createSeed(codeBlock.prettyPrint)
                 val clonePairs: List<Pair<Int, Int>> =
                     locate(seedsFrequency.keys.toList(), hashTable)
-                        .filter {
-                            isSharingSeeds(
-                                seedsFrequency,
-                                seedsFrequencyStore[it],
-                                chooseDenominator(index, it, codeBlocks)
-                            )
-                        }
                         .filter { verify(index, it, codeBlocks) }
                         .map { index to it }
 
-                seedsFrequencyStore.add(seedsFrequency)
                 seedsFrequency.keys.forEach { hashTable.getOrPut(it) { mutableListOf() }.add(index) }
                 clonePairs
             }
-            .map { codeBlocks[it.first].text to codeBlocks[it.second].text }
 
         val endTime = System.currentTimeMillis()
 
         println(clonePairs.size)
-        println("time: ${(endTime - startTime)/1000} seconds")
+        println("time: ${(endTime - startTime) / 1000} seconds")
     }
 
     /*
     TODO
     currently using naive LCS
      */
-    private fun verify(id1: Int, id2: Int, tokenizedCodeBlocks: List<CodeBlock>): Boolean {
-        val representation1 = tokenizedCodeBlocks[id1].prettyPrint
-        val representation2 = tokenizedCodeBlocks[id2].prettyPrint
-
-        val dpTable: Array<Array<Int>> = Array(representation1.size + 1) { Array(representation2.size + 1) { 0 } }
-        for (i in 1..representation1.size) {
-            for (j in 1..representation2.size) {
+    private fun verify(id1: Int, id2: Int, codeBlocks: List<CodeBlock>): Boolean {
+        val representation1 = codeBlocks[id1].prettyPrint
+        val size1 = representation1.size
+        val representation2 = codeBlocks[id2].prettyPrint
+        val size2 = representation2.size
+        val dpTable: Array<Array<Int>> = Array(size1 + 1) { Array(size2 + 1) { 0 } }
+        for (i in 1..size1) {
+            for (j in 1..size2) {
                 if (representation1[i - 1] == representation2[j - 1]) {
                     dpTable[i][j] = dpTable[i - 1][j - 1] + 1
                 } else {
@@ -76,23 +66,16 @@ class LVMapperMain(private val config: LVMapperConfig) {
             }
         }
 
-        return dpTable[representation1.size][representation2.size].toDouble() / min(
-            representation1.size,
-            representation2.size
-        ).toDouble() >= 0.7
+        val min = min(size1, size2)
+        return dpTable[size1][size2] * 100 / min >= calcVerifyingThreshold(min)
     }
 
-    private fun chooseDenominator(id1: Int, id2: Int, tokenizedCodeBlocks: List<CodeBlock>): Int =
-        min(tokenizedCodeBlocks[id1].prettyPrint.size, tokenizedCodeBlocks[id2].prettyPrint.size) - WINDOW_SIZE + 1
-
-    private fun isSharingSeeds(
-        seedsFrequencyA: Map<Int, Int>,
-        seedsFrequencyB: Map<Int, Int>,
-        denominator: Int
-    ): Boolean =
-        seedsFrequencyA.map { (seed, frequency) ->
-            min(frequency, seedsFrequencyB[seed] ?: 0)
-        }.sum().toDouble() / denominator.toDouble() >= FILTERING_THRESHOLD
+    private fun calcVerifyingThreshold(size: Int) =
+        when {
+            size <= 10 -> 70
+            size >= 20 -> 40
+            else -> -3 * size + 100
+        }
 
     private fun locate(seed: List<Int>, hashtable: Map<Int, List<Int>>): List<Int> =
         seed.flatMap { hashtable[it] ?: emptyList() }
@@ -103,7 +86,7 @@ class LVMapperMain(private val config: LVMapperConfig) {
     // TODO use rolling hash
     private fun createSeed(prettyPrint: List<Int>): Map<Int, Int> =
         (0..(prettyPrint.size - WINDOW_SIZE))
-            .groupingBy { prettyPrint.subList(it, it + WINDOW_SIZE).hashCode().absoluteValue }
+            .groupingBy { prettyPrint.subList(it, it + WINDOW_SIZE).hashCode() }
             .eachCount()
             .toMap()
 
