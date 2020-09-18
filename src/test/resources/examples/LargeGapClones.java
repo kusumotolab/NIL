@@ -1,4 +1,4 @@
-// Large-gap clone example in CCAligner's paper
+// Large-gap clone example from CCAligner's paper
 class LargeGapClones {
     int method1(Commandline cmd) {
         try {
