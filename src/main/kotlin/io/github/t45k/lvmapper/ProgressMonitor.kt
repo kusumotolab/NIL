@@ -4,19 +4,23 @@ import java.util.concurrent.atomic.AtomicInteger
 
 class ProgressMonitor(private val size: Int) {
     private val progress: AtomicInteger = AtomicInteger(1)
+    private var time: Long = System.currentTimeMillis()
 
     init {
-        print("0 -- ")
+        print("0(0) -- ")
     }
 
     fun update(current: Int) {
         while (10 * current / size >= progress.get()) {
+            val currentTimeMillis = System.currentTimeMillis()
+            val interval = (currentTimeMillis - time) / 1000
+            time = currentTimeMillis
             if (progress.get() == 10) {
-                println("100\n")
+                println("100($interval)\n")
                 break
             }
 
-            print("${progress.getAndIncrement()}0 -- ")
+            print("${progress.getAndIncrement()}0($interval) -- ")
         }
     }
 }
