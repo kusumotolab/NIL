@@ -1,9 +1,6 @@
 package io.github.t45k.lvmapper
 
-class Location {
-    companion object {
-        private const val FILTERING_THRESHOLD = 10
-    }
+class Location(private val filteringThreshold: Int = 5) {
 
     private val hashTable: MutableMap<Int, MutableList<Int>> = mutableMapOf()
 
@@ -11,7 +8,7 @@ class Location {
         seeds.flatMap { hashTable[it] ?: emptyList() }
             .groupingBy { it }
             .eachCount()
-            .filter { it.value >= FILTERING_THRESHOLD }
+            .filter { it.value >= filteringThreshold }
             .keys
             .toList()
 

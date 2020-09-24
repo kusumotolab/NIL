@@ -32,8 +32,8 @@ class Verification(private val codeBlocks: List<CodeBlock>) {
     // TODO adjusting to token sequence
     private fun calcVerifyingThreshold(size: Int) =
         when {
-            size <= 10 -> 70
-            size >= 20 -> 40
-            else -> -3 * size + 100
+            size <= 30 -> 70
+            size >= 60 -> 40
+            else -> -1 * size + 100
         }
 }

@@ -5,7 +5,8 @@ import java.io.File
 
 data class LVMapperConfig(
     val src: File,
-    val windowSize: Int = 10,
+    val windowSize: Int = 5,
+    val filteringThreshold: Int = 5,
     val tokenizeMethod: TokenizeMethod = SYMBOL_SEPARATION
 )
 

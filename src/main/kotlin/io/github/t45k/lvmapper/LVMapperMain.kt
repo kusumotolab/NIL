@@ -26,7 +26,7 @@ class LVMapperMain(private val config: LVMapperConfig) {
         val startTime = System.currentTimeMillis()
         val codeBlocks: List<CodeBlock> = collectSourceFiles(config.src)
             .flatMap(this::collectBlocks)
-            .filter { it.tokenSequence.size in 20..2_000 }
+            .filter { it.tokenSequence.size in 10..2_000 }
             .toList()
             .blockingGet()
 
@@ -62,7 +62,7 @@ class LVMapperMain(private val config: LVMapperConfig) {
             val split2 = clone2.fileName.split("/")
             val fileName2 = split2.last()
             val dir2 = split2[split2.size - 2]
-            "$dir1,$fileName1,${clone1.startLine},${clone1.endLine},$dir2,$fileName2,${clone2.startLine},${clone2.endLine}\n"
+            "$dir1,$fileName1,${clone1.startLine},${clone1.endLine},$dir2,$fileName2,${clone2.startLine},${clone2.endLine}"
         }
         Files.writeString(Paths.get("result.csv"), results)
     }
