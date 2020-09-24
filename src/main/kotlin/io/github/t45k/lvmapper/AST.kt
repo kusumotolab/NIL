@@ -8,11 +8,11 @@ import io.github.t45k.lvmapper.entity.TokenSequence
 import org.antlr.v4.runtime.CharStreams
 import org.antlr.v4.runtime.CommonTokenStream
 import org.antlr.v4.runtime.tree.ParseTreeWalker
-import java.io.File
+import java.nio.file.Path
 
 class AST(private val tokenizer: (String) -> List<Int>) {
 
-    fun extractBlocks(file: File): List<CodeBlock> {
+    fun extractBlocks(path: Path): List<CodeBlock> {
         val codeBlocks: MutableList<CodeBlock> = mutableListOf()
         val visitor = object : Java8ParserBaseListener() {
             override fun enterMethodBody(ctx: Java8Parser.MethodBodyContext?) {
@@ -20,18 +20,17 @@ class AST(private val tokenizer: (String) -> List<Int>) {
                 val endLine: Int = ctx.stop?.line ?: return
                 if (endLine - startLine - 1 >= 6) {
                     val tokenSequence: TokenSequence = tokenizer(ctx.text)
-                    val codeBlock = CodeBlock(file, startLine, endLine, tokenSequence)
+                    val codeBlock = CodeBlock(path.toString(), startLine, endLine, tokenSequence)
                     codeBlocks.add(codeBlock)
                 }
             }
         }
-        ParseTreeWalker().walk(visitor, parseFile(file))
+        ParseTreeWalker().walk(visitor, parseFile(path))
         return codeBlocks
     }
 
-    private fun parseFile(file: File): Java8Parser.CompilationUnitContext =
-        file.readText()
-            .let { CharStreams.fromString(it) }
+    private fun parseFile(path: Path): Java8Parser.CompilationUnitContext =
+        CharStreams.fromPath(path)
             .let { Java8Lexer(it) }
             .let { CommonTokenStream(it) }
             .also { it.fill() }

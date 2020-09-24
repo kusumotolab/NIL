@@ -7,7 +7,9 @@ import io.github.t45k.lvmapper.tokenizer.SymbolSeparator
 import io.github.t45k.lvmapper.tokenizer.Tokenizer
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.kotlin.toObservable
-import java.io.File
+import java.nio.file.Files
+import java.nio.file.Path
+import kotlin.streams.asSequence
 
 // 一旦リストに保持する
 // スケーラビリティを考えると将来的にDBを使うかも
@@ -57,13 +59,15 @@ class LVMapperMain(private val config: LVMapperConfig) {
             .map { tokenSequence.subList(it, it + config.windowSize).hashCode() }
             .distinct()
 
-    private fun collectSourceFiles(dir: File): Observable<File> =
-        dir.walk()
-            .filter { it.isFile && it.toString().endsWith(".java") }
+    @Suppress("BlockingMethodInNonBlockingContext")
+    private fun collectSourceFiles(dir: Path): Observable<Path> =
+        Files.walk(dir)
+            .asSequence()
+            .filter { it.toString().endsWith(".java") }
             .toObservable()
 
-    private fun collectBlocks(sourceFile: File): Observable<CodeBlock> =
-        Observable.just(sourceFile)
+    private fun collectBlocks(sourcePath: Path): Observable<CodeBlock> =
+        Observable.just(sourcePath)
             .flatMap { AST(tokenizer::tokenize).extractBlocks(it).toObservable() }
 }
 
