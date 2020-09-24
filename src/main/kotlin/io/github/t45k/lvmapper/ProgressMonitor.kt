@@ -12,11 +12,11 @@ class ProgressMonitor(private val size: Int) {
     fun update(current: Int) {
         while (10 * current / size >= progress.get()) {
             if (progress.get() == 10) {
-                println("100")
+                println("100\n")
                 break
-            } else {
-                print("${progress.getAndIncrement()}0 -- ")
             }
+
+            print("${progress.getAndIncrement()}0 -- ")
         }
     }
 }

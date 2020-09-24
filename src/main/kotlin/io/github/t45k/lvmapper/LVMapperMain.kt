@@ -27,6 +27,8 @@ class LVMapperMain(private val config: LVMapperConfig) {
             .toList()
             .blockingGet()
 
+        println("Extracting code blocks has done.\n")
+
         val location = Location()
         val verification = Verification(codeBlocks)
         val progressMonitor = ProgressMonitor(codeBlocks.size)
