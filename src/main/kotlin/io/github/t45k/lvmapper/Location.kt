@@ -11,7 +11,7 @@ class Location {
         seeds.flatMap { hashTable[it] ?: emptyList() }
             .groupingBy { it }
             .eachCount()
-            .filter { it.value >= 3 }
+            .filter { it.value >= FILTERING_THRESHOLD }
             .keys
             .toList()
 

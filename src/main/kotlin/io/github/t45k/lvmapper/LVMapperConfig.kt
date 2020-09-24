@@ -5,7 +5,7 @@ import java.io.File
 
 data class LVMapperConfig(
     val src: File,
-    val windowSize: Int = 3,
+    val windowSize: Int = 10,
     val tokenizeMethod: TokenizeMethod = LEXICAL_ANALYSIS
 )
 
