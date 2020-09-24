@@ -7,7 +7,7 @@ class ProgressMonitor(private val size: Int) {
     private var time: Long = System.currentTimeMillis()
 
     init {
-        print("0(0) -- ")
+        print("0(0s) -- ")
     }
 
     fun update(current: Int) {
@@ -16,11 +16,11 @@ class ProgressMonitor(private val size: Int) {
             val interval = (currentTimeMillis - time) / 1000
             time = currentTimeMillis
             if (progress.get() == 10) {
-                println("100($interval)\n")
+                println("100(${convert(interval)})\n")
                 break
             }
 
-            print("${progress.getAndIncrement()}0($interval) -- ")
+            print("${progress.getAndIncrement()}0(${convert(interval)} -- ")
         }
     }
 }

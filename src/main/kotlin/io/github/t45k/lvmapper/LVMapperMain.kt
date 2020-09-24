@@ -30,7 +30,7 @@ class LVMapperMain(private val config: LVMapperConfig) {
             .toList()
             .blockingGet()
 
-        println("${codeBlocks.size} code blocks have been extracted in ${(System.currentTimeMillis() - startTime) / 1000} seconds.\n")
+        println("${codeBlocks.size} code blocks have been extracted in ${convert((System.currentTimeMillis() - startTime) / 1000)} seconds.\n")
 
         val location = Location()
         val verification = Verification(codeBlocks)
@@ -48,10 +48,10 @@ class LVMapperMain(private val config: LVMapperConfig) {
                 clonePairs
             }
 
-        val endTime = System.currentTimeMillis()
-
         println(clonePairs.size)
-        println("time: ${(endTime - startTime) / 1000} seconds")
+
+        val endTime = System.currentTimeMillis()
+        println("time: ${convert((endTime - startTime) / 1000)}")
 
         val results = clonePairs.joinToString("\n") {
             val clone1 = codeBlocks[it.first]
