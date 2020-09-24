@@ -6,7 +6,7 @@ import java.nio.file.Paths
 
 data class LVMapperConfig(
     val src: Path,
-    val windowSize: Int = 5,
+    val windowSize: Int = 10,
     val tokenizeMethod: TokenizeMethod = SYMBOL_SEPARATION
 )
 

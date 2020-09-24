@@ -7,7 +7,7 @@ internal class LVMapperMainTest {
 
     @Test
     fun test() {
-        val config = LVMapperConfig(Paths.get("src/test/resources/examples"))
+        val config = LVMapperConfig(Paths.get("/Users/laevatein/prog/jruby/core/src/main/java"))
         LVMapperMain(config).run()
     }
 }

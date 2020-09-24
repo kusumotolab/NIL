@@ -26,10 +26,11 @@ class LVMapperMain(private val config: LVMapperConfig) {
         val startTime = System.currentTimeMillis()
         val codeBlocks: List<CodeBlock> = collectSourceFiles(config.src)
             .flatMap(this::collectBlocks)
+            .filter { it.tokenSequence.size in 20..2_000 }
             .toList()
             .blockingGet()
 
-        println("Extracting code blocks has done.\n")
+        println("${codeBlocks.size} code blocks have been extracted.\n")
 
         val location = Location()
         val verification = Verification(codeBlocks)

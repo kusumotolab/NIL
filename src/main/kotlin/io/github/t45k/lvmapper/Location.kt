@@ -2,7 +2,7 @@ package io.github.t45k.lvmapper
 
 class Location {
     companion object {
-        private const val FILTERING_THRESHOLD = 5
+        private const val FILTERING_THRESHOLD = 10
     }
 
     private val hashTable: MutableMap<Int, MutableList<Int>> = mutableMapOf()
