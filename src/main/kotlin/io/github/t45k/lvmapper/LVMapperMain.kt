@@ -8,6 +8,8 @@ import io.github.t45k.lvmapper.tokenizer.Tokenizer
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.kotlin.toObservable
 import java.io.File
+import java.nio.file.Files
+import java.nio.file.Paths
 
 // 一旦リストに保持する
 // スケーラビリティを考えると将来的にDBを使うかも
@@ -50,6 +52,21 @@ class LVMapperMain(private val config: LVMapperConfig) {
 
         println(clonePairs.size)
         println("time: ${(endTime - startTime) / 1000} seconds")
+
+        val resultFile = Files.createFile(Paths.get("result.csv"))
+        clonePairs.forEach {
+            val clone1 = codeBlocks[it.first]
+            val split1 = clone1.fileName.split("/")
+            val fileName1 = split1.last()
+            val dir1 = split1[split1.size - 2]
+            val clone2 = codeBlocks[it.second]
+            val split2 = clone2.fileName.split("/")
+            val fileName2 = split2.last()
+            val dir2 = split2[split2.size - 2]
+            val s =
+                "$dir1,$fileName1,${clone1.startLine},${clone1.endLine},$dir2,$fileName2,${clone2.startLine},${clone2.endLine}\n"
+            Files.writeString(resultFile, s)
+        }
     }
 
     // TODO use rolling hash
