@@ -20,7 +20,6 @@ class LVMapperMain(private val config: LVMapperConfig) {
             TokenizeMethod.SYMBOL_SEPARATION -> SymbolSeparator()
         }
 
-
     fun run() {
         val startTime = System.currentTimeMillis()
         val codeBlocks: List<CodeBlock> = collectSourceFiles(config.src)
@@ -63,8 +62,9 @@ class LVMapperMain(private val config: LVMapperConfig) {
         Observable.just(sourceFile)
             .flatMap {
                 try {
-                    AST(it, tokenizer::tokenize).extractBlocks().toObservable()
+                    AST(tokenizer::tokenize).extractBlocks(it).toObservable()
                 } catch (e: Exception) {
+                    System.err.println("hogehoge")
                     Observable.empty()
                 }
             }

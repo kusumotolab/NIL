@@ -29,6 +29,7 @@ class Verification(private val codeBlocks: List<CodeBlock>) {
         return dpTable[size1][size2] * 100 / min >= calcVerifyingThreshold(min)
     }
 
+    // TODO adjusting to token sequence
     private fun calcVerifyingThreshold(size: Int) =
         when {
             size <= 10 -> 70

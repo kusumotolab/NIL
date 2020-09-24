@@ -1,12 +1,13 @@
 package io.github.t45k.lvmapper
 
 import io.github.t45k.lvmapper.TokenizeMethod.LEXICAL_ANALYSIS
+import io.github.t45k.lvmapper.TokenizeMethod.SYMBOL_SEPARATION
 import java.io.File
 
 data class LVMapperConfig(
     val src: File,
-    val windowSize: Int = 10,
-    val tokenizeMethod: TokenizeMethod = LEXICAL_ANALYSIS
+    val windowSize: Int = 5,
+    val tokenizeMethod: TokenizeMethod = SYMBOL_SEPARATION
 )
 
 enum class TokenizeMethod {

@@ -1,28 +1,16 @@
 package io.github.t45k.lvmapper.tokenizer
 
+import Java8Lexer
 import io.github.t45k.lvmapper.entity.TokenSequence
-import org.eclipse.jdt.core.ToolFactory
-import org.eclipse.jdt.core.compiler.IScanner
-import org.eclipse.jdt.core.compiler.ITerminalSymbols
-import org.eclipse.jdt.core.compiler.InvalidInputException
+import org.antlr.v4.runtime.CharStreams
+import org.antlr.v4.runtime.CommonTokenStream
 
 class LexicalAnalyzer : Tokenizer {
     override fun tokenize(text: String): TokenSequence =
-        ToolFactory
-            .createScanner(false, false, true, "14", "14", true)
-            .also { it.source = text.toCharArray() }
-            .let { scanner ->
-                generateSequence { 0 }
-                    .map { scanner.getNextTokenIfValid() }
-                    .takeWhile { it != ITerminalSymbols.TokenNameEOF }
-                    .map { String(scanner.currentTokenSource).hashCode() }
-                    .toList()
-            }
-
-    private fun IScanner.getNextTokenIfValid() =
-        try {
-            this.nextToken
-        } catch (e: InvalidInputException) {
-            ITerminalSymbols.TokenNameEOF
-        }
+        CharStreams.fromString(text)
+            .let(::Java8Lexer)
+            .let(::CommonTokenStream)
+            .also(CommonTokenStream::fill)
+            .tokens
+            .map { it.text.hashCode() }
 }
