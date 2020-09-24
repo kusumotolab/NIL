@@ -1,13 +1,13 @@
 package io.github.t45k.lvmapper
 
-import java.nio.file.Paths
+import java.io.File
 import kotlin.test.Test
 
 internal class LVMapperMainTest {
 
     @Test
     fun test() {
-        val config = LVMapperConfig(Paths.get("/Users/laevatein/prog/jruby/core/src/main/java"))
+        val config = LVMapperConfig(File("/Users/laevatein/prog"))
         LVMapperMain(config).run()
     }
 }

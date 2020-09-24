@@ -1,11 +1,10 @@
 package io.github.t45k.lvmapper
 
 import io.github.t45k.lvmapper.TokenizeMethod.SYMBOL_SEPARATION
-import java.nio.file.Path
-import java.nio.file.Paths
+import java.io.File
 
 data class LVMapperConfig(
-    val src: Path,
+    val src: File,
     val windowSize: Int = 10,
     val tokenizeMethod: TokenizeMethod = SYMBOL_SEPARATION
 )
@@ -17,4 +16,4 @@ enum class TokenizeMethod {
 
 fun parseArgs(args: Array<String>): LVMapperConfig =
     // TODO impl
-    LVMapperConfig(Paths.get(args[0]))
+    LVMapperConfig(File(args[0]))
