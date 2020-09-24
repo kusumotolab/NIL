@@ -29,6 +29,7 @@ class LVMapperMain(private val config: LVMapperConfig) {
 
         val location = Location()
         val verification = Verification(codeBlocks)
+        val progressMonitor = ProgressMonitor(codeBlocks.size)
         val clonePairs: List<Pair<Int, Int>> = codeBlocks
             .flatMapIndexed { index, codeBlock ->
                 val seeds: List<Int> = createSeed(codeBlock.tokenSequence)
@@ -37,6 +38,7 @@ class LVMapperMain(private val config: LVMapperConfig) {
                     .map { index to it }
 
                 location.put(seeds, index)
+                progressMonitor.update(index + 1)
 
                 clonePairs
             }
@@ -60,14 +62,7 @@ class LVMapperMain(private val config: LVMapperConfig) {
 
     private fun collectBlocks(sourceFile: File): Observable<CodeBlock> =
         Observable.just(sourceFile)
-            .flatMap {
-                try {
-                    AST(tokenizer::tokenize).extractBlocks(it).toObservable()
-                } catch (e: Exception) {
-                    System.err.println("hogehoge")
-                    Observable.empty()
-                }
-            }
+            .flatMap { AST(tokenizer::tokenize).extractBlocks(it).toObservable() }
 }
 
 fun main(args: Array<String>) {
