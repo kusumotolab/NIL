@@ -1,4 +1,4 @@
-package io.github.t45k.lvmapper
+package io.github.t45k.lvmapper.util
 
 import java.util.concurrent.atomic.AtomicInteger
 
@@ -16,11 +16,11 @@ class ProgressMonitor(private val size: Int) {
             val interval = (currentTimeMillis - time) / 1000
             time = currentTimeMillis
             if (progress.get() == 10) {
-                println("100(${convert(interval)})\n")
+                println("100(${interval.toTime()})\n")
                 break
             }
 
-            print("${progress.getAndIncrement()}0(${convert(interval)} -- ")
+            print("${progress.getAndIncrement()}0(${interval.toTime()}) -- ")
         }
     }
 }
