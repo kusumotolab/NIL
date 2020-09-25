@@ -12,7 +12,7 @@ fun Long.toTime(): String {
         }
     }
     val seconds = this % 60
-    if (seconds > 0) {
+    if (seconds > 0 || builder.isEmpty()) {
         builder.append("${seconds}s")
     }
     return builder.toString()

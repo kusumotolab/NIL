@@ -28,10 +28,10 @@ enum class TokenizeMethod(
 fun parseArgs(args: Array<String>): LVMapperConfig {
     var src: File? = null
     var tokenizeMethod: TokenizeMethod = SYMBOL_SEPARATION
-    var minToken: Int = tokenizeMethod.minToken
-    var maxToken: Int = tokenizeMethod.maxToken
-    var windowSize: Int = tokenizeMethod.windowSize
-    var filteringThreshold: Int = tokenizeMethod.filteringThreshold
+    var minToken: () -> Int = { tokenizeMethod.minToken }
+    var maxToken: () -> Int = { tokenizeMethod.maxToken }
+    var windowSize: () -> Int = { tokenizeMethod.windowSize }
+    var filteringThreshold: () -> Int = { tokenizeMethod.filteringThreshold }
     var minLine = 6
     var outputFileName = "result.csv"
 
@@ -40,10 +40,10 @@ fun parseArgs(args: Array<String>): LVMapperConfig {
         when (iterator.next()) {
             "-s" -> src = File(iterator.next())
             "-tm" -> tokenizeMethod = if (iterator.next() == "la") LEXICAL_ANALYSIS else SYMBOL_SEPARATION
-            "-mit" -> minToken = iterator.next().toInt()
-            "-mat" -> maxToken = iterator.next().toInt()
-            "-ws" -> windowSize = iterator.next().toInt()
-            "-ft" -> filteringThreshold = iterator.next().toInt()
+            "-mit" -> minToken = iterator.next().toInt().let { value -> { value } }
+            "-mat" -> maxToken = iterator.next().toInt().let { value -> { value } }
+            "-ws" -> windowSize = iterator.next().toInt().let { value -> { value } }
+            "-ft" -> filteringThreshold = iterator.next().toInt().let { value -> { value } }
             "-mil" -> minLine = iterator.next().toInt()
             "-o" -> outputFileName = iterator.next()
         }
@@ -52,10 +52,10 @@ fun parseArgs(args: Array<String>): LVMapperConfig {
     return LVMapperConfig(
         src!!,
         tokenizeMethod,
-        windowSize,
-        filteringThreshold,
-        minToken,
-        maxToken,
+        windowSize(),
+        filteringThreshold(),
+        minToken(),
+        maxToken(),
         minLine,
         outputFileName
     )

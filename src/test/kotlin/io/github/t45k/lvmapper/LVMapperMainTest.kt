@@ -8,7 +8,7 @@ internal class LVMapperMainTest {
 
     @Test
     fun test() {
-        val config = LVMapperConfig(File("./src/test/resources/examples"))
+        val config = parseArgs(arrayOf("-s", "./src/test/resources/examples"))
         LVMapperMain(config).run()
 
         val outputFile = File("result.csv")

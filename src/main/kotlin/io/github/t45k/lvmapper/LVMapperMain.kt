@@ -27,7 +27,7 @@ class LVMapperMain(private val config: LVMapperConfig) {
         val startTime = System.currentTimeMillis()
         val codeBlocks: List<CodeBlock> = collectSourceFiles(config.src)
             .flatMap(this::collectBlocks)
-            .filter { it.tokenSequence.size in 50..5_000 }
+            .filter { it.tokenSequence.size in config.minToken..config.maxToken }
             .toList()
             .blockingGet()
 
