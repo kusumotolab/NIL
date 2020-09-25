@@ -7,9 +7,8 @@ import kotlin.math.max
 import kotlin.math.min
 
 
-class Verification(private val codeBlocks: List<CodeBlock>) {
+class Verification(private val codeBlocks: List<CodeBlock>, private val config: LVMapperConfig) {
 
-    // TODO Int.MAX_VALUE is probably collision.
     fun verify(id1: Int, id2: Int): Boolean {
         val (shorter: TokenSequence, longer: TokenSequence) = codeBlocks.getTwoTokenSequences(id1, id2)
         val (n, m) = shorter.size to longer.size
@@ -44,10 +43,18 @@ class Verification(private val codeBlocks: List<CodeBlock>) {
         }
 
     private fun calcVerifyingThreshold(size: Int): Int =
-        when {
-            size <= 120 -> 70
-            size >= 240 -> 40
-            else -> 100 - size / 4
+        if (config.tokenizeMethod == TokenizeMethod.LEXICAL_ANALYSIS) {
+            when {
+                size <= 120 -> 70
+                size >= 240 -> 40
+                else -> 100 - size / 4
+            }
+        } else {
+            when {
+                size <= 60 -> 70
+                size >= 120 -> 40
+                else -> 100 - size / 2
+            }
         }
 
     @Deprecated("Time Complexity of naive LCS is O(NM) where N and M are size of given two sequence respectively.\nIt is too late")
