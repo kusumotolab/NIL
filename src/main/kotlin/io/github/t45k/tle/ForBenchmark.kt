@@ -1,7 +1,7 @@
-package io.github.t45k.lvmapper
+package io.github.t45k.tle
 
-import io.github.t45k.lvmapper.entity.CodeBlock
-import io.github.t45k.lvmapper.util.toTime
+import io.github.t45k.tle.entity.CodeBlock
+import io.github.t45k.tle.util.toTime
 import io.reactivex.rxjava3.kotlin.toObservable
 import java.io.File
 

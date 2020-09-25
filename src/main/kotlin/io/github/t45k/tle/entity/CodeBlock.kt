@@ -1,4 +1,4 @@
-package io.github.t45k.lvmapper.entity
+package io.github.t45k.tle.entity
 
 // しばらくはメソッドオンリー
 data class CodeBlock(

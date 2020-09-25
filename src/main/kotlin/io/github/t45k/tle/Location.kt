@@ -1,4 +1,4 @@
-package io.github.t45k.lvmapper
+package io.github.t45k.tle
 
 class Location(private val filteringThreshold: Int) {
 

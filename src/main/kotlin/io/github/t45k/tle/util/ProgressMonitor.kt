@@ -1,4 +1,4 @@
-package io.github.t45k.lvmapper.util
+package io.github.t45k.tle.util
 
 import java.util.concurrent.atomic.AtomicInteger
 

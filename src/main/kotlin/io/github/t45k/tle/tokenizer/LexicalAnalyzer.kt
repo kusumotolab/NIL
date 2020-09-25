@@ -1,6 +1,6 @@
-package io.github.t45k.lvmapper.tokenizer
+package io.github.t45k.tle.tokenizer
 
-import io.github.t45k.lvmapper.entity.TokenSequence
+import io.github.t45k.tle.entity.TokenSequence
 import org.eclipse.jdt.core.ToolFactory
 import org.eclipse.jdt.core.compiler.ITerminalSymbols
 
