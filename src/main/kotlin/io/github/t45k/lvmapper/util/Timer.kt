@@ -1,4 +1,4 @@
-package io.github.t45k.lvmapper
+package io.github.t45k.lvmapper.util
 
 fun Long.toTime(): String {
     val builder = StringBuilder()
@@ -11,5 +11,11 @@ fun Long.toTime(): String {
             builder.append("${minutes}m")
         }
     }
-    return builder.append("${this % 60}s").toString()
+    val seconds = this % 60
+    if (seconds > 0) {
+        builder.append("${seconds}s")
+    }
+    return builder.toString()
 }
+
+fun Int.toTime(): String = this.toLong().toTime()
