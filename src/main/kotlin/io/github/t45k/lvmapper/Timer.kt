@@ -6,10 +6,10 @@ fun Long.toTime(): String {
         builder.append("${this / 3600}h")
     }
     if (this >= 60) {
-        val minutes = this / 3600 / 60
+        val minutes = this / 3600 % 60
         if (minutes > 0) {
             builder.append("${minutes}m")
         }
     }
-    return builder.append("${this / 60}s").toString()
+    return builder.append("${this % 60}s").toString()
 }

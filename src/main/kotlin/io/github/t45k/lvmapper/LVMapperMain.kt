@@ -31,7 +31,7 @@ class LVMapperMain(private val config: LVMapperConfig) {
             .toList()
             .blockingGet()
 
-        println("${codeBlocks.size} code blocks have been extracted in ${((System.currentTimeMillis() - startTime) / 1000).toTime()} seconds.\n")
+        println("${codeBlocks.size} code blocks have been extracted in ${((System.currentTimeMillis() - startTime) / 1000).toTime()}.\n")
 
         val location = Location(config.filteringThreshold)
         val verification = Verification(codeBlocks)
