@@ -49,7 +49,7 @@ class LVMapperMain(private val config: LVMapperConfig) {
                 clonePairs
             }
 
-        println(clonePairs.size)
+        println("${clonePairs.size} clone pairs are detected.")
 
         val endTime = System.currentTimeMillis()
         println("time: ${((endTime - startTime) / 1000).toTime()}")
