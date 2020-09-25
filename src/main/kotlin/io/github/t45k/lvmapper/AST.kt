@@ -11,6 +11,9 @@ import org.eclipse.jdt.core.dom.MethodDeclaration
 import java.io.File
 
 class AST(private val tokenizer: (String) -> List<Int>) {
+    companion object {
+        private const val LINE_THRESHOLD = 6
+    }
 
     fun extractBlocks(sourceFile: File): List<CodeBlock> {
         val compilationUnit: CompilationUnit = ASTParser.newParser(JLS14)
@@ -24,8 +27,10 @@ class AST(private val tokenizer: (String) -> List<Int>) {
                     val fileName = sourceFile.toString()
                     val startLine = compilationUnit.getLineNumber(body.startPosition)
                     val endLine = compilationUnit.getLineNumber(body.startPosition + body.length)
-                    val tokenSequence = tokenizer(body.toString())
-                    codeBlocks.add(CodeBlock(fileName, startLine, endLine, tokenSequence))
+                    if (endLine - startLine + 1 >= LINE_THRESHOLD) {
+                        val tokenSequence = tokenizer(body.toString())
+                        codeBlocks.add(CodeBlock(fileName, startLine, endLine, tokenSequence))
+                    }
                 }
                 return false
             }

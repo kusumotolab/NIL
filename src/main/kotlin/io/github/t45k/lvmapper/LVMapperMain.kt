@@ -15,15 +15,15 @@ import java.io.File
 // 一旦リストに保持する
 // スケーラビリティを考えると将来的にDBを使うかも
 // IDはリストとかDBのインデックスで大丈夫そう
-class LVMapperMain(private val config: LVMapperConfig) {
+open class LVMapperMain(protected val config: LVMapperConfig) {
 
-    private val tokenizer: Tokenizer =
+    protected val tokenizer: Tokenizer =
         when (config.tokenizeMethod) {
             TokenizeMethod.LEXICAL_ANALYSIS -> LexicalAnalyzer()
             TokenizeMethod.SYMBOL_SEPARATION -> SymbolSeparator()
         }
 
-    fun run() {
+    open fun run() {
         val startTime = System.currentTimeMillis()
         val codeBlocks: List<CodeBlock> = collectSourceFiles(config.src)
             .flatMap(this::collectBlocks)
@@ -58,22 +58,26 @@ class LVMapperMain(private val config: LVMapperConfig) {
     }
 
     // TODO use rolling hash
-    private fun createSeed(tokenSequence: TokenSequence): List<Int> =
+    protected fun createSeed(tokenSequence: TokenSequence): List<Int> =
         (0..(tokenSequence.size - config.windowSize))
             .map { tokenSequence.subList(it, it + config.windowSize).hashCode() }
             .distinct()
 
-    private fun collectSourceFiles(dir: File): Observable<File> =
+    protected fun collectSourceFiles(dir: File): Observable<File> =
         dir.walk()
             .filter { it.isFile && it.toString().endsWith(".java") }
             .toObservable()
 
-    private fun collectBlocks(sourceFile: File): Observable<CodeBlock> =
+    protected fun collectBlocks(sourceFile: File): Observable<CodeBlock> =
         Observable.just(sourceFile)
             .flatMap { AST(tokenizer::tokenize).extractBlocks(it).toObservable() }
 }
 
 fun main(args: Array<String>) {
     val config: LVMapperConfig = parseArgs(args)
-    LVMapperMain(config).run()
+    if (config.isForBenchmark) {
+        ForBenchmark(config).run()
+    } else {
+        LVMapperMain(config).run()
+    }
 }
