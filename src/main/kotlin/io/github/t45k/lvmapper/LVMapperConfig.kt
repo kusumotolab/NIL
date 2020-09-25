@@ -13,6 +13,7 @@ data class LVMapperConfig(
     val maxToken: Int = tokenizeMethod.maxToken,
     val minLine: Int = 6,
     val outputFileName: String = "result.csv",
+    val isForBenchmark: Boolean = false,
 )
 
 enum class TokenizeMethod(
@@ -34,6 +35,7 @@ fun parseArgs(args: Array<String>): LVMapperConfig {
     var filteringThreshold: () -> Int = { tokenizeMethod.filteringThreshold }
     var minLine = 6
     var outputFileName = "result.csv"
+    var isForBenchmark = false
 
     val iterator = args.iterator()
     while (iterator.hasNext()) {
@@ -46,6 +48,7 @@ fun parseArgs(args: Array<String>): LVMapperConfig {
             "-ft" -> filteringThreshold = iterator.next().toInt().let { value -> { value } }
             "-mil" -> minLine = iterator.next().toInt()
             "-o" -> outputFileName = iterator.next()
+            "-fb" -> isForBenchmark = true
         }
     }
 
@@ -57,6 +60,7 @@ fun parseArgs(args: Array<String>): LVMapperConfig {
         minToken(),
         maxToken(),
         minLine,
-        outputFileName
+        outputFileName,
+        isForBenchmark,
     )
 }

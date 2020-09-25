@@ -2,20 +2,15 @@ package io.github.t45k.lvmapper
 
 import io.github.t45k.lvmapper.entity.CodeBlock
 import io.github.t45k.lvmapper.entity.TokenSequence
-import io.github.t45k.lvmapper.output.CSV
 import io.github.t45k.lvmapper.tokenizer.LexicalAnalyzer
 import io.github.t45k.lvmapper.tokenizer.SymbolSeparator
 import io.github.t45k.lvmapper.tokenizer.Tokenizer
-import io.github.t45k.lvmapper.util.ProgressMonitor
 import io.github.t45k.lvmapper.util.toTime
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.kotlin.toObservable
 import java.io.File
 
-// 一旦リストに保持する
-// スケーラビリティを考えると将来的にDBを使うかも
-// IDはリストとかDBのインデックスで大丈夫そう
-class LVMapperMain(private val config: LVMapperConfig) {
+class ForBenchmark(private val config: LVMapperConfig) {
 
     private val tokenizer: Tokenizer =
         when (config.tokenizeMethod) {
@@ -25,36 +20,34 @@ class LVMapperMain(private val config: LVMapperConfig) {
 
     fun run() {
         val startTime = System.currentTimeMillis()
-        val codeBlocks: List<CodeBlock> = collectSourceFiles(config.src)
-            .flatMap(this::collectBlocks)
-            .filter { it.tokenSequence.size in config.minToken..config.maxToken }
-            .toList()
-            .blockingGet()
 
-        println("${codeBlocks.size} code blocks have been extracted in ${((System.currentTimeMillis() - startTime) / 1000).toTime()}.\n")
-
+        val codeBlocks: MutableList<CodeBlock> = mutableListOf()
         val location = Location(config.filteringThreshold)
         val verification = Verification(codeBlocks, config)
-        val progressMonitor = ProgressMonitor(codeBlocks.size)
-        val clonePairs: List<Pair<Int, Int>> = codeBlocks
-            .flatMapIndexed { index, codeBlock ->
+        val result = collectSourceFiles(config.src)
+            .flatMap(this::collectBlocks)
+            .filter { it.tokenSequence.size in config.minToken..config.maxToken }
+            .doOnEach { codeBlocks.add(it.value) }
+            .flatMap { codeBlock ->
+                val index = codeBlocks.size - 1
                 val seeds: List<Int> = createSeed(codeBlock.tokenSequence)
                 val clonePairs: List<Pair<Int, Int>> = location.locate(seeds)
                     .filter { verification.verify(index, it) }
                     .map { index to it }
-
                 location.put(seeds, index)
-                progressMonitor.update(index + 1)
-
-                clonePairs
+                clonePairs.toObservable()
             }
+            .map { "${reformat(codeBlocks[it.first])},${reformat(codeBlocks[it.second])}" }
+            .reduce { str1, str2 -> str1 + "\n" + str2 }
+            .blockingGet()
+        File(config.outputFileName).writeText(result)
 
-        println("${clonePairs.size} clone pairs are detected.")
+        println("time: ${((System.currentTimeMillis() - startTime) / 1000).toTime()}")
+    }
 
-        val endTime = System.currentTimeMillis()
-        println("time: ${((endTime - startTime) / 1000).toTime()}")
-
-        CSV().output(config.outputFileName, clonePairs, codeBlocks)
+    private fun reformat(codeBlock: CodeBlock): String {
+        val (dirName, fileName) = codeBlock.fileName.split(File.separator).let { it[it.size - 2] to it.last() }
+        return "$dirName,$fileName,${codeBlock.startLine},${codeBlock.endLine}"
     }
 
     // TODO use rolling hash
@@ -71,13 +64,4 @@ class LVMapperMain(private val config: LVMapperConfig) {
     private fun collectBlocks(sourceFile: File): Observable<CodeBlock> =
         Observable.just(sourceFile)
             .flatMap { AST(tokenizer::tokenize).extractBlocks(it).toObservable() }
-}
-
-fun main(args: Array<String>) {
-    val config: LVMapperConfig = parseArgs(args)
-    if (config.isForBenchmark) {
-        ForBenchmark(config).run()
-    } else {
-        LVMapperMain(config).run()
-    }
 }
