@@ -1,7 +1,7 @@
-package io.github.t45k.lvmapper
+package io.github.t45k.tle
 
-import io.github.t45k.lvmapper.TokenizeMethod.LEXICAL_ANALYSIS
-import io.github.t45k.lvmapper.TokenizeMethod.SYMBOL_SEPARATION
+import io.github.t45k.tle.TokenizeMethod.LEXICAL_ANALYSIS
+import io.github.t45k.tle.TokenizeMethod.SYMBOL_SEPARATION
 import java.io.File
 
 data class LVMapperConfig(

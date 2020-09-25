@@ -1,7 +1,7 @@
-package io.github.t45k.lvmapper
+package io.github.t45k.tle
 
-import io.github.t45k.lvmapper.entity.CodeBlock
-import io.github.t45k.lvmapper.entity.TokenSequence
+import io.github.t45k.tle.entity.CodeBlock
+import io.github.t45k.tle.entity.TokenSequence
 import java.util.Comparator
 import kotlin.math.max
 import kotlin.math.min

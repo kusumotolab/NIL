@@ -42,11 +42,11 @@ dependencies {
 
 application {
     // Define the main class for the application.
-    mainClassName = "io.github.t45k.lvmapper.LVMapperMainKt"
+    mainClassName = "io.github.t45k.tle.TLEMainKt"
 }
 
 val jar by tasks.getting(Jar::class) {
     manifest {
-        attributes["Main-Class"] = "io.github.t45k.lvmapper.LVMapperMainKt"
+        attributes["Main-Class"] = "io.github.t45k.tle.TLEMainKt"
     }
 }

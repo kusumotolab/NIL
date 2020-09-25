@@ -1,10 +1,10 @@
-package io.github.t45k.lvmapper
+package io.github.t45k.tle
 
 import java.io.File
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-internal class LVMapperMainTest {
+internal class TLEMainTest {
 
     @Test
     fun test() {

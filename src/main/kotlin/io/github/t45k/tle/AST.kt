@@ -1,6 +1,6 @@
-package io.github.t45k.lvmapper
+package io.github.t45k.tle
 
-import io.github.t45k.lvmapper.entity.CodeBlock
+import io.github.t45k.tle.entity.CodeBlock
 import org.eclipse.core.runtime.NullProgressMonitor
 import org.eclipse.jdt.core.dom.AST.JLS14
 import org.eclipse.jdt.core.dom.ASTParser
