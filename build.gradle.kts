@@ -33,16 +33,11 @@ dependencies {
     // Use JDT
     implementation("org.eclipse.jdt:org.eclipse.jdt.core:3.22.0")
 
-    // Use Antlr
-    implementation(fileTree("./libs/java8-grammar.jar"))
-    antlr("org.antlr:antlr4:4.8")
-
     // Use the Kotlin test library.
     testImplementation("org.jetbrains.kotlin:kotlin-test")
 
     // Use the Kotlin JUnit integration.
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit")
-
 }
 
 application {
