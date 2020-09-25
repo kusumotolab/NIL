@@ -3,6 +3,7 @@ package io.github.t45k.tle
 import io.github.t45k.tle.TokenizeMethod.LEXICAL_ANALYSIS
 import io.github.t45k.tle.TokenizeMethod.SYMBOL_SEPARATION
 import java.io.File
+import kotlin.math.max
 
 data class LVMapperConfig(
     val src: File,
@@ -11,7 +12,6 @@ data class LVMapperConfig(
     val filteringThreshold: Int = tokenizeMethod.filteringThreshold,
     val minToken: Int = tokenizeMethod.minToken,
     val maxToken: Int = tokenizeMethod.maxToken,
-    val minLine: Int = 6,
     val outputFileName: String = "result.csv",
     val isForBenchmark: Boolean = false,
 )
@@ -29,11 +29,10 @@ enum class TokenizeMethod(
 fun parseArgs(args: Array<String>): LVMapperConfig {
     var src: File? = null
     var tokenizeMethod: TokenizeMethod = SYMBOL_SEPARATION
-    var minToken: () -> Int = { tokenizeMethod.minToken }
-    var maxToken: () -> Int = { tokenizeMethod.maxToken }
     var windowSize: () -> Int = { tokenizeMethod.windowSize }
     var filteringThreshold: () -> Int = { tokenizeMethod.filteringThreshold }
-    var minLine = 6
+    var minToken: () -> Int = { tokenizeMethod.minToken }
+    var maxToken: () -> Int = { tokenizeMethod.maxToken }
     var outputFileName = "result.csv"
     var isForBenchmark = false
 
@@ -46,7 +45,6 @@ fun parseArgs(args: Array<String>): LVMapperConfig {
             "-mat" -> maxToken = iterator.next().toInt().let { value -> { value } }
             "-ws" -> windowSize = iterator.next().toInt().let { value -> { value } }
             "-ft" -> filteringThreshold = iterator.next().toInt().let { value -> { value } }
-            "-mil" -> minLine = iterator.next().toInt()
             "-o" -> outputFileName = iterator.next()
             "-fb" -> isForBenchmark = true
         }
@@ -57,9 +55,8 @@ fun parseArgs(args: Array<String>): LVMapperConfig {
         tokenizeMethod,
         windowSize(),
         filteringThreshold(),
-        minToken(),
+        max(minToken(), windowSize() + filteringThreshold() - 1),
         maxToken(),
-        minLine,
         outputFileName,
         isForBenchmark,
     )
