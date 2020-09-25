@@ -1,6 +1,6 @@
 package io.github.t45k.lvmapper
 
-class Location(private val filteringThreshold: Int = 5) {
+class Location(private val filteringThreshold: Int) {
 
     private val hashTable: MutableMap<Int, MutableList<Int>> = mutableMapOf()
 
