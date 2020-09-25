@@ -17,7 +17,7 @@ import java.io.File
 // IDはリストとかDBのインデックスで大丈夫そう
 open class LVMapperMain(protected val config: LVMapperConfig) {
 
-    protected val tokenizer: Tokenizer =
+    private val tokenizer: Tokenizer =
         when (config.tokenizeMethod) {
             TokenizeMethod.LEXICAL_ANALYSIS -> LexicalAnalyzer()
             TokenizeMethod.SYMBOL_SEPARATION -> SymbolSeparator()
