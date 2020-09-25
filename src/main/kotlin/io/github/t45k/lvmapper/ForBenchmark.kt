@@ -1,24 +1,13 @@
 package io.github.t45k.lvmapper
 
 import io.github.t45k.lvmapper.entity.CodeBlock
-import io.github.t45k.lvmapper.entity.TokenSequence
-import io.github.t45k.lvmapper.tokenizer.LexicalAnalyzer
-import io.github.t45k.lvmapper.tokenizer.SymbolSeparator
-import io.github.t45k.lvmapper.tokenizer.Tokenizer
 import io.github.t45k.lvmapper.util.toTime
-import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.kotlin.toObservable
 import java.io.File
 
-class ForBenchmark(private val config: LVMapperConfig) {
+class ForBenchmark(config: LVMapperConfig) : LVMapperMain(config) {
 
-    private val tokenizer: Tokenizer =
-        when (config.tokenizeMethod) {
-            TokenizeMethod.LEXICAL_ANALYSIS -> LexicalAnalyzer()
-            TokenizeMethod.SYMBOL_SEPARATION -> SymbolSeparator()
-        }
-
-    fun run() {
+    override fun run() {
         val startTime = System.currentTimeMillis()
 
         val codeBlocks: MutableList<CodeBlock> = mutableListOf()
@@ -49,19 +38,4 @@ class ForBenchmark(private val config: LVMapperConfig) {
         val (dirName, fileName) = codeBlock.fileName.split(File.separator).let { it[it.size - 2] to it.last() }
         return "$dirName,$fileName,${codeBlock.startLine},${codeBlock.endLine}"
     }
-
-    // TODO use rolling hash
-    private fun createSeed(tokenSequence: TokenSequence): List<Int> =
-        (0..(tokenSequence.size - config.windowSize))
-            .map { tokenSequence.subList(it, it + config.windowSize).hashCode() }
-            .distinct()
-
-    private fun collectSourceFiles(dir: File): Observable<File> =
-        dir.walk()
-            .filter { it.isFile && it.toString().endsWith(".java") }
-            .toObservable()
-
-    private fun collectBlocks(sourceFile: File): Observable<CodeBlock> =
-        Observable.just(sourceFile)
-            .flatMap { AST(tokenizer::tokenize).extractBlocks(it).toObservable() }
 }
