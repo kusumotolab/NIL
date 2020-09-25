@@ -8,6 +8,7 @@ plugins {
     // Apply the Kotlin JVM plugin to add support for Kotlin.
     id("org.jetbrains.kotlin.jvm") version "1.4.10"
     id("com.github.johnrengelman.shadow") version "6.0.0"
+    id("antlr")
 
     // Apply the application plugin to add support for building a CLI application.
     application
@@ -32,11 +33,16 @@ dependencies {
     // Use JDT
     implementation("org.eclipse.jdt:org.eclipse.jdt.core:3.22.0")
 
+    // Use Antlr
+    implementation(fileTree("./libs/java8-grammar.jar"))
+    antlr("org.antlr:antlr4:4.8")
+
     // Use the Kotlin test library.
     testImplementation("org.jetbrains.kotlin:kotlin-test")
 
     // Use the Kotlin JUnit integration.
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit")
+
 }
 
 application {

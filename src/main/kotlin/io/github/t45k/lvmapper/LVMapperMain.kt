@@ -1,95 +1,79 @@
 package io.github.t45k.lvmapper
 
 import io.github.t45k.lvmapper.entity.CodeBlock
+import io.github.t45k.lvmapper.entity.TokenSequence
+import io.github.t45k.lvmapper.tokenizer.LexicalAnalyzer
+import io.github.t45k.lvmapper.tokenizer.SymbolSeparator
+import io.github.t45k.lvmapper.tokenizer.Tokenizer
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.kotlin.toObservable
 import java.io.File
-import kotlin.math.max
-import kotlin.math.min
+import java.nio.file.Files
+import java.nio.file.Paths
 
 // 一旦リストに保持する
 // スケーラビリティを考えると将来的にDBを使うかも
 // IDはリストとかDBのインデックスで大丈夫そう
 class LVMapperMain(private val config: LVMapperConfig) {
-    companion object {
-        private const val WINDOW_SIZE = 3
-        private const val FILTERING_THRESHOLD = 70
-    }
+
+    private val tokenizer: Tokenizer =
+        when (config.tokenizeMethod) {
+            TokenizeMethod.LEXICAL_ANALYSIS -> LexicalAnalyzer()
+            TokenizeMethod.SYMBOL_SEPARATION -> SymbolSeparator()
+        }
 
     fun run() {
         val startTime = System.currentTimeMillis()
         val codeBlocks: List<CodeBlock> = collectSourceFiles(config.src)
             .flatMap(this::collectBlocks)
+            .filter { it.tokenSequence.size in 10..2_000 }
             .toList()
             .blockingGet()
-            .asSequence()
-            .onEach { it.prettyPrint = format(it.text) }
-            .filter { it.prettyPrint.size >= 6 }
-            .toList()
 
-        val hashTable: MutableMap<Int, MutableList<Int>> = mutableMapOf()
+        println("${codeBlocks.size} code blocks have been extracted in ${convert((System.currentTimeMillis() - startTime) / 1000)} seconds.\n")
+
+        val location = Location()
+        val verification = Verification(codeBlocks)
+        val progressMonitor = ProgressMonitor(codeBlocks.size)
         val clonePairs: List<Pair<Int, Int>> = codeBlocks
             .flatMapIndexed { index, codeBlock ->
-                val seedsFrequency: Map<Int, Int> = createSeed(codeBlock.prettyPrint)
-                val clonePairs: List<Pair<Int, Int>> =
-                    locate(seedsFrequency.keys.toList(), hashTable)
-                        .filter { verify(index, it, codeBlocks) }
-                        .map { index to it }
+                val seeds: List<Int> = createSeed(codeBlock.tokenSequence)
+                val clonePairs: List<Pair<Int, Int>> = location.locate(seeds)
+                    .filter { verification.verify(index, it) }
+                    .map { index to it }
 
-                seedsFrequency.keys.forEach { hashTable.getOrPut(it) { mutableListOf() }.add(index) }
+                location.put(seeds, index)
+                progressMonitor.update(index + 1)
+
                 clonePairs
             }
 
-        val endTime = System.currentTimeMillis()
-
         println(clonePairs.size)
-        println("time: ${(endTime - startTime) / 1000} seconds")
-    }
 
-    /*
-    TODO
-    currently using naive LCS
-     */
-    private fun verify(id1: Int, id2: Int, codeBlocks: List<CodeBlock>): Boolean {
-        val representation1 = codeBlocks[id1].prettyPrint
-        val size1 = representation1.size
-        val representation2 = codeBlocks[id2].prettyPrint
-        val size2 = representation2.size
-        val dpTable: Array<Array<Int>> = Array(size1 + 1) { Array(size2 + 1) { 0 } }
-        for (i in 1..size1) {
-            for (j in 1..size2) {
-                if (representation1[i - 1] == representation2[j - 1]) {
-                    dpTable[i][j] = dpTable[i - 1][j - 1] + 1
-                } else {
-                    dpTable[i][j] = max(dpTable[i - 1][j], dpTable[i][j - 1])
-                }
-            }
+        val endTime = System.currentTimeMillis()
+        println("time: ${convert((endTime - startTime) / 1000)}")
+
+        val results = clonePairs.joinToString("\n") {
+            val clone1 = codeBlocks[it.first]
+            val split1 = clone1.fileName.split("/")
+            val fileName1 = split1.last()
+            val dir1 = split1[split1.size - 2]
+            val clone2 = codeBlocks[it.second]
+            val split2 = clone2.fileName.split("/")
+            val fileName2 = split2.last()
+            val dir2 = split2[split2.size - 2]
+            "$dir1,$fileName1,${clone1.startLine},${clone1.endLine},$dir2,$fileName2,${clone2.startLine},${clone2.endLine}"
         }
-
-        val min = min(size1, size2)
-        return dpTable[size1][size2] * 100 / min >= calcVerifyingThreshold(min)
+        Files.writeString(Paths.get("result.csv"), results)
     }
-
-    private fun calcVerifyingThreshold(size: Int) =
-        when {
-            size <= 10 -> 70
-            size >= 20 -> 40
-            else -> -3 * size + 100
-        }
-
-    private fun locate(seed: List<Int>, hashtable: Map<Int, List<Int>>): List<Int> =
-        seed.flatMap { hashtable[it] ?: emptyList() }
-            .onEach { }
-            .distinct()
-            .toList()
 
     // TODO use rolling hash
-    private fun createSeed(prettyPrint: List<Int>): Map<Int, Int> =
-        (0..(prettyPrint.size - WINDOW_SIZE))
-            .groupingBy { prettyPrint.subList(it, it + WINDOW_SIZE).hashCode() }
-            .eachCount()
-            .toMap()
+    private fun createSeed(tokenSequence: TokenSequence): List<Int> =
+        (0..(tokenSequence.size - config.windowSize))
+            .map { tokenSequence.subList(it, it + config.windowSize).hashCode() }
+            .distinct()
 
+    @Suppress("BlockingMethodInNonBlockingContext")
     private fun collectSourceFiles(dir: File): Observable<File> =
         dir.walk()
             .filter { it.isFile && it.toString().endsWith(".java") }
@@ -97,13 +81,7 @@ class LVMapperMain(private val config: LVMapperConfig) {
 
     private fun collectBlocks(sourceFile: File): Observable<CodeBlock> =
         Observable.just(sourceFile)
-            .flatMap {
-                try {
-                    AST(it).extractBlocks().toObservable()
-                } catch (e: Exception) {
-                    Observable.empty()
-                }
-            }
+            .flatMap { AST(tokenizer::tokenize).extractBlocks(it).toObservable() }
 }
 
 fun main(args: Array<String>) {
