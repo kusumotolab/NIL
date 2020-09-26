@@ -51,9 +51,9 @@ class Verification(private val codeBlocks: List<CodeBlock>, private val config: 
             }
         } else {
             when {
-                size <= 60 -> 70
-                size >= 120 -> 40
-                else -> 100 - size / 2
+                size <= 30 -> 70
+                size >= 60 -> 40
+                else -> 100 - size
             }
         }
 
