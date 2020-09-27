@@ -11,7 +11,7 @@ internal class TLEMainTest {
         val config = parseArgs(arrayOf("-s", "./src/test/resources/examples"))
         LVMapperMain(config).run()
 
-        val outputFile = File("result.csv")
+        val outputFile = File(config.outputFileName)
         val result = "examples,LargeGapClones.java,16,39,examples,LargeGapClones.java,3,14" +
             System.lineSeparator() +
             "examples,LargeVarianceClones.java,23,54,examples,LargeVarianceClones.java,3,21"
