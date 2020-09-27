@@ -2,7 +2,7 @@ package io.github.t45k.tle.tokenizer
 
 import io.github.t45k.tle.entity.TokenSequence
 import org.eclipse.jdt.core.ToolFactory
-import org.eclipse.jdt.core.compiler.ITerminalSymbols
+import org.eclipse.jdt.core.compiler.ITerminalSymbols.TokenNameEOF
 
 class LexicalAnalyzer : Tokenizer {
 
@@ -12,8 +12,7 @@ class LexicalAnalyzer : Tokenizer {
             .let { scanner ->
                 generateSequence { 0 }
                     .map { scanner.nextToken }
-                    .takeWhile { it != ITerminalSymbols.TokenNameEOF }
-                    .map { String(scanner.currentTokenSource).hashCode() }
+                    .takeWhile { it != TokenNameEOF }
                     .toList()
             }
 }
