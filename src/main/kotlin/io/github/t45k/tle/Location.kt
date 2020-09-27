@@ -1,9 +1,9 @@
 package io.github.t45k.tle
 
-import kotlin.math.max
+import io.github.t45k.tle.entity.CodeBlock
 import kotlin.math.min
 
-class Location(private val filteringThreshold: Int) {
+class Location(private val filteringThreshold: Int, private val codeBlocks: List<CodeBlock>) {
 
     private val hashTable: MutableMap<Int, MutableList<Int>> = mutableMapOf()
 
@@ -11,7 +11,7 @@ class Location(private val filteringThreshold: Int) {
         seeds.flatMap { hashTable[it] ?: emptyList() }
             .groupingBy { it }
             .eachCount()
-            .filter { min(seeds.size, it.value) * 10 / max(seeds.size, it.value) >= filteringThreshold }
+            .filter { it.value * 100 / min(seeds.size, codeBlocks[it.key].seedsSize) >= filteringThreshold }
             .keys
             .toList()
 

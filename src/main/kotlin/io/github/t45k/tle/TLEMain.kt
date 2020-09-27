@@ -33,12 +33,13 @@ open class LVMapperMain(protected val config: LVMapperConfig) {
 
         println("${codeBlocks.size} code blocks have been extracted in ${((System.currentTimeMillis() - startTime) / 1000).toTime()}.\n")
 
-        val location = Location(config.filteringThreshold)
+        val location = Location(config.filteringThreshold, codeBlocks)
         val verification = Verification(codeBlocks, config)
         val progressMonitor = ProgressMonitor(codeBlocks.size)
         val clonePairs: List<Pair<Int, Int>> = codeBlocks
             .flatMapIndexed { index, codeBlock ->
                 val seeds: List<Int> = createSeed(codeBlock.tokenSequence)
+                codeBlock.seedsSize = seeds.size
                 val clonePairs: List<Pair<Int, Int>> = location.locate(seeds)
                     .filter { verification.verify(index, it) }
                     .map { index to it }

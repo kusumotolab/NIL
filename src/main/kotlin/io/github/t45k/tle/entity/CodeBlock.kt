@@ -6,4 +6,5 @@ data class CodeBlock(
     val startLine: Int,
     val endLine: Int,
     val tokenSequence: TokenSequence,
+    var seedsSize: Int = -1
 )

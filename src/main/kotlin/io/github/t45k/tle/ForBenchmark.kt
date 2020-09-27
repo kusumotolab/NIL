@@ -11,7 +11,7 @@ class ForBenchmark(config: LVMapperConfig) : LVMapperMain(config) {
         val startTime = System.currentTimeMillis()
 
         val codeBlocks: MutableList<CodeBlock> = mutableListOf()
-        val location = Location(config.filteringThreshold)
+        val location = Location(config.filteringThreshold, codeBlocks)
         val verification = Verification(codeBlocks, config)
         val result = collectSourceFiles(config.src)
             .flatMap(this::collectBlocks)

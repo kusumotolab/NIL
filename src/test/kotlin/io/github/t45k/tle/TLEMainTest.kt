@@ -8,7 +8,7 @@ internal class TLEMainTest {
 
     @Test
     fun test() {
-        val config = parseArgs(arrayOf("-s", "./src/test/resources/examples"))
+        val config = parseArgs(arrayOf("-s", "./src/test/resources/examples", "-ft", "10"))
         LVMapperMain(config).run()
 
         val outputFile = File(config.outputFileName)
