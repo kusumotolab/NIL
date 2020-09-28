@@ -8,11 +8,11 @@ internal class TLEMainTest {
 
     @Test
     fun test() {
-        val config = parseArgs(arrayOf("-s", "./src/test/resources/examples"))
+        val config = parseArgs(arrayOf("-s", "./src/test/resources/examples", "-ft", "10"))
         LVMapperMain(config).run()
 
         val outputFile = File(config.outputFileName)
-        val result = "examples,LargeGapClones.java,16,39,examples,LargeGapClones.java,3,14" +
+        val result = "examples,LargeGapClones.java,19,42,examples,LargeGapClones.java,3,14" +
             System.lineSeparator() +
             "examples,LargeVarianceClones.java,23,54,examples,LargeVarianceClones.java,3,21"
 

@@ -15,7 +15,7 @@ import java.io.File
 // 一旦リストに保持する
 // スケーラビリティを考えると将来的にDBを使うかも
 // IDはリストとかDBのインデックスで大丈夫そう
-open class LVMapperMain(protected val config: LVMapperConfig) {
+open class LVMapperMain(private val config: LVMapperConfig) {
 
     private val tokenizer: Tokenizer =
         when (config.tokenizeMethod) {
@@ -27,18 +27,18 @@ open class LVMapperMain(protected val config: LVMapperConfig) {
         val startTime = System.currentTimeMillis()
         val codeBlocks: List<CodeBlock> = collectSourceFiles(config.src)
             .flatMap(this::collectBlocks)
-            .filter { it.tokenSequence.size in config.minToken..config.maxToken }
             .toList()
             .blockingGet()
 
         println("${codeBlocks.size} code blocks have been extracted in ${((System.currentTimeMillis() - startTime) / 1000).toTime()}.\n")
 
-        val location = Location(config.filteringThreshold)
+        val location = Location(config.filteringThreshold, codeBlocks)
         val verification = Verification(codeBlocks, config)
         val progressMonitor = ProgressMonitor(codeBlocks.size)
         val clonePairs: List<Pair<Int, Int>> = codeBlocks
             .flatMapIndexed { index, codeBlock ->
                 val seeds: List<Int> = createSeed(codeBlock.tokenSequence)
+                codeBlock.seedsSize = seeds.size
                 val clonePairs: List<Pair<Int, Int>> = location.locate(seeds)
                     .filter { verification.verify(index, it) }
                     .map { index to it }
@@ -58,26 +58,22 @@ open class LVMapperMain(protected val config: LVMapperConfig) {
     }
 
     // TODO use rolling hash
-    protected fun createSeed(tokenSequence: TokenSequence): List<Int> =
+    private fun createSeed(tokenSequence: TokenSequence): List<Int> =
         (0..(tokenSequence.size - config.windowSize))
             .map { tokenSequence.subList(it, it + config.windowSize).hashCode() }
             .distinct()
 
-    protected fun collectSourceFiles(dir: File): Observable<File> =
+    private fun collectSourceFiles(dir: File): Observable<File> =
         dir.walk()
             .filter { it.isFile && it.toString().endsWith(".java") }
             .toObservable()
 
-    protected fun collectBlocks(sourceFile: File): Observable<CodeBlock> =
+    private fun collectBlocks(sourceFile: File): Observable<CodeBlock> =
         Observable.just(sourceFile)
             .flatMap { AST(tokenizer::tokenize).extractBlocks(it).toObservable() }
 }
 
 fun main(args: Array<String>) {
     val config: LVMapperConfig = parseArgs(args)
-    if (config.isForBenchmark) {
-        ForBenchmark(config).run()
-    } else {
-        LVMapperMain(config).run()
-    }
+    LVMapperMain(config).run()
 }
