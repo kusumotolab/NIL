@@ -42,7 +42,8 @@ class Verification(private val codeBlocks: List<CodeBlock>, private val config: 
             this[id2].tokenSequence to this[id1].tokenSequence
         }
 
-    private fun calcVerifyingThreshold(size: Int): Int =
+    private fun calcVerifyingThreshold(size: Int): Int = 70
+        /*
         if (config.tokenizeMethod == TokenizeMethod.LEXICAL_ANALYSIS) {
             when {
                 size <= 120 -> 70
@@ -56,6 +57,7 @@ class Verification(private val codeBlocks: List<CodeBlock>, private val config: 
                 else -> 100 - size
             }
         }
+         */
 
     @Deprecated("Time Complexity of naive LCS is O(NM) where N and M are size of given two sequence respectively.\nIt is too late")
     fun verifyAlternative(id1: Int, id2: Int): Boolean {

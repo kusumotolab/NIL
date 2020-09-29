@@ -39,6 +39,7 @@ open class LVMapperMain(private val config: LVMapperConfig) {
             .flatMapIndexed { index, codeBlock ->
                 val seeds: List<Int> = createSeed(codeBlock.tokenSequence)
                 codeBlock.seedsSize = seeds.size
+                codeBlock.tokenSequence = seeds
                 val clonePairs: List<Pair<Int, Int>> = location.locate(seeds)
                     .filter { verification.verify(index, it) }
                     .map { index to it }
@@ -61,7 +62,6 @@ open class LVMapperMain(private val config: LVMapperConfig) {
     private fun createSeed(tokenSequence: TokenSequence): List<Int> =
         (0..(tokenSequence.size - config.windowSize))
             .map { tokenSequence.subList(it, it + config.windowSize).hashCode() }
-            .distinct()
 
     private fun collectSourceFiles(dir: File): Observable<File> =
         dir.walk()

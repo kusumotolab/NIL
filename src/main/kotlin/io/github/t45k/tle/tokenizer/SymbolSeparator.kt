@@ -47,5 +47,4 @@ class SymbolSeparator : Tokenizer {
         text.split(*symbols)
             .map { it.hashCode() }
             .toList()
-
 }
