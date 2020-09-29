@@ -54,6 +54,6 @@ fun parseArgs(args: Array<String>): LVMapperConfig {
         filteringThreshold(),
         max(minToken(), windowSize() + filteringThreshold() - 1),
         maxToken(),
-        outputFileName ?: "result_${windowSize}_$filteringThreshold.csv",
+        outputFileName ?: "result_${windowSize()}_${filteringThreshold()}.csv",
     )
 }
