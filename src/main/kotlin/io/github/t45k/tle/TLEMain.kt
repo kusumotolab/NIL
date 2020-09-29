@@ -38,13 +38,14 @@ open class LVMapperMain(private val config: LVMapperConfig) {
         val clonePairs: List<Pair<Int, Int>> = codeBlocks
             .flatMapIndexed { index, codeBlock ->
                 val seeds: List<Int> = createSeed(codeBlock.tokenSequence)
-                codeBlock.seedsSize = seeds.size
+                val distinct = seeds.distinct()
+                codeBlock.seedsSize = distinct.size
                 codeBlock.tokenSequence = seeds
-                val clonePairs: List<Pair<Int, Int>> = location.locate(seeds)
+                val clonePairs: List<Pair<Int, Int>> = location.locate(distinct)
                     .filter { verification.verify(index, it) }
                     .map { index to it }
 
-                location.put(seeds, index)
+                location.put(distinct, index)
                 progressMonitor.update(index + 1)
 
                 clonePairs
