@@ -46,5 +46,4 @@ class SymbolSeparator : Tokenizer {
     override fun tokenize(text: String): TokenSequence =
         text.split(*symbols)
             .map { it.hashCode() }
-            .toList()
 }
