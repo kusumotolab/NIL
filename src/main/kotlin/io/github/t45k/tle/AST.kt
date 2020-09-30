@@ -23,13 +23,8 @@ class AST(private val tokenizer: (String) -> List<Int>) {
         val codeBlocks: MutableList<CodeBlock> = mutableListOf()
         val visitor = object : ASTVisitor() {
             override fun visit(node: MethodDeclaration?): Boolean {
-                node?.let {
-                    val startLine = if (it.javadoc == null) {
-                        compilationUnit.getLineNumber(it.startPosition)
-                    } else {
-                        compilationUnit.getLineNumber(it.javadoc.startPosition + it.javadoc.length + 1)
-                    }
-                    it.javadoc = null
+                node?.body?.let {
+                    val startLine = compilationUnit.getLineNumber(it.startPosition)
                     val endLine = compilationUnit.getLineNumber(it.startPosition + it.length)
                     if (endLine - startLine + 1 >= LINE_THRESHOLD) {
                         val tokenSequence = tokenizer(it.toString())

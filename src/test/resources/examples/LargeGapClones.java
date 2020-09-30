@@ -13,9 +13,6 @@ class LargeGapClones {
         }
     }
 
-    /**
-     * THIS IS JAVADOOOOOOOOOOOOC
-     */
     int method2(Commandline cmd) {
         try {
             Execute exe = new Execute(new LogStreamHandler(this, Project.MSG_INFO, Project.MSG_WARN));
