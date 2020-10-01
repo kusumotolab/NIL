@@ -13,6 +13,7 @@ class LexicalAnalyzer : Tokenizer {
                 generateSequence { 0 }
                     .map { scanner.nextToken }
                     .takeWhile { it != TokenNameEOF }
+                    .map { scanner.currentTokenSource.hashCode() }
                     .toList()
             }
 }
