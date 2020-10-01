@@ -15,7 +15,7 @@ import java.io.File
 // 一旦リストに保持する
 // スケーラビリティを考えると将来的にDBを使うかも
 // IDはリストとかDBのインデックスで大丈夫そう
-open class LVMapperMain(private val config: LVMapperConfig) {
+open class TLEMain(private val config: TLEConfig) {
 
     private val tokenizer: Tokenizer =
         when (config.tokenizeMethod) {
@@ -71,10 +71,10 @@ open class LVMapperMain(private val config: LVMapperConfig) {
 
     private fun collectBlocks(sourceFile: File): Observable<CodeBlock> =
         Observable.just(sourceFile)
-            .flatMap { AST(tokenizer::tokenize).extractBlocks(it).toObservable() }
+            .flatMap { AST(tokenizer::tokenize, config).extractBlocks(it).toObservable() }
 }
 
 fun main(args: Array<String>) {
-    val config: LVMapperConfig = parseArgs(args)
-    LVMapperMain(config).run()
+    val config: TLEConfig = parseArgs(args)
+    TLEMain(config).run()
 }

@@ -9,7 +9,7 @@ internal class TLEMainTest {
     @Test
     fun test() {
         val config = parseArgs(arrayOf("-s", "./src/test/resources/examples", "-ft", "10"))
-        LVMapperMain(config).run()
+        TLEMain(config).run()
 
         val outputFile = File(config.outputFileName)
         val result = "examples,LargeGapClones.java,19,42,examples,LargeGapClones.java,3,14" +

@@ -4,7 +4,7 @@ import io.github.t45k.tle.TokenizeMethod.LEXICAL_ANALYSIS
 import io.github.t45k.tle.TokenizeMethod.SYMBOL_SEPARATION
 import java.io.File
 
-data class LVMapperConfig(
+data class TLEConfig(
     val src: File,
     val tokenizeMethod: TokenizeMethod = SYMBOL_SEPARATION,
     val minLine: Int = 6,
@@ -18,7 +18,7 @@ enum class TokenizeMethod {
     SYMBOL_SEPARATION,
 }
 
-fun parseArgs(args: Array<String>): LVMapperConfig {
+fun parseArgs(args: Array<String>): TLEConfig {
     var src: File? = null
     var tokenizeMethod: TokenizeMethod = SYMBOL_SEPARATION
     var minLine = 6
@@ -38,7 +38,7 @@ fun parseArgs(args: Array<String>): LVMapperConfig {
         }
     }
 
-    return LVMapperConfig(
+    return TLEConfig(
         src!!,
         tokenizeMethod,
         minLine,
