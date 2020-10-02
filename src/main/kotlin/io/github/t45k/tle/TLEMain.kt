@@ -1,9 +1,8 @@
 package io.github.t45k.tle
 
 import io.github.t45k.tle.entity.CodeBlock
-import io.github.t45k.tle.entity.TokenSequence
+import io.github.t45k.tle.entity.NGrams
 import io.github.t45k.tle.output.CSV
-import io.github.t45k.tle.tokenizer.LexicalAnalyzer
 import io.github.t45k.tle.tokenizer.SymbolSeparator
 import io.github.t45k.tle.tokenizer.Tokenizer
 import io.github.t45k.tle.util.ProgressMonitor
@@ -15,13 +14,9 @@ import java.io.File
 // 一旦リストに保持する
 // スケーラビリティを考えると将来的にDBを使うかも
 // IDはリストとかDBのインデックスで大丈夫そう
-open class LVMapperMain(private val config: LVMapperConfig) {
+open class TLEMain(private val config: TLEConfig) {
 
-    private val tokenizer: Tokenizer =
-        when (config.tokenizeMethod) {
-            TokenizeMethod.LEXICAL_ANALYSIS -> LexicalAnalyzer()
-            TokenizeMethod.SYMBOL_SEPARATION -> SymbolSeparator()
-        }
+    private val tokenizer: Tokenizer = SymbolSeparator()
 
     open fun run() {
         val startTime = System.currentTimeMillis()
@@ -33,21 +28,20 @@ open class LVMapperMain(private val config: LVMapperConfig) {
         println("${codeBlocks.size} code blocks have been extracted in ${((System.currentTimeMillis() - startTime) / 1000).toTime()}.\n")
 
         val location = Location(config.filteringThreshold, codeBlocks)
-        val verification = Verification(codeBlocks, config)
+        val verification = Verification(codeBlocks)
         val progressMonitor = ProgressMonitor(codeBlocks.size)
         val clonePairs: List<Pair<Int, Int>> = codeBlocks
             .flatMapIndexed { index, codeBlock ->
-                val seeds: List<Int> = createSeed(codeBlock.tokenSequence)
-                codeBlock.seedsSize = seeds.size
-                val clonePairs: List<Pair<Int, Int>> = location.locate(seeds)
+                val clonePairs: List<Pair<Int, Int>> = location.locate(codeBlock.nGrams)
                     .filter { verification.verify(index, it) }
                     .map { index to it }
 
-                location.put(seeds, index)
+                location.put(codeBlock.nGrams, index)
                 progressMonitor.update(index + 1)
 
                 clonePairs
             }
+            .toList()
 
         println("${clonePairs.size} clone pairs are detected.")
 
@@ -57,12 +51,6 @@ open class LVMapperMain(private val config: LVMapperConfig) {
         CSV().output(config.outputFileName, clonePairs, codeBlocks)
     }
 
-    // TODO use rolling hash
-    private fun createSeed(tokenSequence: TokenSequence): List<Int> =
-        (0..(tokenSequence.size - config.windowSize))
-            .map { tokenSequence.subList(it, it + config.windowSize).hashCode() }
-            .distinct()
-
     private fun collectSourceFiles(dir: File): Observable<File> =
         dir.walk()
             .filter { it.isFile && it.toString().endsWith(".java") }
@@ -70,10 +58,10 @@ open class LVMapperMain(private val config: LVMapperConfig) {
 
     private fun collectBlocks(sourceFile: File): Observable<CodeBlock> =
         Observable.just(sourceFile)
-            .flatMap { AST(tokenizer::tokenize).extractBlocks(it).toObservable() }
+            .flatMap { AST(tokenizer::tokenize, config).extractBlocks(it) }
 }
 
 fun main(args: Array<String>) {
-    val config: LVMapperConfig = parseArgs(args)
-    LVMapperMain(config).run()
+    val config: TLEConfig = parseArgs(args)
+    TLEMain(config).run()
 }

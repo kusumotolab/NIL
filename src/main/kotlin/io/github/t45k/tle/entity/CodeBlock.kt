@@ -5,6 +5,5 @@ data class CodeBlock(
     val fileName: String,
     val startLine: Int,
     val endLine: Int,
-    val tokenSequence: TokenSequence,
-    var seedsSize: Int = -1
+    val nGrams: NGrams,
 )

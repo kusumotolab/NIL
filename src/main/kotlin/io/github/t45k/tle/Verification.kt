@@ -1,16 +1,18 @@
 package io.github.t45k.tle
 
 import io.github.t45k.tle.entity.CodeBlock
-import io.github.t45k.tle.entity.TokenSequence
+import io.github.t45k.tle.entity.NGrams
 import java.util.Comparator
 import kotlin.math.max
 import kotlin.math.min
 
-
-class Verification(private val codeBlocks: List<CodeBlock>, private val config: LVMapperConfig) {
+class Verification(private val codeBlocks: List<CodeBlock>) {
+    companion object {
+        const val VERIFYING_THRESHOLD = 70
+    }
 
     fun verify(id1: Int, id2: Int): Boolean {
-        val (shorter: TokenSequence, longer: TokenSequence) = codeBlocks.getTwoTokenSequences(id1, id2)
+        val (shorter: NGrams, longer: NGrams) = codeBlocks.getTwoTokenSequences(id1, id2)
         val (n, m) = shorter.size to longer.size
 
         val invertedIndices: MutableMap<Int, MutableList<Int>> = mutableMapOf()
@@ -29,39 +31,24 @@ class Verification(private val codeBlocks: List<CodeBlock>, private val config: 
                 lcs[index] = indexOfB
             }
         }
-        return (lcs.binarySearch(Int.MAX_VALUE - 1).inv() - 1) * 100 / n >= calcVerifyingThreshold(n)
+        return (lcs.binarySearch(Int.MAX_VALUE - 1).inv() - 1) * 100 / n >= VERIFYING_THRESHOLD
     }
 
     /**
      * Return (shorter token sequence, longer token sequence)
      */
-    private fun List<CodeBlock>.getTwoTokenSequences(id1: Int, id2: Int): Pair<TokenSequence, TokenSequence> =
-        if (this[id1].tokenSequence.size < this[id2].tokenSequence.size) {
-            this[id1].tokenSequence to this[id2].tokenSequence
+    private fun List<CodeBlock>.getTwoTokenSequences(id1: Int, id2: Int): Pair<NGrams, NGrams> =
+        if (this[id1].nGrams.size < this[id2].nGrams.size) {
+            this[id1].nGrams to this[id2].nGrams
         } else {
-            this[id2].tokenSequence to this[id1].tokenSequence
-        }
-
-    private fun calcVerifyingThreshold(size: Int): Int =
-        if (config.tokenizeMethod == TokenizeMethod.LEXICAL_ANALYSIS) {
-            when {
-                size <= 120 -> 70
-                size >= 240 -> 40
-                else -> 100 - size / 4
-            }
-        } else {
-            when {
-                size <= 30 -> 70
-                size >= 60 -> 40
-                else -> 100 - size
-            }
+            this[id2].nGrams to this[id1].nGrams
         }
 
     @Deprecated("Time Complexity of naive LCS is O(NM) where N and M are size of given two sequence respectively.\nIt is too late")
     fun verifyAlternative(id1: Int, id2: Int): Boolean {
-        val tokenSequence1 = codeBlocks[id1].tokenSequence
+        val tokenSequence1 = codeBlocks[id1].nGrams
         val size1 = tokenSequence1.size
-        val tokenSequence2 = codeBlocks[id2].tokenSequence
+        val tokenSequence2 = codeBlocks[id2].nGrams
         val size2 = tokenSequence2.size
         val dpTable: Array<Array<Int>> = Array(size1 + 1) { Array(size2 + 1) { 0 } }
         for (i in 1..size1) {
@@ -75,6 +62,6 @@ class Verification(private val codeBlocks: List<CodeBlock>, private val config: 
         }
 
         val min = min(size1, size2)
-        return dpTable[size1][size2] * 100 / min >= calcVerifyingThreshold(min)
+        return dpTable[size1][size2] * 100 / min >= VERIFYING_THRESHOLD
     }
 }
