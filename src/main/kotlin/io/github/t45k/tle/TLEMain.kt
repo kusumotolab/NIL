@@ -30,20 +30,18 @@ open class TLEMain(private val config: TLEConfig) {
         val location = Location(config.filteringThreshold, codeBlocks)
         val verification = Verification(codeBlocks)
         val progressMonitor = ProgressMonitor(codeBlocks.size)
-        var index = 0
-        val clonePairs: List<Pair<Int, Int>> = codeBlocks.toObservable()
-            .flatMap { codeBlock ->
-                val clonePairs: Observable<Pair<Int, Int>> = location.locate(codeBlock.nGrams)
+        val clonePairs: List<Pair<Int, Int>> = codeBlocks
+            .flatMapIndexed { index, codeBlock ->
+                val clonePairs: List<Pair<Int, Int>> = location.locate(codeBlock.nGrams)
                     .filter { verification.verify(index, it) }
                     .map { index to it }
 
                 location.put(codeBlock.nGrams, index)
-                progressMonitor.update(++index)
+                progressMonitor.update(index + 1)
 
                 clonePairs
             }
             .toList()
-            .blockingGet()
 
         println("${clonePairs.size} clone pairs are detected.")
 
@@ -52,11 +50,6 @@ open class TLEMain(private val config: TLEConfig) {
 
         CSV().output(config.outputFileName, clonePairs, codeBlocks)
     }
-
-    // TODO use rolling hash
-    private fun createSeed(NGrams: NGrams): List<Int> =
-        (0..(NGrams.size - config.gramSize))
-            .map { NGrams.subList(it, it + config.gramSize).hashCode() }
 
     private fun collectSourceFiles(dir: File): Observable<File> =
         dir.walk()

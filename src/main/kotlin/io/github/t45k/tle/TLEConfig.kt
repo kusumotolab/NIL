@@ -13,7 +13,7 @@ data class TLEConfig(
 fun parseArgs(args: Array<String>): TLEConfig {
     var src: File? = null
     var minLine = 6
-    var windowSize = 5
+    var gramSize = 5
     var filteringThreshold = 70
     var outputFileName: String? = null
 
@@ -22,7 +22,7 @@ fun parseArgs(args: Array<String>): TLEConfig {
         when (iterator.next()) {
             "-s" -> src = File(iterator.next())
             "-m" -> minLine = iterator.next().toInt()
-            "-g" -> windowSize = iterator.next().toInt()
+            "-g" -> gramSize = iterator.next().toInt()
             "-f" -> filteringThreshold = iterator.next().toInt()
             "-o" -> outputFileName = iterator.next()
             else -> throw RuntimeException("Invalid option")
@@ -32,8 +32,8 @@ fun parseArgs(args: Array<String>): TLEConfig {
     return TLEConfig(
         src!!,
         minLine,
-        windowSize,
+        gramSize,
         filteringThreshold,
-        outputFileName ?: "result_${windowSize}_${filteringThreshold}.csv",
+        outputFileName ?: "result_${gramSize}_${filteringThreshold}.csv",
     )
 }
