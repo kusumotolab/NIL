@@ -1,9 +1,8 @@
 package io.github.t45k.tle
 
 import io.github.t45k.tle.entity.CodeBlock
-import io.github.t45k.tle.entity.TokenSequence
+import io.github.t45k.tle.entity.NGrams
 import io.github.t45k.tle.output.CSV
-import io.github.t45k.tle.tokenizer.LexicalAnalyzer
 import io.github.t45k.tle.tokenizer.SymbolSeparator
 import io.github.t45k.tle.tokenizer.Tokenizer
 import io.github.t45k.tle.util.ProgressMonitor
@@ -17,11 +16,7 @@ import java.io.File
 // IDはリストとかDBのインデックスで大丈夫そう
 open class TLEMain(private val config: TLEConfig) {
 
-    private val tokenizer: Tokenizer =
-        when (config.tokenizeMethod) {
-            TokenizeMethod.LEXICAL_ANALYSIS -> LexicalAnalyzer()
-            TokenizeMethod.SYMBOL_SEPARATION -> SymbolSeparator()
-        }
+    private val tokenizer: Tokenizer = SymbolSeparator()
 
     open fun run() {
         val startTime = System.currentTimeMillis()
@@ -35,21 +30,20 @@ open class TLEMain(private val config: TLEConfig) {
         val location = Location(config.filteringThreshold, codeBlocks)
         val verification = Verification(codeBlocks)
         val progressMonitor = ProgressMonitor(codeBlocks.size)
-        val clonePairs: List<Pair<Int, Int>> = codeBlocks
-            .flatMapIndexed { index, codeBlock ->
-                val seeds: List<Int> = createSeed(codeBlock.tokenSequence)
-                val distinct = seeds.distinct()
-                codeBlock.seedsSize = distinct.size
-                codeBlock.tokenSequence = seeds
-                val clonePairs: List<Pair<Int, Int>> = location.locate(distinct)
+        var index = 0
+        val clonePairs: List<Pair<Int, Int>> = codeBlocks.toObservable()
+            .flatMap { codeBlock ->
+                val clonePairs: Observable<Pair<Int, Int>> = location.locate(codeBlock.nGrams)
                     .filter { verification.verify(index, it) }
                     .map { index to it }
 
-                location.put(distinct, index)
-                progressMonitor.update(index + 1)
+                location.put(codeBlock.nGrams, index)
+                progressMonitor.update(++index)
 
                 clonePairs
             }
+            .toList()
+            .blockingGet()
 
         println("${clonePairs.size} clone pairs are detected.")
 
@@ -60,9 +54,9 @@ open class TLEMain(private val config: TLEConfig) {
     }
 
     // TODO use rolling hash
-    private fun createSeed(tokenSequence: TokenSequence): List<Int> =
-        (0..(tokenSequence.size - config.windowSize))
-            .map { tokenSequence.subList(it, it + config.windowSize).hashCode() }
+    private fun createSeed(NGrams: NGrams): List<Int> =
+        (0..(NGrams.size - config.gramSize))
+            .map { NGrams.subList(it, it + config.gramSize).hashCode() }
 
     private fun collectSourceFiles(dir: File): Observable<File> =
         dir.walk()
@@ -71,7 +65,7 @@ open class TLEMain(private val config: TLEConfig) {
 
     private fun collectBlocks(sourceFile: File): Observable<CodeBlock> =
         Observable.just(sourceFile)
-            .flatMap { AST(tokenizer::tokenize, config).extractBlocks(it).toObservable() }
+            .flatMap { AST(tokenizer::tokenize, config).extractBlocks(it) }
 }
 
 fun main(args: Array<String>) {

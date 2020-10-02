@@ -1,6 +1,6 @@
 package io.github.t45k.tle.tokenizer
 
-import io.github.t45k.tle.entity.TokenSequence
+import io.github.t45k.tle.entity.NGrams
 
 class SymbolSeparator : Tokenizer {
     companion object {
@@ -43,7 +43,7 @@ class SymbolSeparator : Tokenizer {
         )
     }
 
-    override fun tokenize(text: String): TokenSequence =
+    override fun tokenize(text: String): NGrams =
         text.split(*symbols)
             .filter { it.isNotEmpty() }
             .map { it.hashCode() }

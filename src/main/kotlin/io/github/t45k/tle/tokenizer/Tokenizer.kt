@@ -1,7 +1,7 @@
 package io.github.t45k.tle.tokenizer
 
-import io.github.t45k.tle.entity.TokenSequence
+import io.github.t45k.tle.entity.NGrams
 
 interface Tokenizer {
-    fun tokenize(text: String): TokenSequence
+    fun tokenize(text: String): NGrams
 }
