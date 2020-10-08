@@ -1,7 +1,6 @@
 package io.github.t45k.tle
 
 import io.github.t45k.tle.entity.CodeBlock
-import io.github.t45k.tle.entity.NGrams
 import io.github.t45k.tle.output.CSV
 import io.github.t45k.tle.tokenizer.SymbolSeparator
 import io.github.t45k.tle.tokenizer.Tokenizer
