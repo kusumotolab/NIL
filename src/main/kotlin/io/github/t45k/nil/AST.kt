@@ -1,7 +1,7 @@
-package io.github.t45k.tle
+package io.github.t45k.nil
 
-import io.github.t45k.tle.entity.CodeBlock
-import io.github.t45k.tle.entity.NGrams
+import io.github.t45k.nil.entity.CodeBlock
+import io.github.t45k.nil.entity.NGrams
 import io.reactivex.rxjava3.core.Observable
 import org.eclipse.core.runtime.NullProgressMonitor
 import org.eclipse.jdt.core.dom.AST.JLS14
@@ -11,7 +11,7 @@ import org.eclipse.jdt.core.dom.CompilationUnit
 import org.eclipse.jdt.core.dom.MethodDeclaration
 import java.io.File
 
-class AST(private val tokenizer: (String) -> List<Int>, private val config: TLEConfig) {
+class AST(private val tokenizer: (String) -> List<Int>, private val config: NILConfig) {
 
     fun extractBlocks(sourceFile: File): Observable<CodeBlock> =
         Observable.create { emitter ->

@@ -1,11 +1,11 @@
-package io.github.t45k.tle
+package io.github.t45k.nil
 
-import io.github.t45k.tle.entity.CodeBlock
-import io.github.t45k.tle.output.CSV
-import io.github.t45k.tle.tokenizer.SymbolSeparator
-import io.github.t45k.tle.tokenizer.Tokenizer
-import io.github.t45k.tle.util.ProgressMonitor
-import io.github.t45k.tle.util.toTime
+import io.github.t45k.nil.entity.CodeBlock
+import io.github.t45k.nil.output.CSV
+import io.github.t45k.nil.tokenizer.SymbolSeparator
+import io.github.t45k.nil.tokenizer.Tokenizer
+import io.github.t45k.nil.util.ProgressMonitor
+import io.github.t45k.nil.util.toTime
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.kotlin.toObservable
 import java.io.File
@@ -13,11 +13,11 @@ import java.io.File
 // 一旦リストに保持する
 // スケーラビリティを考えると将来的にDBを使うかも
 // IDはリストとかDBのインデックスで大丈夫そう
-open class TLEMain(private val config: TLEConfig) {
+class NILMain(private val config: NILConfig) {
 
     private val tokenizer: Tokenizer = SymbolSeparator()
 
-    open fun run() {
+    fun run() {
         val startTime = System.currentTimeMillis()
         val codeBlocks: List<CodeBlock> = collectSourceFiles(config.src)
             .flatMap(this::collectBlocks)
@@ -61,6 +61,6 @@ open class TLEMain(private val config: TLEConfig) {
 }
 
 fun main(args: Array<String>) {
-    val config: TLEConfig = parseArgs(args)
-    TLEMain(config).run()
+    val config: NILConfig = parseArgs(args)
+    NILMain(config).run()
 }

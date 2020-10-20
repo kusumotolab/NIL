@@ -1,6 +1,6 @@
-package io.github.t45k.tle.output
+package io.github.t45k.nil.output
 
-import io.github.t45k.tle.entity.CodeBlock
+import io.github.t45k.nil.entity.CodeBlock
 import java.io.File
 
 class CSV : Format {

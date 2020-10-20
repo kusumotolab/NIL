@@ -1,8 +1,8 @@
-package io.github.t45k.tle
+package io.github.t45k.nil
 
 import java.io.File
 
-data class TLEConfig(
+data class NILConfig(
     val src: File,
     val minLine: Int = 6,
     val gramSize: Int = 5,
@@ -10,7 +10,7 @@ data class TLEConfig(
     val outputFileName: String = "result.csv",
 )
 
-fun parseArgs(args: Array<String>): TLEConfig {
+fun parseArgs(args: Array<String>): NILConfig {
     var src: File? = null
     var minLine = 6
     var gramSize = 5
@@ -29,7 +29,7 @@ fun parseArgs(args: Array<String>): TLEConfig {
         }
     }
 
-    return TLEConfig(
+    return NILConfig(
         src!!,
         minLine,
         gramSize,

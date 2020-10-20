@@ -1,4 +1,4 @@
-package io.github.t45k.tle.entity
+package io.github.t45k.nil.entity
 
 // しばらくはメソッドオンリー
 data class CodeBlock(
