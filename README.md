@@ -1,2 +1,2 @@
 # NIL
-Clone Detector Using N-gram, Inverted index, and LCS
+NIL is a clone detector using N-gram, Inverted index, and LCS.
