@@ -1,4 +1,4 @@
-package io.github.t45k.tle.util
+package io.github.t45k.nil.util
 
 import java.util.concurrent.atomic.AtomicInteger
 

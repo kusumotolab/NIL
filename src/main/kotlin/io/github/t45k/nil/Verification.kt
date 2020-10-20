@@ -1,7 +1,7 @@
-package io.github.t45k.tle
+package io.github.t45k.nil
 
-import io.github.t45k.tle.entity.CodeBlock
-import io.github.t45k.tle.entity.NGrams
+import io.github.t45k.nil.entity.CodeBlock
+import io.github.t45k.nil.entity.NGrams
 import java.util.Comparator
 import kotlin.math.max
 import kotlin.math.min

@@ -1,6 +1,6 @@
-package io.github.t45k.tle.tokenizer
+package io.github.t45k.nil.tokenizer
 
-import io.github.t45k.tle.entity.NGrams
+import io.github.t45k.nil.entity.NGrams
 import org.eclipse.jdt.core.ToolFactory
 import org.eclipse.jdt.core.compiler.ITerminalSymbols.TokenNameEOF
 

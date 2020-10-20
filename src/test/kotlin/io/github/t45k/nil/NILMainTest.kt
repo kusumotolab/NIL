@@ -1,16 +1,15 @@
-package io.github.t45k.tle
+package io.github.t45k.nil
 
-import io.reactivex.rxjava3.kotlin.toObservable
 import java.io.File
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-internal class TLEMainTest {
+internal class NILMainTest {
 
     @Test
     fun test() {
         val config = parseArgs(arrayOf("-s", "./src/test/resources/examples", "-f", "70"))
-        TLEMain(config).run()
+        NILMain(config).run()
 
         val outputFile = File(config.outputFileName)
         val result = "examples,LargeGapClones.java,16,39,examples,LargeGapClones.java,3,14" +
