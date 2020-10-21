@@ -32,26 +32,31 @@ class NILMain(private val config: NILConfig) {
 
         val verification = Verification(codeBlocks)
         val progressMonitor = ProgressMonitor(codeBlocks.size)
+        val location = Location(config.filteringThreshold, codeBlocks)
         val clonePairs: List<Pair<Int, Int>> = generateSequence(0) { it + 1 }
             .takeWhile { it * PARTITION < codeBlocks.size }
             .flatMap { startIndex ->
-                val location = Location(config.filteringThreshold, codeBlocks)
                 sequence {
                     val termination = min(startIndex + PARTITION, codeBlocks.size)
+                    val internal = ProgressMonitor(codeBlocks.size)
+                    println()
                     for (inside in startIndex until termination) {
                         location.locate(codeBlocks[inside].nGrams)
                             .filter { verification.verify(inside, it) }
                             .forEach { yield(inside to it) }
 
                         location.put(codeBlocks[inside].nGrams, inside)
+                        internal.update(inside + 1)
                     }
 
                     for (outside in termination until codeBlocks.size) {
                         location.locate(codeBlocks[outside].nGrams)
                             .filter { verification.verify(outside, it) }
                             .forEach { yield(outside to it) }
+                        internal.update(outside + 1)
                     }
 
+                    location.clear()
                     progressMonitor.update((startIndex + 1) * PARTITION)
                 }
             }.toList()
