@@ -9,11 +9,15 @@ import io.github.t45k.nil.util.toTime
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.kotlin.toObservable
 import java.io.File
+import kotlin.math.min
 
 // 一旦リストに保持する
 // スケーラビリティを考えると将来的にDBを使うかも
 // IDはリストとかDBのインデックスで大丈夫そう
 class NILMain(private val config: NILConfig) {
+    companion object {
+        private const val PARTITION = 500_000
+    }
 
     private val tokenizer: Tokenizer = SymbolSeparator()
 
@@ -26,21 +30,31 @@ class NILMain(private val config: NILConfig) {
 
         println("${codeBlocks.size} code blocks have been extracted in ${((System.currentTimeMillis() - startTime) / 1000).toTime()}.\n")
 
-        val location = Location(config.filteringThreshold, codeBlocks)
         val verification = Verification(codeBlocks)
         val progressMonitor = ProgressMonitor(codeBlocks.size)
-        val clonePairs: List<Pair<Int, Int>> = codeBlocks
-            .flatMapIndexed { index, codeBlock ->
-                val clonePairs: List<Pair<Int, Int>> = location.locate(codeBlock.nGrams)
-                    .filter { verification.verify(index, it) }
-                    .map { index to it }
+        val clonePairs: List<Pair<Int, Int>> = generateSequence(0) { it + 1 }
+            .takeWhile { it * PARTITION < codeBlocks.size }
+            .flatMap { startIndex ->
+                val location = Location(config.filteringThreshold, codeBlocks)
+                sequence {
+                    val termination = min(startIndex + PARTITION, codeBlocks.size)
+                    for (inside in startIndex until termination) {
+                        location.locate(codeBlocks[inside].nGrams)
+                            .filter { verification.verify(inside, it) }
+                            .forEach { yield(inside to it) }
 
-                location.put(codeBlock.nGrams, index)
-                progressMonitor.update(index + 1)
+                        location.put(codeBlocks[inside].nGrams, inside)
+                    }
 
-                clonePairs
-            }
-            .toList()
+                    for (outside in termination until codeBlocks.size) {
+                        location.locate(codeBlocks[outside].nGrams)
+                            .filter { verification.verify(outside, it) }
+                            .forEach { yield(outside to it) }
+                    }
+
+                    progressMonitor.update((startIndex + 1) * PARTITION)
+                }
+            }.toList()
 
         println("${clonePairs.size} clone pairs are detected.")
 
