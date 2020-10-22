@@ -53,6 +53,7 @@ class NILMain(private val config: NILConfig) {
                     }
 
                     location.clear()
+                    println()
                 }
             }.toList()
 
