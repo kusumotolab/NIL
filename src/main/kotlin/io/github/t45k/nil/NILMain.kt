@@ -11,9 +11,6 @@ import io.reactivex.rxjava3.kotlin.toObservable
 import java.io.File
 import kotlin.math.min
 
-// 一旦リストに保持する
-// スケーラビリティを考えると将来的にDBを使うかも
-// IDはリストとかDBのインデックスで大丈夫そう
 class NILMain(private val config: NILConfig) {
     companion object {
         private const val PARTITION = 500_000
@@ -28,14 +25,14 @@ class NILMain(private val config: NILConfig) {
             .toList()
             .blockingGet()
 
-        println("${codeBlocks.size} code blocks have been extracted in ${((System.currentTimeMillis() - startTime) / 1000).toTime()}.\n")
+        println("${codeBlocks.size} code blocks have been extracted in ${((System.currentTimeMillis() - startTime) / 1000).toTime()}")
         println("Code blocks was divided into ${(codeBlocks.size + PARTITION - 1) / PARTITION} partitions")
 
         val verification = Verification(codeBlocks)
         val location = Location(config.filteringThreshold, codeBlocks)
         val clonePairs: List<Pair<Int, Int>> = generateSequence(0) { it + 1 }
             .takeWhile { it * PARTITION < codeBlocks.size }
-            .onEach { println("Partition ${it + 1}:") }
+            .onEach { println("\nPartition ${it + 1}:") }
             .map { it * PARTITION }
             .flatMap { startIndex ->
                 sequence {
@@ -53,7 +50,6 @@ class NILMain(private val config: NILConfig) {
                     }
 
                     location.clear()
-                    println()
                 }
             }.toList()
 
