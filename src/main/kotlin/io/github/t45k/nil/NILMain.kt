@@ -34,26 +34,22 @@ class NILMain(private val config: NILConfig) {
         val progressMonitor = ProgressMonitor(codeBlocks.size)
         val location = Location(config.filteringThreshold, codeBlocks)
         val clonePairs: List<Pair<Int, Int>> = generateSequence(0) { it + 1 }
-            .takeWhile { it * PARTITION < codeBlocks.size }
+            .map { it * PARTITION }
+            .takeWhile { it < codeBlocks.size }
             .flatMap { startIndex ->
                 sequence {
                     val termination = min(startIndex + PARTITION, codeBlocks.size)
-                    val internal = ProgressMonitor(codeBlocks.size)
                     println()
-                    for (inside in startIndex until termination) {
-                        location.locate(codeBlocks[inside].nGrams)
-                            .filter { verification.verify(inside, it) }
-                            .forEach { yield(inside to it) }
+                    val internal = ProgressMonitor(codeBlocks.size - startIndex)
+                    for (index in startIndex until codeBlocks.size) {
+                        location.locate(codeBlocks[index].nGrams)
+                            .filter { verification.verify(index, it) }
+                            .forEach { yield(index to it) }
 
-                        location.put(codeBlocks[inside].nGrams, inside)
-                        internal.update(inside + 1)
-                    }
-
-                    for (outside in termination until codeBlocks.size) {
-                        location.locate(codeBlocks[outside].nGrams)
-                            .filter { verification.verify(outside, it) }
-                            .forEach { yield(outside to it) }
-                        internal.update(outside + 1)
+                        if (index < termination) {
+                            location.put(codeBlocks[index].nGrams, index)
+                        }
+                        internal.update(index + 1)
                     }
 
                     location.clear()

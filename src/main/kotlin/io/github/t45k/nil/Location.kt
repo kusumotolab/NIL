@@ -6,7 +6,7 @@ import kotlin.math.min
 
 class Location(private val filteringThreshold: Int, private val codeBlocks: List<CodeBlock>) {
 
-    private val hashTable: MutableMap<Int, MutableList<Int>> = mutableMapOf()
+    private val hashTable: MutableMap<Int, MutableList<Int>> = HashMap(500_000)
 
     fun locate(nGrams: NGrams): List<Int> =
         mutableMapOf<Int, Int>().apply {
