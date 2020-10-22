@@ -29,31 +29,30 @@ class NILMain(private val config: NILConfig) {
             .blockingGet()
 
         println("${codeBlocks.size} code blocks have been extracted in ${((System.currentTimeMillis() - startTime) / 1000).toTime()}.\n")
+        println("Code blocks was divided into ${(codeBlocks.size + PARTITION - 1) / PARTITION} partitions")
 
         val verification = Verification(codeBlocks)
-        val progressMonitor = ProgressMonitor(codeBlocks.size)
         val location = Location(config.filteringThreshold, codeBlocks)
         val clonePairs: List<Pair<Int, Int>> = generateSequence(0) { it + 1 }
+            .takeWhile { it * PARTITION < codeBlocks.size }
+            .onEach { println("Partition ${it + 1}:") }
             .map { it * PARTITION }
-            .takeWhile { it < codeBlocks.size }
             .flatMap { startIndex ->
                 sequence {
-                    val termination = min(startIndex + PARTITION, codeBlocks.size)
-                    println()
-                    val internal = ProgressMonitor(codeBlocks.size - startIndex)
+                    val endOfIndexing = min(startIndex + PARTITION, codeBlocks.size)
+                    val progressMonitor = ProgressMonitor(codeBlocks.size - startIndex)
                     for (index in startIndex until codeBlocks.size) {
                         location.locate(codeBlocks[index].nGrams)
                             .filter { verification.verify(index, it) }
                             .forEach { yield(index to it) }
 
-                        if (index < termination) {
+                        if (index < endOfIndexing) {
                             location.put(codeBlocks[index].nGrams, index)
                         }
-                        internal.update(index + 1)
+                        progressMonitor.update(index - startIndex + 1)
                     }
 
                     location.clear()
-                    progressMonitor.update((startIndex + 1) * PARTITION)
                 }
             }.toList()
 
