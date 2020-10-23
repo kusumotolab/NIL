@@ -1,7 +1,6 @@
 package io.github.t45k.nil
 
 import io.github.t45k.nil.entity.CodeBlock
-import io.github.t45k.nil.entity.NGrams
 import io.reactivex.rxjava3.core.Observable
 import org.eclipse.core.runtime.NullProgressMonitor
 import org.eclipse.jdt.core.dom.AST.JLS14
@@ -22,12 +21,12 @@ class AST(private val tokenizer: (String) -> List<Int>, private val config: NILC
             val fileName = sourceFile.toString()
             val visitor = object : ASTVisitor() {
                 override fun visit(node: MethodDeclaration?): Boolean {
-                    node?.body?.let {
-                        val startLine = compilationUnit.getLineNumber(it.startPosition)
+                    node?.let {
+                        val startLine = compilationUnit.getLineNumber(it.name.startPosition)
                         val endLine = compilationUnit.getLineNumber(it.startPosition + it.length)
+                        node.javadoc = null
                         if (endLine - startLine + 1 >= config.minLine) {
-                            val nGrams = tokenizer(it.toString()).toNgrams()
-                            emitter.onNext(CodeBlock(fileName, startLine, endLine, nGrams))
+                            emitter.onNext(CodeBlock(fileName, startLine, endLine, tokenizer(it.toString())))
                         }
                     }
                     return false
@@ -37,9 +36,9 @@ class AST(private val tokenizer: (String) -> List<Int>, private val config: NILC
             emitter.onComplete()
         }
 
-    // TODO: Use rolling hash
-    private fun List<Int>.toNgrams(): NGrams =
+    /*// TODO: Use rolling hash
+    private fun List<Int>.toNgrams(): TokenSequence =
         (0..(this.size - config.gramSize))
             .map { this.subList(it, it + config.gramSize).hashCode() }
-            .distinct()
+            .distinct()*/
 }

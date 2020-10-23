@@ -1,7 +1,7 @@
 package io.github.t45k.nil
 
 import io.github.t45k.nil.entity.CodeBlock
-import io.github.t45k.nil.entity.NGrams
+import io.github.t45k.nil.entity.TokenSequence
 import java.util.Comparator
 import kotlin.math.max
 import kotlin.math.min
@@ -12,7 +12,7 @@ class Verification(private val codeBlocks: List<CodeBlock>) {
     }
 
     fun verify(id1: Int, id2: Int): Boolean {
-        val (shorter: NGrams, longer: NGrams) = codeBlocks.getTwoTokenSequences(id1, id2)
+        val (shorter: TokenSequence, longer: TokenSequence) = codeBlocks.getTwoTokenSequences(id1, id2)
         val (n, m) = shorter.size to longer.size
 
         val invertedIndices: MutableMap<Int, MutableList<Int>> = mutableMapOf()
@@ -37,18 +37,18 @@ class Verification(private val codeBlocks: List<CodeBlock>) {
     /**
      * Return (shorter token sequence, longer token sequence)
      */
-    private fun List<CodeBlock>.getTwoTokenSequences(id1: Int, id2: Int): Pair<NGrams, NGrams> =
-        if (this[id1].nGrams.size < this[id2].nGrams.size) {
-            this[id1].nGrams to this[id2].nGrams
+    private fun List<CodeBlock>.getTwoTokenSequences(id1: Int, id2: Int): Pair<TokenSequence, TokenSequence> =
+        if (this[id1].tokenSequence.size < this[id2].tokenSequence.size) {
+            this[id1].tokenSequence to this[id2].tokenSequence
         } else {
-            this[id2].nGrams to this[id1].nGrams
+            this[id2].tokenSequence to this[id1].tokenSequence
         }
 
     @Deprecated("Time Complexity of naive LCS is O(NM) where N and M are size of given two sequence respectively.\nIt is too late")
     fun verifyAlternative(id1: Int, id2: Int): Boolean {
-        val tokenSequence1 = codeBlocks[id1].nGrams
+        val tokenSequence1 = codeBlocks[id1].tokenSequence
         val size1 = tokenSequence1.size
-        val tokenSequence2 = codeBlocks[id2].nGrams
+        val tokenSequence2 = codeBlocks[id2].tokenSequence
         val size2 = tokenSequence2.size
         val dpTable: Array<Array<Int>> = Array(size1 + 1) { Array(size2 + 1) { 0 } }
         for (i in 1..size1) {

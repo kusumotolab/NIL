@@ -1,6 +1,7 @@
 package io.github.t45k.nil
 
 import io.github.t45k.nil.entity.CodeBlock
+import io.github.t45k.nil.entity.TokenSequence
 import io.github.t45k.nil.output.CSV
 import io.github.t45k.nil.tokenizer.SymbolSeparator
 import io.github.t45k.nil.tokenizer.Tokenizer
@@ -39,12 +40,13 @@ class NILMain(private val config: NILConfig) {
                     val endOfIndexing = min(startIndex + PARTITION, codeBlocks.size)
                     val progressMonitor = ProgressMonitor(codeBlocks.size - startIndex)
                     for (index in startIndex until codeBlocks.size) {
-                        location.locate(codeBlocks[index].nGrams)
+                        val nGrams = codeBlocks[index].tokenSequence.toNgrams()
+                        location.locate(nGrams)
                             .filter { verification.verify(index, it) }
                             .forEach { yield(index to it) }
 
                         if (index < endOfIndexing) {
-                            location.put(codeBlocks[index].nGrams, index)
+                            location.put(nGrams, index)
                         }
                         progressMonitor.update(index - startIndex + 1)
                     }
@@ -69,6 +71,12 @@ class NILMain(private val config: NILConfig) {
     private fun collectBlocks(sourceFile: File): Observable<CodeBlock> =
         Observable.just(sourceFile)
             .flatMap { AST(tokenizer::tokenize, config).extractBlocks(it) }
+
+    // TODO: Use rolling hash
+    private fun TokenSequence.toNgrams(): List<Int> =
+        (0..(this.size - config.gramSize))
+            .map { this.subList(it, it + config.gramSize).hashCode() }
+            .distinct()
 }
 
 fun main(args: Array<String>) {
