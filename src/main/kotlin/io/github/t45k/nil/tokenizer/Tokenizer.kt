@@ -1,7 +1,7 @@
 package io.github.t45k.nil.tokenizer
 
-import io.github.t45k.nil.entity.NGrams
+import io.github.t45k.nil.entity.TokenSequence
 
 interface Tokenizer {
-    fun tokenize(text: String): NGrams
+    fun tokenize(text: String): TokenSequence
 }
