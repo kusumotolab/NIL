@@ -19,4 +19,10 @@ internal class NILMainTest {
         assertEquals(result, outputFile.readText())
         outputFile.delete()
     }
+
+    @Test
+    fun hoge(){
+        val config = parseArgs(arrayOf("-s", ".."))
+        NILMain(config).run()
+    }
 }

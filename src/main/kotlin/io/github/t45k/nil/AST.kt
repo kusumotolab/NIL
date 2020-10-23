@@ -22,7 +22,7 @@ class AST(private val tokenizer: (String) -> List<Int>, private val config: NILC
             val visitor = object : ASTVisitor() {
                 override fun visit(node: MethodDeclaration?): Boolean {
                     node?.let {
-                        val startLine = compilationUnit.getLineNumber(it.returnType2.startPosition)
+                        val startLine = compilationUnit.getLineNumber(it.name.startPosition)
                         val endLine = compilationUnit.getLineNumber(it.startPosition + it.length)
                         node.javadoc = null
                         if (endLine - startLine + 1 >= config.minLine) {
