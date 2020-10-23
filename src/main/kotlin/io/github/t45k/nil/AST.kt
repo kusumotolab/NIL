@@ -21,9 +21,10 @@ class AST(private val tokenizer: (String) -> List<Int>, private val config: NILC
             val fileName = sourceFile.toString()
             val visitor = object : ASTVisitor() {
                 override fun visit(node: MethodDeclaration?): Boolean {
-                    node?.body?.let {
-                        val startLine = compilationUnit.getLineNumber(it.startPosition)
+                    node?.let {
+                        val startLine = compilationUnit.getLineNumber(it.returnType2.startPosition)
                         val endLine = compilationUnit.getLineNumber(it.startPosition + it.length)
+                        node.javadoc = null
                         if (endLine - startLine + 1 >= config.minLine) {
                             emitter.onNext(CodeBlock(fileName, startLine, endLine, tokenizer(it.toString())))
                         }
