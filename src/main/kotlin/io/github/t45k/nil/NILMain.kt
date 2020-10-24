@@ -41,9 +41,9 @@ class NILMain(private val config: NILConfig) {
                     val progressMonitor = ProgressMonitor(codeBlocks.size - startIndex)
                     for (index in startIndex until codeBlocks.size) {
                         val nGrams = codeBlocks[index].tokenSequence.toNgrams()
-                        location.locate(nGrams)
+                        location.locate(nGrams,index)
                             .filter { verification.verify(index, it) }
-                            .forEach { yield(index to it) }
+                            .forEach { yield(it to index) }
 
                         if (index < endOfIndexing) {
                             location.put(nGrams, index)
