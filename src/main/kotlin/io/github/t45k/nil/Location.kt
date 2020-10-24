@@ -8,23 +8,19 @@ class Location(private val filteringThreshold: Int, private val codeBlocks: List
 
     private val hashTable: MutableMap<Int, MutableList<Int>> = HashMap(500_000)
 
-    fun locate(tokenSequence: TokenSequence): Sequence<Int> =
-        sequence {
-            hashMapOf<Int, Int>().apply {
-                tokenSequence
-                    .flatMap { hashTable[it] ?: emptyList() }
-                    .forEach {
-                        val base = min(tokenSequence.size, codeBlocks[it].tokenSequence.size)
-                        if (this[it] != null && this[it]!! * 100 / base >= filteringThreshold) {
-                            return@forEach
-                        }
-                        compute(it) { _, v -> if (v == null) 1 else v + 1 }
-                        if (this[it]!! * 100 / base >= filteringThreshold) {
-                            yield(it)
-                        }
-                    }
+    fun locate(tokenSequence: TokenSequence): List<Int> =
+        tokenSequence
+            .flatMap { hashTable[it] ?: emptyList() }
+            .groupingBy { it }
+            .eachCount()
+            .filter {
+                it.value * 100 / min(
+                    tokenSequence.size,
+                    codeBlocks[it.key].tokenSequence.size
+                ) >= filteringThreshold
             }
-        }
+            .keys
+            .toList()
 
     fun put(tokenSequence: TokenSequence, id: Int) =
         tokenSequence.forEach { hashTable.getOrPut(it) { mutableListOf() }.add(id) }
