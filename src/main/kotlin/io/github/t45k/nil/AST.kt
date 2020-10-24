@@ -24,7 +24,7 @@ class AST(private val tokenizer: (String) -> List<Int>, private val config: NILC
                     node?.let {
                         val startLine = compilationUnit.getLineNumber(it.name.startPosition)
                         val endLine = compilationUnit.getLineNumber(it.startPosition + it.length)
-                        node.javadoc = null
+                        it.javadoc = null
                         if (endLine - startLine + 1 >= config.minLine) {
                             emitter.onNext(CodeBlock(fileName, startLine, endLine, tokenizer(it.toString())))
                         }
