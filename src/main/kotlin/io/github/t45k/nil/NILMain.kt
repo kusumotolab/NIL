@@ -43,7 +43,7 @@ class NILMain(private val config: NILConfig) {
                         val nGrams = codeBlocks[index].tokenSequence.toNgrams()
                         location.locate(nGrams)
                             .filter { verification.verify(index, it) }
-                            .forEach { yield(index to it) }
+                            .forEach { yield(it to index) }
 
                         if (index < endOfIndexing) {
                             location.put(nGrams, index)
