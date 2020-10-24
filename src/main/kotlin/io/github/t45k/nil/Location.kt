@@ -13,7 +13,10 @@ class Location(private val filteringThreshold: Int, private val codeBlocks: List
             tokenSequence.flatMap { hashTable[it] ?: emptyList() }
                 .forEach { compute(it) { _, v -> if (v == null) 1 else v + 1 } }
         }
-            .filter { it.value * 100 / min(tokenSequence.size, codeBlocks[it.key].tokenSequence.size) >= 10 }
+            .filter {
+                val min = min(tokenSequence.size, codeBlocks[it.key].tokenSequence.size)
+                it.value * 100 / min >= filteringThreshold
+            }
             .keys
             .toList()
 
