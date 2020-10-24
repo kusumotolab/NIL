@@ -14,7 +14,7 @@ fun parseArgs(args: Array<String>): NILConfig {
     var src: File? = null
     var minLine = 6
     var gramSize = 5
-    var filteringThreshold = 70
+    var filteringThreshold = 10
     var outputFileName: String? = null
 
     val iterator = args.iterator()

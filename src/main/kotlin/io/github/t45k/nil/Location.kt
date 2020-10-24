@@ -9,7 +9,7 @@ class Location(private val filteringThreshold: Int, private val codeBlocks: List
     private val hashTable: MutableMap<Int, MutableList<Int>> = HashMap(500_000)
 
     fun locate(tokenSequence: TokenSequence): List<Int> =
-        mutableMapOf<Int, Int>().apply {
+        hashMapOf<Int, Int>().apply {
             tokenSequence.flatMap { hashTable[it] ?: emptyList() }
                 .forEach { compute(it) { _, v -> if (v == null) 1 else v + 1 } }
         }
