@@ -6,7 +6,7 @@ data class NILConfig(
     val src: File,
     val minLine: Int = 6,
     val gramSize: Int = 5,
-    val filteringThreshold: Int = 70,
+    val filteringThreshold: Int = 10,
     val outputFileName: String = "result.csv",
 )
 
