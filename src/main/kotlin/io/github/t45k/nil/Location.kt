@@ -15,7 +15,7 @@ class Location(private val filteringThreshold: Int, private val codeBlocks: List
                     .flatMap { hashTable[it] ?: emptyList() }
                     .forEach {
                         val base = min(tokenSequence.size, codeBlocks[it].tokenSequence.size)
-                        if (this[it]!! / base >= filteringThreshold) {
+                        if (this[it] != null && this[it]!! / base >= filteringThreshold) {
                             return@forEach
                         }
                         compute(it) { _, v -> if (v == null) 1 else v + 1 }
