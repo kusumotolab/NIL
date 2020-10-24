@@ -13,10 +13,6 @@ import java.io.File
 import kotlin.math.min
 
 class NILMain(private val config: NILConfig) {
-    companion object {
-        private const val PARTITION = 500_000
-    }
-
     private val tokenizer: Tokenizer = SymbolSeparator()
 
     fun run() {
@@ -25,19 +21,18 @@ class NILMain(private val config: NILConfig) {
             .flatMap(this::collectBlocks)
             .toList()
             .blockingGet()
-
         println("${codeBlocks.size} code blocks have been extracted in ${((System.currentTimeMillis() - startTime) / 1000).toTime()}")
-        println("Code blocks was divided into ${(codeBlocks.size + PARTITION - 1) / PARTITION} partitions")
+        println("Code blocks was divided into ${(codeBlocks.size + config.partitionSize - 1) / config.partitionSize} partitions")
 
         val verification = Verification(codeBlocks)
-        val location = Location(config.filteringThreshold, codeBlocks)
+        val location = Location(config, codeBlocks)
         val clonePairs: List<Pair<Int, Int>> = generateSequence(0) { it + 1 }
-            .takeWhile { it * PARTITION < codeBlocks.size }
+            .takeWhile { it * config.partitionSize < codeBlocks.size }
             .onEach { println("\nPartition ${it + 1}:") }
-            .map { it * PARTITION }
+            .map { it * config.partitionSize }
             .flatMap { startIndex ->
                 sequence {
-                    val endOfIndexing = min(startIndex + PARTITION, codeBlocks.size)
+                    val endOfIndexing = min(startIndex + config.partitionSize, codeBlocks.size)
                     val progressMonitor = ProgressMonitor(codeBlocks.size - startIndex)
                     for (index in startIndex until codeBlocks.size) {
                         val nGrams = codeBlocks[index].tokenSequence.toNgrams()

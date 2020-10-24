@@ -4,20 +4,18 @@ import io.github.t45k.nil.entity.CodeBlock
 import io.github.t45k.nil.entity.TokenSequence
 import kotlin.math.min
 
-class Location(private val filteringThreshold: Int, private val codeBlocks: List<CodeBlock>) {
+class Location(private val config: NILConfig, private val codeBlocks: List<CodeBlock>) {
 
-    private val hashTable: MutableMap<Int, MutableList<Int>> = HashMap(500_000)
+    private val hashTable: MutableMap<Int, MutableList<Int>> = HashMap(config.partitionSize)
 
     fun locate(tokenSequence: TokenSequence): List<Int> =
-        tokenSequence
-            .flatMap { hashTable[it] ?: emptyList() }
-            .groupingBy { it }
-            .eachCount()
+        mutableMapOf<Int, Int>().apply {
+            tokenSequence.flatMap { hashTable[it] ?: emptyList() }
+                .forEach { compute(it) { _, v -> if (v == null) 1 else v + 1 } }
+        }
             .filter {
-                it.value * 100 / min(
-                    tokenSequence.size,
-                    codeBlocks[it.key].tokenSequence.size
-                ) >= filteringThreshold
+                val min = min(tokenSequence.size, codeBlocks[it.key].tokenSequence.size)
+                it.value * 100 / min >= config.filteringThreshold
             }
             .keys
             .toList()
