@@ -43,10 +43,9 @@ class AST(private val tokenizer: (String) -> List<Int>, private val config: NILC
 
                 @Suppress("UNCHECKED_CAST")
                 fun getNextNodeFromJavaDoc(node: MethodDeclaration): ASTNode =
-                    (node.structuralPropertiesForType() as List<StructuralPropertyDescriptor?>)
+                    (node.structuralPropertiesForType() as List<StructuralPropertyDescriptor>)
                         .asSequence()
                         .drop(1)
-                        .filterNotNull()
                         .flatMap {
                             when (it) {
                                 is ChildListPropertyDescriptor -> (node.getStructuralProperty(it) as List<ASTNode>).asSequence()
