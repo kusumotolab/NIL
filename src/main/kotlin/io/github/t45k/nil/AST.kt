@@ -50,9 +50,10 @@ class AST(private val tokenizer: (String) -> List<Int>, private val config: NILC
                             when (it) {
                                 is ChildListPropertyDescriptor -> (node.getStructuralProperty(it) as List<ASTNode>).asSequence()
                                 is SimplePropertyDescriptor -> emptySequence()
-                                else -> sequenceOf(node.getStructuralProperty(it) as ASTNode)
+                                else -> sequenceOf(node.getStructuralProperty(it) as ASTNode?)
                             }
                         }
+                        .filterNotNull()
                         .first()
             }
             compilationUnit.accept(visitor)
