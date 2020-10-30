@@ -5,10 +5,14 @@ import io.github.t45k.nil.tokenizer.LexicalAnalyzer
 import io.reactivex.rxjava3.core.Observable
 import org.eclipse.core.runtime.NullProgressMonitor
 import org.eclipse.jdt.core.dom.AST.JLS14
+import org.eclipse.jdt.core.dom.ASTNode
 import org.eclipse.jdt.core.dom.ASTParser
 import org.eclipse.jdt.core.dom.ASTVisitor
+import org.eclipse.jdt.core.dom.ChildListPropertyDescriptor
 import org.eclipse.jdt.core.dom.CompilationUnit
 import org.eclipse.jdt.core.dom.MethodDeclaration
+import org.eclipse.jdt.core.dom.SimplePropertyDescriptor
+import org.eclipse.jdt.core.dom.StructuralPropertyDescriptor
 import java.io.File
 
 class AST(private val tokenizer: (String) -> List<Int>, private val config: NILConfig) {
@@ -23,7 +27,11 @@ class AST(private val tokenizer: (String) -> List<Int>, private val config: NILC
             val visitor = object : ASTVisitor() {
                 override fun visit(node: MethodDeclaration?): Boolean {
                     node?.let {
-                        val startLine = compilationUnit.getLineNumber(it.name.startPosition)
+                        val startLine = if (it.javadoc == null) {
+                            compilationUnit.getLineNumber(it.startPosition)
+                        } else {
+                            compilationUnit.getLineNumber(getNextNodeFromJavaDoc(node).startPosition)
+                        }
                         val endLine = compilationUnit.getLineNumber(it.startPosition + it.length)
                         it.javadoc = null
                         if (endLine - startLine + 1 >= config.minLine && LexicalAnalyzer.countTokens(it.toString()) >= config.minToken) {
@@ -32,14 +40,22 @@ class AST(private val tokenizer: (String) -> List<Int>, private val config: NILC
                     }
                     return false
                 }
+
+                @Suppress("UNCHECKED_CAST")
+                fun getNextNodeFromJavaDoc(node: MethodDeclaration): ASTNode =
+                    (node.structuralPropertiesForType() as List<StructuralPropertyDescriptor>)
+                        .asSequence()
+                        .drop(1)
+                        .flatMap {
+                            when (it) {
+                                is ChildListPropertyDescriptor -> (node.getStructuralProperty(it) as List<ASTNode>).asSequence()
+                                is SimplePropertyDescriptor -> emptySequence()
+                                else -> sequenceOf(node.getStructuralProperty(it) as ASTNode)
+                            }
+                        }
+                        .first()
             }
             compilationUnit.accept(visitor)
             emitter.onComplete()
         }
-
-    /*// TODO: Use rolling hash
-    private fun List<Int>.toNgrams(): TokenSequence =
-        (0..(this.size - config.gramSize))
-            .map { this.subList(it, it + config.gramSize).hashCode() }
-            .distinct()*/
 }
