@@ -25,7 +25,7 @@ class NILMain(private val config: NILConfig) {
         println("${codeBlocks.size} code blocks have been extracted in ${((System.currentTimeMillis() - startTime) / 1000).toTime()}")
         println("Code blocks was divided into ${(codeBlocks.size + config.partitionSize - 1) / config.partitionSize} partitions")
 
-        val verification = Verification(codeBlocks)
+        val verification = Verification(config, codeBlocks)
         val location = Location(config)
         val clonePairs: List<Pair<Int, Int>> = generateSequence(0) { it + 1 }
             .takeWhile { it * config.partitionSize < codeBlocks.size }

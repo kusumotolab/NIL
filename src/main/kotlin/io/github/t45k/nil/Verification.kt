@@ -6,10 +6,7 @@ import java.util.Comparator
 import kotlin.math.max
 import kotlin.math.min
 
-class Verification(private val codeBlocks: List<CodeBlock>) {
-    companion object {
-        const val VERIFYING_THRESHOLD = 70
-    }
+class Verification(private val config: NILConfig, private val codeBlocks: List<CodeBlock>) {
 
     fun verify(id1: Int, id2: Int): Boolean {
         val (shorter: TokenSequence, longer: TokenSequence) = codeBlocks.getTwoTokenSequences(id1, id2)
@@ -31,7 +28,7 @@ class Verification(private val codeBlocks: List<CodeBlock>) {
                 lcs[index] = indexOfB
             }
         }
-        return (lcs.binarySearch(Int.MAX_VALUE - 1).inv() - 1) * 100 / n >= VERIFYING_THRESHOLD
+        return (lcs.binarySearch(Int.MAX_VALUE - 1).inv() - 1) * 100 / n >= config.verifyingThreshold
     }
 
     /**
@@ -62,6 +59,6 @@ class Verification(private val codeBlocks: List<CodeBlock>) {
         }
 
         val min = min(size1, size2)
-        return dpTable[size1][size2] * 100 / min >= VERIFYING_THRESHOLD
+        return dpTable[size1][size2] * 100 / min >= config.verifyingThreshold
     }
 }
