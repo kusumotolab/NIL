@@ -55,7 +55,7 @@ class NILMain(private val config: NILConfig) {
                             }
                     }
                     .toList()
-                    .doOnSubscribe { println("Clone detection in this partition has been completed.") }
+                    .doOnTerminate { println("Clone detection in this partition has been completed.") }
                     .blockingGet()
             }.toList()
 
