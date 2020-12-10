@@ -51,7 +51,7 @@ fun parseArgs(args: Array<String>): NILConfig {
 }
 
 class InvalidOptionException(private val option: String) : RuntimeException() {
-    override val message: String?
+    override val message: String
         get() = """$option is invalid option.
             |-s, --src${'\t'}Source directory
             |-mil, --min-line${'\t'}Minimum line
