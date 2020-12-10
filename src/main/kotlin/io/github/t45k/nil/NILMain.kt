@@ -6,10 +6,10 @@ import io.github.t45k.nil.entity.TokenSequence
 import io.github.t45k.nil.output.CSV
 import io.github.t45k.nil.tokenizer.SymbolSeparator
 import io.github.t45k.nil.tokenizer.Tokenizer
-import io.github.t45k.nil.util.ProgressMonitor
 import io.github.t45k.nil.util.toTime
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.kotlin.toObservable
+import io.reactivex.rxjava3.schedulers.Schedulers
 import java.io.File
 import kotlin.math.min
 
@@ -19,7 +19,7 @@ class NILMain(private val config: NILConfig) {
     fun run() {
         val startTime = System.currentTimeMillis()
         val codeBlocks: List<CodeBlock> = collectSourceFiles(config.src)
-            .flatMap(this::collectBlocks)
+            .flatMap { collectBlocks(it).subscribeOn(Schedulers.io()) }
             .toList()
             .blockingGet()
         println("${codeBlocks.size} code blocks have been extracted in ${((System.currentTimeMillis() - startTime) / 1000).toTime()}")
@@ -32,23 +32,26 @@ class NILMain(private val config: NILConfig) {
             .onEach { println("\nPartition ${it + 1}:") }
             .map { it * config.partitionSize }
             .flatMap { startIndex ->
-                sequence {
-                    val endOfIndexing = min(startIndex + config.partitionSize, codeBlocks.size)
-                    val progressMonitor = ProgressMonitor(codeBlocks.size - startIndex)
-                    for (index in startIndex until codeBlocks.size) {
-                        val nGrams: NGrams = codeBlocks[index].tokenSequence.toNgrams()
-                        location.locate(nGrams)
-                            .filter { verification.verify(index, it) }
-                            .forEach { yield(it to index) }
-
-                        if (index < endOfIndexing) {
-                            location.put(nGrams, index)
-                        }
-                        progressMonitor.update(index - startIndex + 1)
-                    }
-
-                    location.clear()
+                location.clear()
+                val endOfIndexing = min(startIndex + config.partitionSize, codeBlocks.size)
+                for (index in startIndex until endOfIndexing) {
+                    location.put(codeBlocks[index].tokenSequence.toNgrams(), index)
                 }
+
+                Observable.fromIterable(startIndex until codeBlocks.size)
+                    .flatMap { index ->
+                        Observable.just(index)
+                            .observeOn(Schedulers.computation())
+                            .flatMap {
+                                val nGrams = codeBlocks[index].tokenSequence.toNgrams()
+                                location.locate(nGrams)
+                                    .filter { verification.verify(index, it) }
+                                    .map { it to index }
+                                    .toObservable()
+                            }
+                    }
+                    .toList()
+                    .blockingGet()
             }.toList()
 
         println("${clonePairs.size} clone pairs are detected.")
