@@ -1,6 +1,6 @@
 package io.github.t45k.nil.entity
 
-// しばらくはメソッドオンリー
+// For a while, code block is only function.
 data class CodeBlock(
     val fileName: String,
     val startLine: Int,

@@ -24,13 +24,13 @@ class AST(private val tokenizer: (String) -> List<Int>, private val config: NILC
                 .let { it.createAST(NullProgressMonitor()) as CompilationUnit }
 
             val fileName = sourceFile.toString()
-            val visitor = object : ASTVisitor() {
+            object : ASTVisitor() {
                 override fun visit(node: MethodDeclaration?): Boolean {
-                    node?.let {
+                    node?.also {
                         val startLine = if (it.javadoc == null) {
                             compilationUnit.getLineNumber(it.startPosition)
                         } else {
-                            compilationUnit.getLineNumber(getNextNodeFromJavaDoc(node).startPosition)
+                            compilationUnit.getLineNumber(getNodeNextToJavaDoc(node).startPosition)
                         }
                         val endLine = compilationUnit.getLineNumber(it.startPosition + it.length)
                         it.javadoc = null
@@ -42,7 +42,7 @@ class AST(private val tokenizer: (String) -> List<Int>, private val config: NILC
                 }
 
                 @Suppress("UNCHECKED_CAST")
-                fun getNextNodeFromJavaDoc(node: MethodDeclaration): ASTNode =
+                private fun getNodeNextToJavaDoc(node: MethodDeclaration): ASTNode =
                     (node.structuralPropertiesForType() as List<StructuralPropertyDescriptor>)
                         .asSequence()
                         .drop(1)
@@ -55,8 +55,7 @@ class AST(private val tokenizer: (String) -> List<Int>, private val config: NILC
                         }
                         .filterNotNull()
                         .first()
-            }
-            compilationUnit.accept(visitor)
+            }.apply(compilationUnit::accept)
             emitter.onComplete()
         }
 }

@@ -1,6 +1,7 @@
 package io.github.t45k.nil
 
 import io.github.t45k.nil.entity.CodeBlock
+import io.github.t45k.nil.entity.NGrams
 import io.github.t45k.nil.entity.TokenSequence
 import io.github.t45k.nil.output.CSV
 import io.github.t45k.nil.tokenizer.SymbolSeparator
@@ -25,7 +26,7 @@ class NILMain(private val config: NILConfig) {
         println("Code blocks was divided into ${(codeBlocks.size + config.partitionSize - 1) / config.partitionSize} partitions")
 
         val verification = Verification(codeBlocks)
-        val location = Location(config, codeBlocks)
+        val location = Location(config)
         val clonePairs: List<Pair<Int, Int>> = generateSequence(0) { it + 1 }
             .takeWhile { it * config.partitionSize < codeBlocks.size }
             .onEach { println("\nPartition ${it + 1}:") }
@@ -35,7 +36,7 @@ class NILMain(private val config: NILConfig) {
                     val endOfIndexing = min(startIndex + config.partitionSize, codeBlocks.size)
                     val progressMonitor = ProgressMonitor(codeBlocks.size - startIndex)
                     for (index in startIndex until codeBlocks.size) {
-                        val nGrams = codeBlocks[index].tokenSequence.toNgrams()
+                        val nGrams: NGrams = codeBlocks[index].tokenSequence.toNgrams()
                         location.locate(nGrams)
                             .filter { verification.verify(index, it) }
                             .forEach { yield(it to index) }
@@ -67,8 +68,7 @@ class NILMain(private val config: NILConfig) {
         Observable.just(sourceFile)
             .flatMap { AST(tokenizer::tokenize, config).extractBlocks(it) }
 
-    // TODO: Use rolling hash
-    private fun TokenSequence.toNgrams(): List<Int> =
+    private fun TokenSequence.toNgrams(): NGrams =
         (0..(this.size - config.gramSize))
             .map { this.subList(it, it + config.gramSize).hashCode() }
             .distinct()
