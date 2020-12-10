@@ -6,6 +6,7 @@ import io.github.t45k.nil.entity.TokenSequence
 import io.github.t45k.nil.output.CSV
 import io.github.t45k.nil.tokenizer.SymbolSeparator
 import io.github.t45k.nil.tokenizer.Tokenizer
+import io.github.t45k.nil.util.ProgressMonitor
 import io.github.t45k.nil.util.toTime
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.kotlin.toObservable
@@ -23,7 +24,7 @@ class NILMain(private val config: NILConfig) {
             .toList()
             .blockingGet()
         println("${codeBlocks.size} code blocks have been extracted in ${((System.currentTimeMillis() - startTime) / 1000).toTime()}")
-        println("Code blocks was divided into ${(codeBlocks.size + config.partitionSize - 1) / config.partitionSize} partitions")
+        println("Code blocks were divided into ${(codeBlocks.size + config.partitionSize - 1) / config.partitionSize} partitions")
 
         val verification = Verification(config, codeBlocks)
         val location = Location(config)
@@ -34,9 +35,12 @@ class NILMain(private val config: NILConfig) {
             .flatMap { startIndex ->
                 location.clear()
                 val endOfIndexing = min(startIndex + config.partitionSize, codeBlocks.size)
+                val progressMonitor = ProgressMonitor(endOfIndexing - startIndex)
                 for (index in startIndex until endOfIndexing) {
                     location.put(codeBlocks[index].tokenSequence.toNgrams(), index)
+                    progressMonitor.update(index - startIndex + 1)
                 }
+                println("Index creation has been completed.")
 
                 Observable.fromIterable(startIndex until codeBlocks.size)
                     .flatMap { index ->
@@ -51,6 +55,7 @@ class NILMain(private val config: NILConfig) {
                             }
                     }
                     .toList()
+                    .doOnSubscribe { println("Clone detection in this partition has been completed.") }
                     .blockingGet()
             }.toList()
 
