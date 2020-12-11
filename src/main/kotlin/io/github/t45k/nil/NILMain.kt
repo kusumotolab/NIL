@@ -43,15 +43,15 @@ class NILMain(private val config: NILConfig) {
                     println("Index creation has been completed.")
 
                     Observable.range(startIndex, codeBlocks.size - startIndex)
-                        // fromIterable(startIndex until codeBlocks.size)
                         .flatMap { index ->
                             Observable.just(index)
-                                .observeOn(Schedulers.computation())
+                                .subscribeOn(Schedulers.io())
                                 .flatMap {
                                     val nGrams = codeBlocks[index].tokenSequence.toNgrams()
                                     location.locate(nGrams)
                                         .filter { verification.verify(index, it) }
                                         .map { it to index }
+                                        .onEach { println(Thread.currentThread()) }
                                         .toObservable()
                                 }
                         }
@@ -59,37 +59,6 @@ class NILMain(private val config: NILConfig) {
                 }
                 .toList()
                 .blockingGet()
-
-        /*val clonePairs: List<Pair<Int, Int>> = generateSequence(0) { it + 1 }
-            .takeWhile { it * config.partitionSize < codeBlocks.size }
-            .onEach { println("\nPartition ${it + 1}:") }
-            .map { it * config.partitionSize }
-            .flatMap { startIndex ->
-                location.clear()
-                val endOfIndexing = min(startIndex + config.partitionSize, codeBlocks.size)
-                val progressMonitor = ProgressMonitor(endOfIndexing - startIndex)
-                for (index in startIndex until endOfIndexing) {
-                    location.put(codeBlocks[index].tokenSequence.toNgrams(), index)
-                    progressMonitor.update(index - startIndex + 1)
-                }
-                println("Index creation has been completed.")
-
-                Observable.fromIterable(startIndex until codeBlocks.size)
-                    .flatMap { index ->
-                        Observable.just(index)
-                            .observeOn(Schedulers.computation())
-                            .flatMap {
-                                val nGrams = codeBlocks[index].tokenSequence.toNgrams()
-                                location.locate(nGrams)
-                                    .filter { verification.verify(index, it) }
-                                    .map { it to index }
-                                    .toObservable()
-                            }
-                    }
-                    .toList()
-                    .doOnTerminate { println("Clone detection in this partition has been completed.") }
-                    .blockingGet()
-            }.toList()*/
 
         println("${clonePairs.size} clone pairs are detected.")
 
