@@ -9,6 +9,10 @@ import kotlin.math.min
 class Verification(private val config: NILConfig, private val codeBlocks: List<CodeBlock>) {
 
     fun verify(id1: Int, id2: Int): Boolean {
+        if (id1 >= id2) {
+            return false
+        }
+
         val (shorter: TokenSequence, longer: TokenSequence) = codeBlocks.getTwoTokenSequences(id1, id2)
         val (n, m) = shorter.size to longer.size
 
