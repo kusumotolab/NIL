@@ -3,7 +3,6 @@ package io.github.t45k.nil
 import io.github.t45k.nil.entity.CodeBlock
 import io.github.t45k.nil.entity.NGrams
 import io.github.t45k.nil.entity.TokenSequence
-import io.github.t45k.nil.output.CSV
 import io.github.t45k.nil.tokenizer.SymbolSeparator
 import io.github.t45k.nil.tokenizer.Tokenizer
 import io.github.t45k.nil.util.ProgressMonitor
@@ -28,44 +27,46 @@ class NILMain(private val config: NILConfig) {
 
         val verification = Verification(config, codeBlocks)
         val location = Location(config)
-        val clonePairs: List<Pair<Int, Int>> =
-            Observable.range(0, (codeBlocks.size + config.partitionSize - 1) / config.partitionSize)
-                .flatMap {
-                    println("\nPartition ${it + 1}:")
-                    val startIndex: Int = it * config.partitionSize
-                    location.clear()
-                    val endOfIndexing = min(startIndex + config.partitionSize, codeBlocks.size)
-                    val progressMonitor = ProgressMonitor(endOfIndexing - startIndex)
-                    for (index in startIndex until endOfIndexing) {
-                        location.put(codeBlocks[index].tokenSequence.toNgrams(), index)
-                        progressMonitor.update(index - startIndex + 1)
-                    }
-                    println("Index creation has been completed.")
-
-                    Observable.range(startIndex, codeBlocks.size - startIndex)
-                        .flatMap { index ->
-                            Observable.just(index)
-                                .subscribeOn(Schedulers.io())
-                                .flatMap {
-                                    val nGrams = codeBlocks[index].tokenSequence.toNgrams()
-                                    location.locate(nGrams)
-                                        .toObservable()
-                                        .filter { index > it }
-                                        .filter { verification.verify(index, it) }
-                                        .map { it to index }
-                                }
-                        }
-                        .doOnTerminate { println("Clone detection in this partition has been completed.") }
+        val bufferedWriter = File(config.outputFileName).bufferedWriter()
+        Observable.range(0, (codeBlocks.size + config.partitionSize - 1) / config.partitionSize)
+            .flatMap {
+                println("\nPartition ${it + 1}:")
+                val startIndex: Int = it * config.partitionSize
+                location.clear()
+                val endOfIndexing = min(startIndex + config.partitionSize, codeBlocks.size)
+                val progressMonitor = ProgressMonitor(endOfIndexing - startIndex)
+                for (index in startIndex until endOfIndexing) {
+                    location.put(codeBlocks[index].tokenSequence.toNgrams(), index)
+                    progressMonitor.update(index - startIndex + 1)
                 }
-                .toList()
-                .blockingGet()
+                println("Index creation has been completed.")
 
-        println("${clonePairs.size} clone pairs are detected.")
+                Observable.range(startIndex, codeBlocks.size - startIndex)
+                    .flatMap { index ->
+                        Observable.just(index)
+                            .subscribeOn(Schedulers.io())
+                            .flatMap {
+                                val nGrams = codeBlocks[index].tokenSequence.toNgrams()
+                                location.locate(nGrams)
+                                    .toObservable()
+                                    .filter { index > it }
+                                    .filter { verification.verify(index, it) }
+                                    .map { it to index }
+                            }
+                    }
+                    .doOnTerminate { println("Clone detection in this partition has been completed.") }
+            }
+            .blockingSubscribe {
+                bufferedWriter.appendLine("${reformat(codeBlocks[it.first])},${reformat(codeBlocks[it.second])}")
+            }
 
         val endTime = System.currentTimeMillis()
         println("time: ${((endTime - startTime) / 1000).toTime()}")
+    }
 
-        CSV().output(config.outputFileName, clonePairs, codeBlocks)
+    private fun reformat(codeBlock: CodeBlock): String {
+        val (dirName, fileName) = codeBlock.fileName.split(File.separator).let { it[it.size - 2] to it.last() }
+        return "$dirName,$fileName,${codeBlock.startLine},${codeBlock.endLine}"
     }
 
     private fun collectSourceFiles(dir: File): Observable<File> =
