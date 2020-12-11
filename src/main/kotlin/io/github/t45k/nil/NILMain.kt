@@ -31,7 +31,7 @@ class NILMain(private val config: NILConfig) {
         val clonePairs: List<Pair<Int, Int>> =
             Observable.range(0, (codeBlocks.size + config.partitionSize - 1) / config.partitionSize)
                 .flatMap {
-                    println("\nPartition ${it +1}:")
+                    println("\nPartition ${it + 1}:")
                     val startIndex: Int = it * config.partitionSize
                     location.clear()
                     val endOfIndexing = min(startIndex + config.partitionSize, codeBlocks.size)
@@ -49,9 +49,10 @@ class NILMain(private val config: NILConfig) {
                                 .flatMap {
                                     val nGrams = codeBlocks[index].tokenSequence.toNgrams()
                                     location.locate(nGrams)
+                                        .toObservable()
+                                        .filter { index > it }
                                         .filter { verification.verify(index, it) }
                                         .map { it to index }
-                                        .toObservable()
                                 }
                         }
                         .doOnTerminate { println("Clone detection in this partition has been completed.") }
