@@ -51,7 +51,6 @@ class NILMain(private val config: NILConfig) {
                                     location.locate(nGrams)
                                         .filter { verification.verify(index, it) }
                                         .map { it to index }
-                                        .onEach { println(Thread.currentThread()) }
                                         .toObservable()
                                 }
                         }
