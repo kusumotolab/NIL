@@ -30,9 +30,9 @@ class NILMain(private val config: NILConfig) {
         val location = Location(config)
         val clonePairs: List<Pair<Int, Int>> =
             Observable.range(0, (codeBlocks.size + config.partitionSize - 1) / config.partitionSize)
-                .doOnEach { println("\nPartition ${it.value + 1}:") }
-                .map { it * config.partitionSize }
-                .flatMap { startIndex ->
+                .flatMap {
+                    println("\nPartition ${it +1}:")
+                    val startIndex: Int = it * config.partitionSize
                     location.clear()
                     val endOfIndexing = min(startIndex + config.partitionSize, codeBlocks.size)
                     val progressMonitor = ProgressMonitor(endOfIndexing - startIndex)
