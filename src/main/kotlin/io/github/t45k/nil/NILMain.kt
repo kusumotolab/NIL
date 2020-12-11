@@ -60,6 +60,7 @@ class NILMain(private val config: NILConfig) {
                 bufferedWriter.appendLine("${reformat(codeBlocks[it.first])},${reformat(codeBlocks[it.second])}")
             }
 
+        bufferedWriter.close()
         val endTime = System.currentTimeMillis()
         println("time: ${((endTime - startTime) / 1000).toTime()}")
     }
