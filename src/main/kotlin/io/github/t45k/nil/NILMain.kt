@@ -43,7 +43,7 @@ class NILMain(private val config: NILConfig) {
             Observable.range(startIndex, codeBlocks.size - startIndex)
                 .flatMap { index ->
                     Observable.just(index)
-                        .subscribeOn(Schedulers.io())
+                        .subscribeOn(Schedulers.computation())
                         .flatMap {
                             val nGrams = codeBlocks[index].tokenSequence.toNgrams()
                             location.locate(nGrams)
