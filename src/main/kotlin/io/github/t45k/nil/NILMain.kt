@@ -28,37 +28,35 @@ class NILMain(private val config: NILConfig) {
         val verification = Verification(config, codeBlocks)
         val location = Location(config)
         val bufferedWriter = File(config.outputFileName).bufferedWriter()
-        Observable.range(0, (codeBlocks.size + config.partitionSize - 1) / config.partitionSize)
-            .flatMap {
-                println("\nPartition ${it + 1}:")
-                val startIndex: Int = it * config.partitionSize
-                location.clear()
-                val endOfIndexing = min(startIndex + config.partitionSize, codeBlocks.size)
-                val progressMonitor = ProgressMonitor(endOfIndexing - startIndex)
-                for (index in startIndex until endOfIndexing) {
-                    location.put(codeBlocks[index].tokenSequence.toNgrams(), index)
-                    progressMonitor.update(index - startIndex + 1)
-                }
-                println("Index creation has been completed.")
+        for (i in 0 until (codeBlocks.size + config.partitionSize - 1) / config.partitionSize) {
+            println("\nPartition ${i + 1}:")
+            val startIndex: Int = i * config.partitionSize
+            location.clear()
+            val endOfIndexing = min(startIndex + config.partitionSize, codeBlocks.size)
+            val progressMonitor = ProgressMonitor(endOfIndexing - startIndex)
+            for (index in startIndex until endOfIndexing) {
+                location.put(codeBlocks[index].tokenSequence.toNgrams(), index)
+                progressMonitor.update(index - startIndex + 1)
+            }
+            println("Index creation has been completed.")
 
-                Observable.range(startIndex, codeBlocks.size - startIndex)
-                    .flatMap { index ->
-                        Observable.just(index)
-                            .subscribeOn(Schedulers.io())
-                            .flatMap {
-                                val nGrams = codeBlocks[index].tokenSequence.toNgrams()
-                                location.locate(nGrams)
-                                    .toObservable()
-                                    .filter { index > it }
-                                    .filter { verification.verify(index, it) }
-                                    .map { it to index }
-                            }
-                    }
-                    .doOnTerminate { println("Clone detection in this partition has been completed.") }
-            }
-            .blockingSubscribe {
-                bufferedWriter.appendLine("${reformat(codeBlocks[it.first])},${reformat(codeBlocks[it.second])}")
-            }
+            Observable.range(startIndex, codeBlocks.size - startIndex)
+                .flatMap { index ->
+                    Observable.just(index)
+                        .subscribeOn(Schedulers.io())
+                        .flatMap {
+                            val nGrams = codeBlocks[index].tokenSequence.toNgrams()
+                            location.locate(nGrams)
+                                .toObservable()
+                                .filter { index > it }
+                                .filter { verification.verify(index, it) }
+                                .map { it to index }
+                        }
+                }
+                .blockingSubscribe {
+                    bufferedWriter.appendLine("${reformat(codeBlocks[it.first])},${reformat(codeBlocks[it.second])}")
+                }
+        }
 
         bufferedWriter.close()
         val endTime = System.currentTimeMillis()
