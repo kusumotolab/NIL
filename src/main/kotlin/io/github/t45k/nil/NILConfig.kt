@@ -11,6 +11,7 @@ data class NILConfig(
     val filteringThreshold: Int = 10,
     val verifyingThreshold: Int = 70,
     val outputFileName: String = "result.csv",
+    val isForBigCloneEval:Boolean = false
 )
 
 fun parseArgs(args: Array<String>): NILConfig {
@@ -22,10 +23,11 @@ fun parseArgs(args: Array<String>): NILConfig {
     var filteringThreshold = 10
     var verifyingThreshold = 70
     var outputFileName: String? = null
+    var isForBigCloneEval = false
 
     val iterator = args.iterator()
     while (iterator.hasNext()) {
-        when (val optionName = iterator.next()) {
+        when (val optionName = iterator.next().toLowerCase()) {
             "-s", "--src" -> src = File(iterator.next())
             "-mil", "--min-line" -> minLine = iterator.next().toInt()
             "-mit", "--min-token" -> minToken = iterator.next().toInt()
@@ -34,6 +36,7 @@ fun parseArgs(args: Array<String>): NILConfig {
             "-f", "--filtering-threshold" -> filteringThreshold = iterator.next().toInt()
             "-v", "--verifying-threshold" -> verifyingThreshold = iterator.next().toInt()
             "-o", "--output" -> outputFileName = iterator.next()
+            "-bcb", "--bigcloneeval" -> isForBigCloneEval = true
             else -> throw InvalidOptionException(optionName)
         }
     }
@@ -47,6 +50,7 @@ fun parseArgs(args: Array<String>): NILConfig {
         filteringThreshold,
         verifyingThreshold,
         outputFileName ?: "result_${gramSize}_${filteringThreshold}.csv",
+        isForBigCloneEval,
     )
 }
 
@@ -61,5 +65,6 @@ class InvalidOptionException(private val option: String) : RuntimeException() {
             |-f, --filtering-threshold${'\t'}Filtering threshold
             |-v, --verifying-threshold${'\t'}Verifying threshold
             |-o, --output${'\t'}Output file name
+            |-bcb, --bigcloneebval${'\t'}Output result feasible to BigCloneEval
         """.trimMargin()
 }
