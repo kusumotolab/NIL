@@ -21,7 +21,7 @@ class NILMain(private val config: NILConfig) {
         val codeBlockWriter = File("code_blocks").bufferedWriter()
         val tokenSequences: List<TokenSequence> = collectSourceFiles(config.src)
             .flatMap { collectBlocks(it).subscribeOn(Schedulers.io()) }
-            .doOnEach { codeBlockWriter.appendLine(reformat(it.value)) }
+            .doOnEach { if (it.value != null) codeBlockWriter.appendLine(reformat(it.value)) }
             .map { it.tokenSequence }
             .toList()
             .blockingGet()
