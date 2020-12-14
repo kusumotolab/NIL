@@ -23,7 +23,7 @@ class AST(private val tokenizer: (String) -> List<Int>, private val config: NILC
                 .also { it.setSource(sourceFile.readText().toCharArray()) }
                 .let { it.createAST(NullProgressMonitor()) as CompilationUnit }
 
-            val fileName = sourceFile.toString()
+            val fileName = sourceFile.canonicalPath
             object : ASTVisitor() {
                 override fun visit(node: MethodDeclaration?): Boolean {
                     node?.also {
