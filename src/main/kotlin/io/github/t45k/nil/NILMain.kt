@@ -18,34 +18,38 @@ class NILMain(private val config: NILConfig) {
 
     fun run() {
         val startTime = System.currentTimeMillis()
-        val codeBlocks: List<CodeBlock> = collectSourceFiles(config.src)
+        val codeBlockWriter = File("code_blocks").bufferedWriter()
+        val tokenSequences: List<TokenSequence> = collectSourceFiles(config.src)
             .flatMap { collectBlocks(it).subscribeOn(Schedulers.io()) }
+            .doOnEach { codeBlockWriter.appendLine(reformat(it.value)) }
+            .map { it.tokenSequence }
             .toList()
             .blockingGet()
-        println("${codeBlocks.size} code blocks have been extracted in ${((System.currentTimeMillis() - startTime) / 1000).toTime()}")
-        println("Code blocks were divided into ${(codeBlocks.size + config.partitionSize - 1) / config.partitionSize} partitions")
+        codeBlockWriter.close()
+        println("${tokenSequences.size} code blocks have been extracted in ${((System.currentTimeMillis() - startTime) / 1000).toTime()}")
+        println("Code blocks were divided into ${(tokenSequences.size + config.partitionSize - 1) / config.partitionSize} partitions")
 
-        val verification = Verification(config, codeBlocks)
+        val verification = Verification(config, tokenSequences)
         val location = Location(config)
-        val bufferedWriter = File(config.outputFileName).bufferedWriter()
-        for (i in 0 until (codeBlocks.size + config.partitionSize - 1) / config.partitionSize) {
+        val resultWriter = File(config.outputFileName).bufferedWriter()
+        for (i in 0 until (tokenSequences.size + config.partitionSize - 1) / config.partitionSize) {
             println("\nPartition ${i + 1}:")
             val startIndex: Int = i * config.partitionSize
             location.clear()
-            val endOfIndexing = min(startIndex + config.partitionSize, codeBlocks.size)
+            val endOfIndexing = min(startIndex + config.partitionSize, tokenSequences.size)
             val progressMonitor = ProgressMonitor(endOfIndexing - startIndex)
             for (index in startIndex until endOfIndexing) {
-                location.put(codeBlocks[index].tokenSequence.toNgrams(), index)
+                location.put(tokenSequences[index].toNgrams(), index)
                 progressMonitor.update(index - startIndex + 1)
             }
             println("Index creation has been completed.")
 
-            Observable.range(startIndex, codeBlocks.size - startIndex)
+            Observable.range(startIndex, tokenSequences.size - startIndex)
                 .flatMap { index ->
                     Observable.just(index)
                         .subscribeOn(Schedulers.computation())
                         .flatMap {
-                            val nGrams = codeBlocks[index].tokenSequence.toNgrams()
+                            val nGrams = tokenSequences[index].toNgrams()
                             location.locate(nGrams)
                                 .toObservable()
                                 .filter { index > it }
@@ -54,19 +58,17 @@ class NILMain(private val config: NILConfig) {
                         }
                 }
                 .blockingSubscribe {
-                    bufferedWriter.appendLine("${reformat(codeBlocks[it.first])},${reformat(codeBlocks[it.second])}")
+                    resultWriter.appendLine("${it.first},${it.second}")
                 }
         }
 
-        bufferedWriter.close()
+        resultWriter.close()
         val endTime = System.currentTimeMillis()
         println("time: ${((endTime - startTime) / 1000).toTime()}")
     }
 
-    private fun reformat(codeBlock: CodeBlock): String {
-        val (dirName, fileName) = codeBlock.fileName.split(File.separator).let { it[it.size - 2] to it.last() }
-        return "$dirName,$fileName,${codeBlock.startLine},${codeBlock.endLine}"
-    }
+    private fun reformat(codeBlock: CodeBlock): String =
+        "${codeBlock.fileName},${codeBlock.startLine},${codeBlock.endLine}"
 
     private fun collectSourceFiles(dir: File): Observable<File> =
         dir.walk()

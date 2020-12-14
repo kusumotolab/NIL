@@ -1,15 +1,14 @@
 package io.github.t45k.nil
 
-import io.github.t45k.nil.entity.CodeBlock
 import io.github.t45k.nil.entity.TokenSequence
 import java.util.Comparator
 import kotlin.math.max
 import kotlin.math.min
 
-class Verification(private val config: NILConfig, private val codeBlocks: List<CodeBlock>) {
+class Verification(private val config: NILConfig, private val tokenSequences: List<TokenSequence>) {
 
     fun verify(id1: Int, id2: Int): Boolean {
-        val (shorter: TokenSequence, longer: TokenSequence) = codeBlocks.getTwoTokenSequences(id1, id2)
+        val (shorter: TokenSequence, longer: TokenSequence) = tokenSequences.getTwoTokenSequences(id1, id2)
         val (n, m) = shorter.size to longer.size
 
         val invertedIndices: MutableMap<Int, MutableList<Int>> = mutableMapOf()
@@ -34,18 +33,18 @@ class Verification(private val config: NILConfig, private val codeBlocks: List<C
     /**
      * Return (shorter token sequence, longer token sequence)
      */
-    private fun List<CodeBlock>.getTwoTokenSequences(id1: Int, id2: Int): Pair<TokenSequence, TokenSequence> =
-        if (this[id1].tokenSequence.size < this[id2].tokenSequence.size) {
-            this[id1].tokenSequence to this[id2].tokenSequence
+    private fun List<TokenSequence>.getTwoTokenSequences(id1: Int, id2: Int): Pair<TokenSequence, TokenSequence> =
+        if (this[id1].size < this[id2].size) {
+            this[id1] to this[id2]
         } else {
-            this[id2].tokenSequence to this[id1].tokenSequence
+            this[id2] to this[id1]
         }
 
     @Deprecated("Time Complexity of naive LCS is O(NM) where N and M are size of given two sequence respectively.\nIt is too late")
     fun verifyAlternative(id1: Int, id2: Int): Boolean {
-        val tokenSequence1 = codeBlocks[id1].tokenSequence
+        val tokenSequence1 = tokenSequences[id1]
         val size1 = tokenSequence1.size
-        val tokenSequence2 = codeBlocks[id2].tokenSequence
+        val tokenSequence2 = tokenSequences[id2]
         val size2 = tokenSequence2.size
         val dpTable: Array<Array<Int>> = Array(size1 + 1) { Array(size2 + 1) { 0 } }
         for (i in 1..size1) {
