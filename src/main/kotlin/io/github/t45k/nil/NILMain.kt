@@ -3,6 +3,7 @@ package io.github.t45k.nil
 import io.github.t45k.nil.entity.CodeBlock
 import io.github.t45k.nil.entity.NGrams
 import io.github.t45k.nil.entity.TokenSequence
+import io.github.t45k.nil.output.BigCloneEvalFormat
 import io.github.t45k.nil.output.CSV
 import io.github.t45k.nil.tokenizer.SymbolSeparator
 import io.github.t45k.nil.tokenizer.Tokenizer
@@ -65,7 +66,11 @@ class NILMain(private val config: NILConfig) {
         val endTime = System.currentTimeMillis()
         println("time: ${((endTime - startTime) / 1000).toTime()}")
 
-        CSV().output(config.outputFileName, clonePairs, codeBlocks)
+        if (config.isForBigCloneEval) {
+            BigCloneEvalFormat()
+        } else {
+            CSV()
+        }.output(config.outputFileName, clonePairs, codeBlocks)
     }
 
     private fun collectSourceFiles(dir: File): Observable<File> =
