@@ -11,8 +11,6 @@ class CSV : Format {
         File(fileName).writeText(result)
     }
 
-    private fun reformat(codeBlock: CodeBlock): String {
-        val (dirName, fileName) = codeBlock.fileName.split(File.separator).let { it[it.size - 2] to it.last() }
-        return "$dirName,$fileName,${codeBlock.startLine},${codeBlock.endLine}"
-    }
+    private fun reformat(codeBlock: CodeBlock): String =
+        "${codeBlock.fileName},${codeBlock.startLine},${codeBlock.endLine}"
 }
