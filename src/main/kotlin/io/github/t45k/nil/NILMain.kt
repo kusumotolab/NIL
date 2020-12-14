@@ -50,12 +50,10 @@ class NILMain(private val config: NILConfig) {
                                 .toObservable()
                                 .filter { index > it }
                                 .filter { verification.verify(index, it) }
-                                .doOnEach { println(Thread.currentThread().toString() + " clone") }
                                 .map { it to index }
                         }
                 }
                 .blockingSubscribe {
-                    println(Thread.currentThread().toString() + " write")
                     bufferedWriter.appendLine("${reformat(codeBlocks[it.first])},${reformat(codeBlocks[it.second])}")
                 }
         }
