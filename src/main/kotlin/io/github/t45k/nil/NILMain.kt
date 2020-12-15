@@ -47,7 +47,7 @@ class NILMain(private val config: NILConfig) {
             Observable.range(startIndex, tokenSequences.size - startIndex)
                 .flatMap { index ->
                     Observable.just(index)
-                        .subscribeOn(Schedulers.computation())
+                        .subscribeOn(Schedulers.io())
                         .flatMap {
                             val nGrams = tokenSequences[index].toNgrams()
                             location.locate(nGrams)
