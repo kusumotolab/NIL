@@ -7,7 +7,9 @@ import io.github.t45k.nil.tokenizer.SymbolSeparator
 import io.github.t45k.nil.tokenizer.Tokenizer
 import io.github.t45k.nil.util.ProgressMonitor
 import io.github.t45k.nil.util.toTime
+import io.reactivex.rxjava3.core.Flowable
 import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.kotlin.toFlowable
 import io.reactivex.rxjava3.kotlin.toObservable
 import io.reactivex.rxjava3.schedulers.Schedulers
 import java.io.File
@@ -44,22 +46,35 @@ class NILMain(private val config: NILConfig) {
             }
             println("Index creation has been completed.")
 
-            Observable.range(startIndex, tokenSequences.size - startIndex)
+            /* Observable.range(startIndex, tokenSequences.size - startIndex)
+                 .flatMap { index ->
+                     Observable.just(index)
+                         .observeOn(Schedulers.computation())
+                         .flatMap {
+                             val nGrams = tokenSequences[index].toNgrams()
+                             location.locate(nGrams)
+                                 .toObservable()
+                                 .filter { index > it }
+                                 .filter { verification.verify(index, it) }
+                                 .map { it to index }
+                         }
+                 }
+                 .blockingSubscribe {
+                     resultWriter.appendLine("${it.first},${it.second}")
+                 }*/
+            Flowable.range(startIndex, tokenSequences.size - startIndex)
+                .parallel()
+                .runOn(Schedulers.computation())
                 .flatMap { index ->
-                    Observable.just(index)
-                        .observeOn(Schedulers.computation())
-                        .flatMap {
-                            val nGrams = tokenSequences[index].toNgrams()
-                            location.locate(nGrams)
-                                .toObservable()
-                                .filter { index > it }
-                                .filter { verification.verify(index, it) }
-                                .map { it to index }
-                        }
+                    val nGrams = tokenSequences[index].toNgrams()
+                    location.locate(nGrams)
+                        .toFlowable()
+                        .filter { index > it }
+                        .filter { verification.verify(index, it) }
+                        .map { it to index }
                 }
-                .blockingSubscribe {
-                    resultWriter.appendLine("${it.first},${it.second}")
-                }
+                .sequential()
+                .blockingSubscribe { resultWriter.appendLine("${it.first},${it.second}") }
         }
 
         resultWriter.close()
