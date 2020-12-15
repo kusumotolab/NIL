@@ -2,6 +2,8 @@ package io.github.t45k.nil
 
 import io.github.t45k.nil.entity.CodeBlock
 import io.github.t45k.nil.tokenizer.LexicalAnalyzer
+import io.reactivex.rxjava3.core.BackpressureStrategy
+import io.reactivex.rxjava3.core.Flowable
 import io.reactivex.rxjava3.core.Observable
 import org.eclipse.core.runtime.NullProgressMonitor
 import org.eclipse.jdt.core.dom.AST.JLS14
@@ -17,8 +19,8 @@ import java.io.File
 
 class AST(private val tokenizer: (String) -> List<Int>, private val config: NILConfig) {
 
-    fun extractBlocks(sourceFile: File): Observable<CodeBlock> =
-        Observable.create { emitter ->
+    fun extractBlocks(sourceFile: File): Flowable<CodeBlock> =
+        Observable.create<CodeBlock> { emitter ->
             val compilationUnit: CompilationUnit = ASTParser.newParser(JLS14)
                 .also { it.setSource(sourceFile.readText().toCharArray()) }
                 .let { it.createAST(NullProgressMonitor()) as CompilationUnit }
@@ -57,5 +59,5 @@ class AST(private val tokenizer: (String) -> List<Int>, private val config: NILC
                         .first()
             }.apply(compilationUnit::accept)
             emitter.onComplete()
-        }
+        }.toFlowable(BackpressureStrategy.BUFFER)
 }
