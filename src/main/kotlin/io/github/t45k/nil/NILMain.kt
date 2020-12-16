@@ -3,6 +3,8 @@ package io.github.t45k.nil
 import io.github.t45k.nil.entity.CodeBlock
 import io.github.t45k.nil.entity.TokenSequence
 import io.github.t45k.nil.entity.toNgrams
+import io.github.t45k.nil.output.BigCloneEvalFormat
+import io.github.t45k.nil.output.CSV
 import io.github.t45k.nil.tokenizer.SymbolSeparator
 import io.github.t45k.nil.tokenizer.Tokenizer
 import io.github.t45k.nil.util.toTime
@@ -74,17 +76,11 @@ class NILMain(private val config: NILConfig) {
         logger.info("End")
         logger.info("time: ${(endTime - startTime).toTime()}")
 
-        File(config.outputFileName).bufferedWriter().use { bw ->
-            val codeBlocks: List<String> = codeBlockFile.readLines()
-            clonePairFile.bufferedReader().use { br ->
-                br.lines()
-                    .map { line ->
-                        val (id1, id2) = line.split(",")
-                        "${codeBlocks[id1.toInt()]},${codeBlocks[id2.toInt()]}"
-                    }
-                    .forEach { bw.appendLine(it) }
-            }
-        }
+        if (config.isForBigCloneEval) {
+            BigCloneEvalFormat()
+        } else {
+            CSV()
+        }.convert(config.outputFileName, codeBlockFile, clonePairFile)
     }
 
     private fun reformat(codeBlock: CodeBlock): String =
