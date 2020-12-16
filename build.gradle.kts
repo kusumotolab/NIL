@@ -30,6 +30,9 @@ dependencies {
     // Use RxKotlin
     implementation("io.reactivex.rxjava3:rxkotlin:3.0.0")
 
+    // Use Logger
+    implementation("ch.qos.logback:logback-classic:1.2.3")
+
     // Use JDT
     implementation("org.eclipse.jdt:org.eclipse.jdt.core:3.22.0")
 
