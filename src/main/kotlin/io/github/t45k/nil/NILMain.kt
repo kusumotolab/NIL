@@ -31,7 +31,7 @@ class NILMain(private val config: NILConfig) {
                 .runOn(Schedulers.io())
                 .flatMap { collectBlocks(it) }
                 .sequential()
-                .doOnEach { if (it.value != null) bw.appendLine(reformat(it.value)) }
+                .doOnEach { it.value?.let { codeBlock -> bw.appendLine(codeBlock.toString()) } }
                 .map { it.tokenSequence }
                 .toList()
                 .blockingGet()
@@ -82,9 +82,6 @@ class NILMain(private val config: NILConfig) {
             CSV()
         }.convert(config.outputFileName, codeBlockFile, clonePairFile)
     }
-
-    private fun reformat(codeBlock: CodeBlock): String =
-        "${codeBlock.fileName},${codeBlock.startLine},${codeBlock.endLine}"
 
     private fun collectSourceFiles(dir: File): Flowable<File> =
         dir.walk()
