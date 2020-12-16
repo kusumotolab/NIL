@@ -6,4 +6,7 @@ data class CodeBlock(
     val startLine: Int,
     val endLine: Int,
     val tokenSequence: TokenSequence,
-)
+) {
+    override fun toString(): String =
+        "${fileName},${startLine},${endLine}"
+}

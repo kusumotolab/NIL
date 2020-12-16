@@ -11,7 +11,8 @@ data class NILConfig(
     val filteringThreshold: Int = 10,
     val verifyingThreshold: Int = 70,
     val outputFileName: String = "result.csv",
-    val isForBigCloneEval:Boolean = false
+    val threads: Int = 0,
+    val isForBigCloneEval: Boolean = false,
 )
 
 fun parseArgs(args: Array<String>): NILConfig {
@@ -23,6 +24,7 @@ fun parseArgs(args: Array<String>): NILConfig {
     var filteringThreshold = 10
     var verifyingThreshold = 70
     var outputFileName: String? = null
+    var threads = 0
     var isForBigCloneEval = false
 
     val iterator = args.iterator()
@@ -36,6 +38,7 @@ fun parseArgs(args: Array<String>): NILConfig {
             "-f", "--filtering-threshold" -> filteringThreshold = iterator.next().toInt()
             "-v", "--verifying-threshold" -> verifyingThreshold = iterator.next().toInt()
             "-o", "--output" -> outputFileName = iterator.next()
+            "-t", "--threads" -> threads = iterator.next().toInt()
             "-bcb", "--bigcloneeval" -> isForBigCloneEval = true
             else -> throw InvalidOptionException(optionName)
         }
@@ -49,7 +52,8 @@ fun parseArgs(args: Array<String>): NILConfig {
         partitionSize,
         filteringThreshold,
         verifyingThreshold,
-        outputFileName ?: "result_${gramSize}_${filteringThreshold}.csv",
+        outputFileName ?: "result_${gramSize}_${filteringThreshold}_${verifyingThreshold}.csv",
+        threads,
         isForBigCloneEval,
     )
 }
@@ -57,14 +61,15 @@ fun parseArgs(args: Array<String>): NILConfig {
 class InvalidOptionException(private val option: String) : RuntimeException() {
     override val message: String
         get() = """$option is invalid option.
-            |-s, --src${'\t'}Source directory
-            |-mil, --min-line${'\t'}Minimum line
-            |-mit, --min-token${'\t'}Minimum token
-            |-g, --gram-size${'\t'}N of N-gram
-            |-p, --partition-size${'\t'}Size of partition
-            |-f, --filtering-threshold${'\t'}Filtering threshold
-            |-v, --verifying-threshold${'\t'}Verifying threshold
-            |-o, --output${'\t'}Output file name
-            |-bcb, --bigcloneebval${'\t'}Output result feasible to BigCloneEval
+            |-s, --src${'\t'}Source directory (must be specified)
+            |-mil, --min-line${'\t'}Minimum line (default: 6)
+            |-mit, --min-token${'\t'}Minimum token (default: 50)
+            |-g, --gram-size${'\t'}N of N-gram (default: 5)
+            |-p, --partition-size${'\t'}Size of partition (default: 500000)
+            |-f, --filtering-threshold${'\t'}Filtering threshold (default: 10%)
+            |-v, --verifying-threshold${'\t'}Verifying threshold (default: 70%)
+            |-o, --output${'\t'}Output file name (default: result_(N-gram)_(filtering threshold)_(verifying_threshold).csv)
+            |-t, --thrads${'\t'}The number of threads used for parallel execution (default: all threads)
+            |-bcb, --bigcloneebval${'\t'}Output result feasible to BigCloneEval (default: false)
         """.trimMargin()
 }
