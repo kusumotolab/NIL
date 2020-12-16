@@ -10,6 +10,7 @@ import io.github.t45k.nil.tokenizer.Tokenizer
 import io.github.t45k.nil.util.toTime
 import io.reactivex.rxjava3.core.Flowable
 import io.reactivex.rxjava3.kotlin.toFlowable
+import io.reactivex.rxjava3.parallel.ParallelFlowable
 import io.reactivex.rxjava3.schedulers.Schedulers
 import org.slf4j.LoggerFactory
 import java.io.File
@@ -26,7 +27,7 @@ class NILMain(private val config: NILConfig) {
         val codeBlockFile = File("code_blocks")
         val tokenSequences: List<TokenSequence> = codeBlockFile.bufferedWriter().use { bw ->
             collectSourceFiles(config.src)
-                .parallel()
+                .parallelIfSpecified(config.threads)
                 .runOn(Schedulers.io())
                 .flatMap { collectBlocks(it) }
                 .sequential()
@@ -46,17 +47,16 @@ class NILMain(private val config: NILConfig) {
             val location = Location(config)
             repeat(numOfPartitions) { i ->
                 location.clear()
-                logger.info("\nPartition ${i + 1}:")
 
                 val startIndex: Int = i * config.partitionSize
                 val endOfIndexing = min(startIndex + config.partitionSize, tokenSequences.size)
                 for (index in startIndex until endOfIndexing) {
                     location.put(tokenSequences[index].toNgrams(config.gramSize), index)
                 }
-                logger.info("Index creation has been completed.")
+                logger.info("Partition ${i + 1}: Index creation has been completed.")
 
                 Flowable.range(startIndex, tokenSequences.size - startIndex)
-                    .parallel()
+                    .parallelIfSpecified(config.threads)
                     .runOn(Schedulers.computation())
                     .flatMap { index ->
                         val nGrams = tokenSequences[index].toNgrams(config.gramSize)
@@ -68,7 +68,7 @@ class NILMain(private val config: NILConfig) {
                     }
                     .sequential()
                     .blockingSubscribe { bw.appendLine("${it.first},${it.second}") }
-                logger.info("Clone Detection in this partition has been completed.")
+                logger.info("Partition ${i + 1}: Clone Detection in has been completed.")
             }
         }
 
@@ -94,6 +94,15 @@ class NILMain(private val config: NILConfig) {
     private fun collectBlocks(sourceFile: File): Flowable<CodeBlock> =
         Flowable.just(sourceFile)
             .flatMap { AST(tokenizer::tokenize, config).extractBlocks(it) }
+
+    private fun <T> Flowable<T>.parallelIfSpecified(threads: Int): ParallelFlowable<T> =
+        this.run {
+            if (threads > 0) {
+                parallel(threads)
+            } else {
+                parallel()
+            }
+        }
 }
 
 fun main(args: Array<String>) {

@@ -8,7 +8,7 @@ internal class NILMainTest {
 
     @Test
     fun test() {
-        val config = parseArgs(arrayOf("-s", "./src/test/resources/examples", "-bcb"))
+        val config = parseArgs(arrayOf("-s", "./src/test/resources/examples", "-bcb", "-t", "1"))
         NILMain(config).run()
 
         val outputFile = File(config.outputFileName)
