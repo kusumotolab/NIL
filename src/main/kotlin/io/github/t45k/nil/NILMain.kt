@@ -72,7 +72,17 @@ class NILMain(private val config: NILConfig) {
         val endTime = System.currentTimeMillis()
         println("time: ${(endTime - startTime).toTime()}")
 
-
+        File(config.outputFileName).bufferedWriter().use { bw ->
+            val codeBlocks: List<String> = codeBlockFile.readLines()
+            clonePairFile.bufferedReader().use { br ->
+                br.lines()
+                    .map { line ->
+                        val (id1, id2) = line.split(",")
+                        "${codeBlocks[id1.toInt()]},${codeBlocks[id2.toInt()]}"
+                    }
+                    .forEach { bw.appendLine(it) }
+            }
+        }
     }
 
     private fun reformat(codeBlock: CodeBlock): String =
