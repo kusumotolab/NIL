@@ -2,6 +2,7 @@ package io.github.t45k.nil
 
 import io.github.t45k.nil.entity.CodeBlock
 import io.github.t45k.nil.entity.TokenSequence
+import io.github.t45k.nil.entity.toNgrams
 import io.github.t45k.nil.tokenizer.SymbolSeparator
 import io.github.t45k.nil.tokenizer.Tokenizer
 import io.github.t45k.nil.util.toTime
@@ -48,7 +49,7 @@ class NILMain(private val config: NILConfig) {
                 val startIndex: Int = i * config.partitionSize
                 val endOfIndexing = min(startIndex + config.partitionSize, tokenSequences.size)
                 for (index in startIndex until endOfIndexing) {
-                    location.put(tokenSequences[index].toNgrams(), index)
+                    location.put(tokenSequences[index].toNgrams(config.gramSize), index)
                 }
                 logger.info("Index creation has been completed.")
 
@@ -56,7 +57,7 @@ class NILMain(private val config: NILConfig) {
                     .parallel()
                     .runOn(Schedulers.computation())
                     .flatMap { index ->
-                        val nGrams = tokenSequences[index].toNgrams()
+                        val nGrams = tokenSequences[index].toNgrams(config.gramSize)
                         location.locate(nGrams)
                             .toFlowable()
                             .filter { index > it }
