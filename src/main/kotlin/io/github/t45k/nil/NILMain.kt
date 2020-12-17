@@ -17,29 +17,19 @@ import kotlin.math.min
 
 class NILMain(private val config: NILConfig) {
     private val logger = LoggerFactory.getLogger(this.javaClass)
+    private val codeBlockFile = File("code_blocks")
+    private val clonePairFile = File("clone_pair")
 
     fun run() {
         val startTime = System.currentTimeMillis()
         logger.info("Start")
 
-        val codeBlockFile = File("code_blocks")
-        val tokenSequences: List<TokenSequence> = codeBlockFile.bufferedWriter().use { bw ->
-            collectSourceFiles(config.src)
-                .parallelIfSpecified(config.threads)
-                .runOn(Schedulers.io())
-                .flatMap { collectBlocks(it) }
-                .sequential()
-                .doOnEach { it.value?.let { codeBlock -> bw.appendLine(codeBlock.toString()) } }
-                .map { it.tokenSequence }
-                .toList()
-                .blockingGet()
-        }
+        val tokenSequences: List<TokenSequence> = collectTokenSequences(config.src)
         logger.info("${tokenSequences.size} code blocks have been extracted.")
 
         val numOfPartitions = (tokenSequences.size + config.partitionSize - 1) / config.partitionSize
         logger.info("Code blocks were divided into $numOfPartitions partitions.")
 
-        val clonePairFile = File("clone_pairs")
         clonePairFile.bufferedWriter().use { bw ->
             val verification = Verification(config, tokenSequences)
             val location = Location(config)
@@ -81,6 +71,19 @@ class NILMain(private val config: NILConfig) {
         }.convert(config.outputFileName, codeBlockFile, clonePairFile)
     }
 
+    private fun collectTokenSequences(src: File): List<TokenSequence> =
+        codeBlockFile.bufferedWriter().use { bw ->
+            collectSourceFiles(src)
+                .parallelIfSpecified(config.threads)
+                .runOn(Schedulers.io())
+                .flatMap { collectBlocks(it) }
+                .sequential()
+                .doOnEach { it.value?.let { codeBlock -> bw.appendLine(codeBlock.toString()) } }
+                .map { it.tokenSequence }
+                .toList()
+                .blockingGet()
+        }
+
     private fun collectSourceFiles(dir: File): Flowable<File> =
         dir.walk()
             .filter { it.isFile && it.toString().endsWith(".java") }
@@ -88,7 +91,7 @@ class NILMain(private val config: NILConfig) {
 
     private fun collectBlocks(sourceFile: File): Flowable<CodeBlock> =
         Flowable.just(sourceFile)
-            .flatMap { AST(SymbolSeparator::tokenize, config).extractBlocks(it) }
+            .flatMap { JavaParser(SymbolSeparator::tokenize, config).extractBlocks(it) }
 
     private fun <T> Flowable<T>.parallelIfSpecified(threads: Int): ParallelFlowable<T> =
         if (threads > 0) {
