@@ -17,7 +17,6 @@ import java.io.File
 import kotlin.math.min
 
 class NILMain(private val config: NILConfig) {
-    private val tokenizer: Tokenizer = SymbolSeparator()
     private val logger = LoggerFactory.getLogger(this.javaClass)
 
     fun run() {
@@ -93,12 +92,10 @@ class NILMain(private val config: NILConfig) {
             .flatMap { AST(tokenizer::tokenize, config).extractBlocks(it) }
 
     private fun <T> Flowable<T>.parallelIfSpecified(threads: Int): ParallelFlowable<T> =
-        this.run {
-            if (threads > 0) {
-                parallel(threads)
-            } else {
-                parallel()
-            }
+        if (threads > 0) {
+            parallel(threads)
+        } else {
+            parallel()
         }
 }
 
