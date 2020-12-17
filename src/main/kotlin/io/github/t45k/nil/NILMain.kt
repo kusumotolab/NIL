@@ -6,7 +6,6 @@ import io.github.t45k.nil.entity.toNgrams
 import io.github.t45k.nil.output.BigCloneEvalFormat
 import io.github.t45k.nil.output.CSV
 import io.github.t45k.nil.tokenizer.SymbolSeparator
-import io.github.t45k.nil.tokenizer.Tokenizer
 import io.github.t45k.nil.util.toTime
 import io.reactivex.rxjava3.core.Flowable
 import io.reactivex.rxjava3.kotlin.toFlowable
@@ -89,7 +88,7 @@ class NILMain(private val config: NILConfig) {
 
     private fun collectBlocks(sourceFile: File): Flowable<CodeBlock> =
         Flowable.just(sourceFile)
-            .flatMap { AST(tokenizer::tokenize, config).extractBlocks(it) }
+            .flatMap { AST(SymbolSeparator::tokenize, config).extractBlocks(it) }
 
     private fun <T> Flowable<T>.parallelIfSpecified(threads: Int): ParallelFlowable<T> =
         if (threads > 0) {
