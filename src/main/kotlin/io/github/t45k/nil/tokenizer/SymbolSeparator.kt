@@ -2,7 +2,7 @@ package io.github.t45k.nil.tokenizer
 
 import io.github.t45k.nil.entity.TokenSequence
 
-class SymbolSeparator : Tokenizer {
+class SymbolSeparator {
     companion object {
         private val symbols = charArrayOf(
             '`',
@@ -41,10 +41,10 @@ class SymbolSeparator : Tokenizer {
             '\r',
             '\t'
         )
-    }
 
-    override fun tokenize(text: String): TokenSequence =
-        text.split(*symbols)
-            .filter { it.isNotEmpty() }
-            .map { it.hashCode() }
+        fun tokenize(text: String): TokenSequence =
+            text.split(*symbols)
+                .filter { it.isNotEmpty() }
+                .map { it.hashCode() }
+    }
 }

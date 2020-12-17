@@ -17,7 +17,7 @@ import org.eclipse.jdt.core.dom.SimplePropertyDescriptor
 import org.eclipse.jdt.core.dom.StructuralPropertyDescriptor
 import java.io.File
 
-class AST(private val tokenizer: (String) -> List<Int>, private val config: NILConfig) {
+class JavaParser(private val tokenizer: (String) -> List<Int>, private val config: NILConfig) {
 
     fun extractBlocks(sourceFile: File): Flowable<CodeBlock> =
         Observable.create<CodeBlock> { emitter ->
