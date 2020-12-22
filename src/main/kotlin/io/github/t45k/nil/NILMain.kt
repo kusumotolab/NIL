@@ -30,19 +30,15 @@ class NILMain(private val config: NILConfig) {
         val numOfPartitions = (tokenSequences.size + config.partitionSize - 1) / config.partitionSize
         logger.info("Code blocks were divided into $numOfPartitions partitions.")
 
-        clonePairFile.bufferedWriter().use { bw ->
-            val verification = Verification(config, tokenSequences)
-            val location = Location(config)
-            repeat(numOfPartitions) { i ->
-                location.clear()
 
-                val startIndex: Int = i * config.partitionSize
-                val endOfIndexing = min(startIndex + config.partitionSize, tokenSequences.size)
-                for (index in startIndex until endOfIndexing) {
-                    location.put(tokenSequences[index].toNgrams(config.gramSize), index)
-                }
-                logger.info("Partition ${i + 1}: Index creation has been completed.")
+        val verification = Verification(config, tokenSequences)
+        repeat(numOfPartitions) { i ->
+            val startIndex: Int = i * config.partitionSize
 
+            val location = createLocation(startIndex, tokenSequences)
+            logger.info("Partition ${i + 1}: Index creation has been completed.")
+
+            clonePairFile.bufferedWriter().use { bw ->
                 Flowable.range(startIndex, tokenSequences.size - startIndex)
                     .parallelIfSpecified(config.threads)
                     .runOn(Schedulers.computation())
@@ -59,7 +55,6 @@ class NILMain(private val config: NILConfig) {
                 logger.info("Partition ${i + 1}: Clone Detection in has been completed.")
             }
         }
-
         val endTime = System.currentTimeMillis()
         logger.info("End")
         logger.info("time: ${(endTime - startTime).toTime()}")
@@ -83,6 +78,15 @@ class NILMain(private val config: NILConfig) {
                 .toList()
                 .blockingGet()
         }
+
+    private fun createLocation(startIndex: Int, tokenSequences: List<TokenSequence>): Location {
+        val location = Location(config)
+        val endOfIndexing = min(startIndex + config.partitionSize, tokenSequences.size)
+        for (index in startIndex until endOfIndexing) {
+            location.put(tokenSequences[index].toNgrams(config.gramSize), index)
+        }
+        return location
+    }
 
     private fun collectSourceFiles(dir: File): Flowable<File> =
         dir.walk()
