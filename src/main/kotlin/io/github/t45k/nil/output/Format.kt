@@ -2,7 +2,7 @@ package io.github.t45k.nil.output
 
 import java.io.File
 
-abstract class FormatConverter {
+abstract class Format {
     fun convert(outputFileName: String, codeBlockFile: File, clonePairFile: File) =
         File(outputFileName).bufferedWriter().use { bw ->
             val codeBlocks: List<String> = codeBlockFile.readLines()

@@ -19,4 +19,11 @@ internal class NILMainTest {
         assertEquals(result, outputFile.readText())
         outputFile.delete()
     }
+
+    @Test
+    fun sub(){
+        val listOf = listOf(0, 1, 2, 3, 4,)
+        val subList = listOf.subList(2, 4)
+        subList.indices.forEach { println(it) }
+    }
 }

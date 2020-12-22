@@ -1,6 +1,8 @@
 package io.github.t45k.nil.entity
 
-// For a while, code block is only function.
+/**
+ * Code block is a single function.
+ */
 data class CodeBlock(
     val fileName: String,
     val startLine: Int,
