@@ -27,7 +27,7 @@ class Location private constructor(private val config: NILConfig) {
 
     private val hashTable: MutableMap<Int, MutableList<Pair<ID, Size>>> = HashMap(config.partitionSize)
 
-    fun collectCandidates(nGrams: NGrams): Sequence<Int> =
+    fun collectCandidates(nGrams: NGrams): Sequence<ID> =
         nGrams.flatMap { hashTable[it] ?: emptyList() }
             .groupingBy { it }
             .eachCount()
