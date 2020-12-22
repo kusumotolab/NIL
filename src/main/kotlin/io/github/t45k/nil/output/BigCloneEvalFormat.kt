@@ -2,7 +2,7 @@ package io.github.t45k.nil.output
 
 import java.io.File
 
-class BigCloneEvalFormat : FormatConverter() {
+class BigCloneEvalFormat : Format() {
     override fun reformat(codeBlock1: String, codeBlock2: String): String =
         "${removeUnusedInformation(codeBlock1)},${removeUnusedInformation(codeBlock2)}"
 

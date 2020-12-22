@@ -1,5 +1,6 @@
-package io.github.t45k.nil
+package io.github.t45k.nil.core
 
+import io.github.t45k.nil.NILConfig
 import io.github.t45k.nil.entity.CodeBlock
 import io.github.t45k.nil.tokenizer.LexicalAnalyzer
 import io.reactivex.rxjava3.core.BackpressureStrategy
