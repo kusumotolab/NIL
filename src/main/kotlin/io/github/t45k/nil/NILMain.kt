@@ -18,7 +18,7 @@ import kotlin.math.min
 class NILMain(private val config: NILConfig) {
     private val logger = LoggerFactory.getLogger(this.javaClass)
     private val codeBlockFile = File("code_blocks")
-    private val clonePairFile = File("clone_pair")
+    private val clonePairFile = File("clone_pairs")
 
     fun run() {
         val startTime = System.currentTimeMillis()
@@ -52,7 +52,7 @@ class NILMain(private val config: NILConfig) {
                     }
                     .sequential()
                     .blockingSubscribe { bw.appendLine("${it.first},${it.second}") }
-                logger.info("Partition ${i + 1}: Clone Detection in has been completed.")
+                logger.info("Partition ${i + 1}: Clone detection has been completed.")
             }
         }
         val endTime = System.currentTimeMillis()
