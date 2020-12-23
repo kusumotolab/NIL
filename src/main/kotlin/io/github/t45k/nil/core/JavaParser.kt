@@ -7,6 +7,7 @@ import io.reactivex.rxjava3.core.BackpressureStrategy
 import io.reactivex.rxjava3.core.Flowable
 import io.reactivex.rxjava3.core.Observable
 import org.eclipse.core.runtime.NullProgressMonitor
+import org.eclipse.jdt.core.JavaCore
 import org.eclipse.jdt.core.dom.AST.JLS14
 import org.eclipse.jdt.core.dom.ASTNode
 import org.eclipse.jdt.core.dom.ASTParser
@@ -23,7 +24,11 @@ class JavaParser(private val tokenizer: (String) -> List<Int>, private val confi
     fun extractBlocks(sourceFile: File): Flowable<CodeBlock> =
         Observable.create<CodeBlock> { emitter ->
             val compilationUnit: CompilationUnit = ASTParser.newParser(JLS14)
-                .also { it.setSource(sourceFile.readText().toCharArray()) }
+                .apply { setSource(sourceFile.readText().toCharArray()) }
+                .apply {
+                    setCompilerOptions(
+                        JavaCore.getOptions().apply { put(JavaCore.COMPILER_SOURCE, "11") })
+                }
                 .let { it.createAST(NullProgressMonitor()) as CompilationUnit }
 
             val fileName = sourceFile.canonicalPath

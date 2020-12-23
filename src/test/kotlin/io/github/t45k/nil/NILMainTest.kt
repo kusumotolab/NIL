@@ -14,16 +14,11 @@ internal class NILMainTest {
         val outputFile = File(config.outputFileName)
         val result = "examples,LargeGapClones.java,3,14,examples,LargeGapClones.java,16,39" +
             System.lineSeparator() +
+            "examples,AssertContainClones.java,2,27,examples,AssertContainClones.java,30,55" +
+            System.lineSeparator() +
             "examples,LargeVarianceClones.java,3,21,examples,LargeVarianceClones.java,23,54\n"
 
         assertEquals(result, outputFile.readText())
         outputFile.delete()
-    }
-
-    @Test
-    fun sub(){
-        val listOf = listOf(0, 1, 2, 3, 4,)
-        val subList = listOf.subList(2, 4)
-        subList.indices.forEach { println(it) }
     }
 }
