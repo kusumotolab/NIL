@@ -33,13 +33,13 @@ fun parseArgs(args: Array<String>): NILConfig {
             "-s", "--src" -> src = File(iterator.next())
             "-mil", "--min-line" -> minLine = iterator.next().toInt()
             "-mit", "--min-token" -> minToken = iterator.next().toInt()
-            "-g", "--gram-size" -> gramSize = iterator.next().toInt()
+            "-n", "--n-gram" -> gramSize = iterator.next().toInt()
             "-p", "--partition-size" -> partitionSize = iterator.next().toInt()
             "-f", "--filtering-threshold" -> filteringThreshold = iterator.next().toInt()
             "-v", "--verifying-threshold" -> verifyingThreshold = iterator.next().toInt()
             "-o", "--output" -> outputFileName = iterator.next()
             "-t", "--threads" -> threads = iterator.next().toInt()
-            "-bcb", "--bigcloneeval" -> isForBigCloneEval = true
+            "-bce", "--bigcloneeval" -> isForBigCloneEval = true
             else -> throw InvalidOptionException(optionName)
         }
     }
@@ -64,12 +64,12 @@ class InvalidOptionException(private val option: String) : RuntimeException() {
             |-s, --src${'\t'}Source directory (must be specified)
             |-mil, --min-line${'\t'}Minimum line (default: 6)
             |-mit, --min-token${'\t'}Minimum token (default: 50)
-            |-g, --gram-size${'\t'}N of N-gram (default: 5)
+            |-n, --n-gram${'\t'}N of N-gram (default: 5)
             |-p, --partition-size${'\t'}Size of partition (default: 500000)
             |-f, --filtering-threshold${'\t'}Filtering threshold (default: 10%)
             |-v, --verifying-threshold${'\t'}Verifying threshold (default: 70%)
-            |-o, --output${'\t'}Output file name (default: result_(N-gram)_(filtering threshold)_(verifying_threshold).csv)
+            |-o, --output${'\t'}Output file name (default: result_{N-gram}_{filtering_threshold}_{verifying_threshold}.csv)
             |-t, --thrads${'\t'}The number of threads used for parallel execution (default: all threads)
-            |-bcb, --bigcloneebval${'\t'}Output result feasible to BigCloneEval (default: false)
+            |-bce, --bigcloneeval${'\t'}Output result feasible to BigCloneEval (default: false)
         """.trimMargin()
 }
