@@ -12,11 +12,10 @@ import io.github.t45k.nil.util.toTime
 import io.reactivex.rxjava3.core.Flowable
 import io.reactivex.rxjava3.kotlin.toFlowable
 import io.reactivex.rxjava3.schedulers.Schedulers
-import org.slf4j.LoggerFactory
 import java.io.File
 
 class NILMain(private val config: NILConfig) {
-    private val logger = LoggerFactory.getLogger(this.javaClass)
+    private val logger = LoggerWrapper(config.isForMutationInjectionFramework, this.javaClass)
     private val codeBlockFile = File("code_blocks")
     private val clonePairFile = File("clone_pairs")
 
@@ -63,6 +62,10 @@ class NILMain(private val config: NILConfig) {
         } else {
             CSV()
         }.convert(config.outputFileName, codeBlockFile, clonePairFile)
+
+        if (config.isForMutationInjectionFramework) {
+            println(config.outputFileName)
+        }
     }
 }
 
