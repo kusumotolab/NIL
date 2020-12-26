@@ -39,7 +39,7 @@ fun parseArgs(args: Array<String>): NILConfig {
             "-v", "--verifying-threshold" -> verifyingThreshold = iterator.next().toInt()
             "-o", "--output" -> outputFileName = iterator.next()
             "-t", "--threads" -> threads = iterator.next().toInt()
-            "-bcb", "--bigcloneeval" -> isForBigCloneEval = true
+            "-bce", "--bigcloneeval" -> isForBigCloneEval = true
             else -> throw InvalidOptionException(optionName)
         }
     }
@@ -70,6 +70,6 @@ class InvalidOptionException(private val option: String) : RuntimeException() {
             |-v, --verifying-threshold${'\t'}Verifying threshold (default: 70%)
             |-o, --output${'\t'}Output file name (default: result_{N-gram}_{filtering_threshold}_{verifying_threshold}.csv)
             |-t, --thrads${'\t'}The number of threads used for parallel execution (default: all threads)
-            |-bcb, --bigcloneebval${'\t'}Output result feasible to BigCloneEval (default: false)
+            |-bce, --bigcloneeval${'\t'}Output result feasible to BigCloneEval (default: false)
         """.trimMargin()
 }
