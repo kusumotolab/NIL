@@ -1,4 +1,4 @@
-package io.github.t45k.nil
+package io.github.t45k.nil.util
 
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory

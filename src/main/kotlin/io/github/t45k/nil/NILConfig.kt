@@ -33,26 +33,26 @@ fun parseArgs(args: Array<String>): NILConfig {
     while (iterator.hasNext()) {
         when (val optionName = iterator.next().toLowerCase()) {
             "-s", "--src" -> src = File(iterator.next())
-            "-mil", "--min-line" -> minLine = iterator.next().toInt()
-            "-mit", "--min-token" -> minToken = iterator.next().toInt()
-            "-n", "--n-gram" -> gramSize = iterator.next().toInt()
-            "-p", "--partition-size" -> partitionSize = iterator.next().toInt()
-            "-f", "--filtering-threshold" -> filteringThreshold = iterator.next().toInt()
-            "-v", "--verifying-threshold" -> verifyingThreshold = iterator.next().toInt()
+            "-mil", "--min-line" -> minLine = iterator.next().toIntOrException(optionName)
+            "-mit", "--min-token" -> minToken = iterator.next().toIntOrException(optionName)
+            "-n", "--n-gram" -> gramSize = iterator.next().toIntOrException(optionName)
+            "-p", "--partition-size" -> partitionSize = iterator.next().toIntOrException(optionName)
+            "-f", "--filtering-threshold" -> filteringThreshold = iterator.next().toIntOrException(optionName)
+            "-v", "--verifying-threshold" -> verifyingThreshold = iterator.next().toIntOrException(optionName)
             "-o", "--output" -> outputFileName = iterator.next()
             "-t", "--threads" -> threads = iterator.next().toInt()
             "-bce", "--bigcloneeval" -> isForBigCloneEval = true
             "-mif", "--mutationinjectionframework" -> isForMutationInjectionFramework = true
-            else -> throw InvalidOptionException(optionName)
+            else -> throw InvalidOptionException("$optionName is invalid option.")
         }
     }
 
-    if(isForBigCloneEval && isForMutationInjectionFramework){
-        throw InvalidOptionException("Cannot specify both -bce and -mif")
+    if (isForBigCloneEval && isForMutationInjectionFramework) {
+        throw InvalidOptionException("Cannot specify both -bce and -mif.")
     }
 
     return NILConfig(
-        src!!,
+        src ?: throw InvalidOptionException("-s must be specified."),
         minLine,
         minToken,
         gramSize,
@@ -66,19 +66,26 @@ fun parseArgs(args: Array<String>): NILConfig {
     )
 }
 
+fun String.toIntOrException(optionName: String): Int =
+    try {
+        this.toInt()
+    } catch (e: NumberFormatException) {
+        throw InvalidOptionException("$optionName value $this is not integer.")
+    }
+
 class InvalidOptionException(private val option: String) : RuntimeException() {
     override val message: String
-        get() = """$option is invalid option.
-            |-s, --src${'\t'}Source directory (must be specified)
-            |-mil, --min-line${'\t'}Minimum line (default: 6)
-            |-mit, --min-token${'\t'}Minimum token (default: 50)
-            |-n, --n-gram${'\t'}N of N-gram (default: 5)
-            |-p, --partition-size${'\t'}Size of partition (default: 500000)
-            |-f, --filtering-threshold${'\t'}Filtering threshold (default: 10%)
-            |-v, --verifying-threshold${'\t'}Verifying threshold (default: 70%)
-            |-o, --output${'\t'}Output file name (default: result_{N-gram}_{filtering_threshold}_{verifying_threshold}.csv)
-            |-t, --thrads${'\t'}The number of threads used for parallel execution (default: all threads)
-            |-bce, --bigcloneeval${'\t'}Output result feasible to BigCloneEval (default: false)
+        get() = """$option
+            |-s, --src${'\t'}${'\t'}${'\t'}${'\t'}Source directory (must be specified)
+            |-mil, --min-line${'\t'}${'\t'}${'\t'}Minimum line (default: 6)
+            |-mit, --min-token${'\t'}${'\t'}${'\t'}Minimum token (default: 50)
+            |-n, --n-gram${'\t'}${'\t'}${'\t'}${'\t'}N of N-gram (default: 5)
+            |-p, --partition-size${'\t'}${'\t'}${'\t'}Size of partition (default: 500000)
+            |-f, --filtering-threshold${'\t'}${'\t'}Filtering threshold (default: 10%)
+            |-v, --verifying-threshold${'\t'}${'\t'}Verifying threshold (default: 70%)
+            |-o, --output${'\t'}${'\t'}${'\t'}${'\t'}Output file name (default: result_{N-gram}_{filtering_threshold}_{verifying_threshold}.csv)
+            |-t, --thrads${'\t'}${'\t'}${'\t'}${'\t'}The number of threads used for parallel execution (default: all threads)
+            |-bce, --bigcloneeval${'\t'}${'\t'}${'\t'}Output result feasible to BigCloneEval (default: false)
             |-mif, --mutationinjectionframework${'\t'}Output result feasible to MutationInjectionFramework (default: false)
         """.trimMargin()
 }
