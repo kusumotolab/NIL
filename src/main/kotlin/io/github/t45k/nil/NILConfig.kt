@@ -13,6 +13,7 @@ data class NILConfig(
     val outputFileName: String = "result.csv",
     val threads: Int = 0,
     val isForBigCloneEval: Boolean = false,
+    val isForMutationInjectionFramework: Boolean = false,
 )
 
 fun parseArgs(args: Array<String>): NILConfig {
@@ -26,6 +27,7 @@ fun parseArgs(args: Array<String>): NILConfig {
     var outputFileName: String? = null
     var threads = 0
     var isForBigCloneEval = false
+    var isForMutationInjectionFramework = false
 
     val iterator = args.iterator()
     while (iterator.hasNext()) {
@@ -40,8 +42,13 @@ fun parseArgs(args: Array<String>): NILConfig {
             "-o", "--output" -> outputFileName = iterator.next()
             "-t", "--threads" -> threads = iterator.next().toInt()
             "-bce", "--bigcloneeval" -> isForBigCloneEval = true
+            "-mif", "--mutationinjectionframework" -> isForMutationInjectionFramework = true
             else -> throw InvalidOptionException(optionName)
         }
+    }
+
+    if(isForBigCloneEval && isForMutationInjectionFramework){
+        throw InvalidOptionException("Cannot specify both -bce and -mif")
     }
 
     return NILConfig(
@@ -55,6 +62,7 @@ fun parseArgs(args: Array<String>): NILConfig {
         outputFileName ?: "result_${gramSize}_${filteringThreshold}_${verifyingThreshold}.csv",
         threads,
         isForBigCloneEval,
+        isForMutationInjectionFramework,
     )
 }
 
@@ -71,5 +79,6 @@ class InvalidOptionException(private val option: String) : RuntimeException() {
             |-o, --output${'\t'}Output file name (default: result_{N-gram}_{filtering_threshold}_{verifying_threshold}.csv)
             |-t, --thrads${'\t'}The number of threads used for parallel execution (default: all threads)
             |-bce, --bigcloneeval${'\t'}Output result feasible to BigCloneEval (default: false)
+            |-mif, --mutationinjectionframework${'\t'}Output result feasible to MutationInjectionFramework (default: false)
         """.trimMargin()
 }
