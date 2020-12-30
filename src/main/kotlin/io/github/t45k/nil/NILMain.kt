@@ -7,6 +7,7 @@ import io.github.t45k.nil.entity.TokenSequence
 import io.github.t45k.nil.entity.toNgrams
 import io.github.t45k.nil.output.BigCloneEvalFormat
 import io.github.t45k.nil.output.CSV
+import io.github.t45k.nil.util.LoggerWrapper
 import io.github.t45k.nil.util.parallelIfSpecified
 import io.github.t45k.nil.util.toTime
 import io.reactivex.rxjava3.core.Flowable
