@@ -6,7 +6,7 @@ import io.reactivex.rxjava3.core.Flowable
 import io.reactivex.rxjava3.kotlin.toFlowable
 import java.io.File
 
-class JavaPreprocess(config: NILConfig) : Preprocess(config) {
+class JavaPreprocess(private val config: NILConfig) : Preprocess(config.threads) {
     override fun collectSourceFiles(dir: File): Flowable<File> =
         dir.walk()
             .filter { it.isFile && it.toString().endsWith(".java") }

@@ -1,12 +1,14 @@
 package io.github.t45k.nil.presenter.output
 
+import io.github.t45k.nil.NILMain
+import io.github.t45k.nil.NILMain.Companion.CODE_BLOCK_FILE_NAME
 import java.io.File
 
 abstract class Format {
-    fun convert(outputFileName: String, codeBlockFile: File, clonePairFile: File) =
+    fun convert(outputFileName: String) =
         File(outputFileName).bufferedWriter().use { bw ->
-            val codeBlocks: List<String> = codeBlockFile.readLines()
-            clonePairFile.bufferedReader().use { br ->
+            val codeBlocks: List<String> = File(CODE_BLOCK_FILE_NAME).readLines()
+            File(NILMain.CLONE_PAIR_FILE_NAME).bufferedReader().use { br ->
                 br.lines()
                     .map { line ->
                         val (id1, id2) = line.split(",")
