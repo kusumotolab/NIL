@@ -31,13 +31,13 @@ class NILMain(private val config: NILConfig) {
         logger.info("Code blocks were divided into $numOfPartitions partitions.")
 
         val verification = Verification(config)
-        repeat(numOfPartitions) { i ->
-            val startIndex: Int = i * config.partitionSize
+        clonePairFile.bufferedWriter().use { bw ->
+            repeat(numOfPartitions) { i ->
+                val startIndex: Int = i * config.partitionSize
 
-            val location = Location.from(config, tokenSequences, startIndex)
-            logger.info("Partition ${i + 1}: Index creation has been completed.")
+                val location = Location.from(config, tokenSequences, startIndex)
+                logger.info("Partition ${i + 1}: Index creation has been completed.")
 
-            clonePairFile.bufferedWriter().use { bw ->
                 Flowable.range(startIndex, tokenSequences.size - startIndex)
                     .parallelIfSpecified(config.threads)
                     .runOn(Schedulers.computation())
