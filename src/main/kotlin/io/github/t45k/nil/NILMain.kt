@@ -6,8 +6,7 @@ import io.github.t45k.nil.core.Verification
 import io.github.t45k.nil.entity.TokenSequence
 import io.github.t45k.nil.entity.toNgrams
 import io.github.t45k.nil.presentor.logger.LoggerWrapperFactory
-import io.github.t45k.nil.presentor.output.BigCloneEvalFormat
-import io.github.t45k.nil.presentor.output.CSV
+import io.github.t45k.nil.presentor.output.FormatFactory
 import io.github.t45k.nil.util.parallelIfSpecified
 import io.github.t45k.nil.util.toTime
 import io.reactivex.rxjava3.core.Flowable
@@ -58,15 +57,8 @@ class NILMain(private val config: NILConfig) {
         val endTime = System.currentTimeMillis()
         logger.infoEnd((endTime - startTime).toTime())
 
-        if (config.isForBigCloneEval) {
-            BigCloneEvalFormat()
-        } else {
-            CSV()
-        }.convert(config.outputFileName, codeBlockFile, clonePairFile)
-
-        if (config.isForMutationInjectionFramework) {
-            println(config.outputFileName)
-        }
+        FormatFactory.create(config.isForBigCloneEval)
+            .convert(config.outputFileName, codeBlockFile, clonePairFile)
     }
 }
 
