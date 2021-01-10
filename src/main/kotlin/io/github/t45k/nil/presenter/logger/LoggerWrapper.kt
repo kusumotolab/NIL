@@ -1,4 +1,4 @@
-package io.github.t45k.nil.presentor.logger
+package io.github.t45k.nil.presenter.logger
 
 interface LoggerWrapper {
     fun infoStart()

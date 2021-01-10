@@ -1,4 +1,4 @@
-package io.github.t45k.nil.presentor.output
+package io.github.t45k.nil.presenter.output
 
 class CSV : Format() {
     override fun reformat(codeBlock1: String, codeBlock2: String): String =

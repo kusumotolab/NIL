@@ -1,4 +1,4 @@
-package io.github.t45k.nil.presentor.output
+package io.github.t45k.nil.presenter.output
 
 import java.io.File
 

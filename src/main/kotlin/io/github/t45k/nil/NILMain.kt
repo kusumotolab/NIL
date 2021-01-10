@@ -3,9 +3,9 @@ package io.github.t45k.nil
 import io.github.t45k.nil.entity.HuntSzymanskiLCS
 import io.github.t45k.nil.entity.InvertedIndex
 import io.github.t45k.nil.entity.TokenSequence
-import io.github.t45k.nil.entity.toNgrams
-import io.github.t45k.nil.presentor.logger.LoggerWrapperFactory
-import io.github.t45k.nil.presentor.output.FormatFactory
+import io.github.t45k.nil.presenter.logger.LoggerWrapperFactory
+import io.github.t45k.nil.presenter.output.FormatFactory
+import io.github.t45k.nil.usecase.CloneDetection
 import io.github.t45k.nil.usecase.Filter
 import io.github.t45k.nil.usecase.JavaPreprocess
 import io.github.t45k.nil.usecase.Location
@@ -44,17 +44,12 @@ class NILMain(private val config: NILConfig) {
                 logger.infoInvertedIndexCreationCompletion(i + 1)
 
                 val locatingPhase = Location(invertedIndex)
+                val cloneDetection =
+                    CloneDetection(locatingPhase, filteringPhase, verifyingPhase, tokenSequences, config.gramSize)
                 Flowable.range(startIndex, tokenSequences.size - startIndex)
                     .parallelIfSpecified(config.threads)
                     .runOn(Schedulers.computation())
-                    .flatMap { index ->
-                        val nGrams = tokenSequences[index].toNgrams(config.gramSize)
-                        locatingPhase.locate(nGrams, index)
-                            .filter { filteringPhase.filter(nGrams.size, it) }
-                            .map { it.key.id }
-                            .filter { verifyingPhase.verify(tokenSequences[index], tokenSequences[it]) }
-                            .map { it to index }
-                    }
+                    .flatMap { cloneDetection.exec(it) }
                     .sequential()
                     .blockingSubscribe { bw.appendLine("${it.first},${it.second}") }
                 logger.infoCloneDetectionCompletion(i + 1)
