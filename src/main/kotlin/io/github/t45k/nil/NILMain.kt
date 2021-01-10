@@ -45,8 +45,7 @@ class NILMain(private val config: NILConfig) {
                     .runOn(Schedulers.computation())
                     .flatMap { index ->
                         val nGrams = tokenSequences[index].toNgrams(config.gramSize)
-                        location.collectCandidates(nGrams)
-                            .filter { index > it }
+                        location.collectCandidates(nGrams, index)
                             .filter { verification.verify(tokenSequences[index], tokenSequences[it]) }
                             .map { it to index }
                     }
