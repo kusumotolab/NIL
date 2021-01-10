@@ -15,5 +15,5 @@ class Location(private val invertedIndex: InvertedIndex, private val threshold: 
                 val min = min(nGrams.size, it.key.size)
                 it.value * 100 / min >= threshold
             }
-            .map { it.key.first }
+            .map { it.key.id }
 }
