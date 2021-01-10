@@ -1,4 +1,4 @@
-package io.github.t45k.nil.tokenizer
+package io.github.t45k.nil.usecase
 
 import io.github.t45k.nil.entity.TokenSequence
 

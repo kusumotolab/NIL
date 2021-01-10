@@ -1,8 +1,8 @@
 package io.github.t45k.nil
 
-import io.github.t45k.nil.core.JavaPreprocess
-import io.github.t45k.nil.core.Location
-import io.github.t45k.nil.core.Verification
+import io.github.t45k.nil.usecase.JavaPreprocess
+import io.github.t45k.nil.usecase.Location
+import io.github.t45k.nil.usecase.Verification
 import io.github.t45k.nil.entity.TokenSequence
 import io.github.t45k.nil.entity.toNgrams
 import io.github.t45k.nil.presentor.logger.LoggerWrapperFactory

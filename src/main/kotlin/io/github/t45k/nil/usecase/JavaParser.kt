@@ -1,8 +1,8 @@
-package io.github.t45k.nil.core
+package io.github.t45k.nil.usecase
 
 import io.github.t45k.nil.NILConfig
 import io.github.t45k.nil.entity.CodeBlock
-import io.github.t45k.nil.tokenizer.LexicalAnalyzer
+import io.github.t45k.nil.util.LexicalAnalyzer
 import io.reactivex.rxjava3.core.BackpressureStrategy
 import io.reactivex.rxjava3.core.Flowable
 import io.reactivex.rxjava3.core.Observable
@@ -38,7 +38,7 @@ class JavaParser(private val tokenizer: (String) -> List<Int>, private val confi
                         val startLine = if (it.javadoc == null) {
                             compilationUnit.getLineNumber(it.startPosition)
                         } else {
-                            compilationUnit.getLineNumber(getNodeNextToJavaDoc(node).startPosition)
+                            compilationUnit.getLineNumber(node.getNodeNextToJavaDoc().startPosition)
                         }
                         val endLine = compilationUnit.getLineNumber(it.startPosition + it.length)
                         it.javadoc = null
@@ -48,22 +48,23 @@ class JavaParser(private val tokenizer: (String) -> List<Int>, private val confi
                     }
                     return false
                 }
-
-                @Suppress("UNCHECKED_CAST")
-                private fun getNodeNextToJavaDoc(node: MethodDeclaration): ASTNode =
-                    (node.structuralPropertiesForType() as List<StructuralPropertyDescriptor>)
-                        .asSequence()
-                        .drop(1)
-                        .flatMap {
-                            when (it) {
-                                is ChildListPropertyDescriptor -> (node.getStructuralProperty(it) as List<ASTNode>).asSequence()
-                                is SimplePropertyDescriptor -> emptySequence()
-                                else -> sequenceOf(node.getStructuralProperty(it) as ASTNode?)
-                            }
-                        }
-                        .filterNotNull()
-                        .first()
             }.apply(compilationUnit::accept)
             emitter.onComplete()
         }.toFlowable(BackpressureStrategy.BUFFER)
+
+
+    @Suppress("UNCHECKED_CAST")
+    private fun MethodDeclaration.getNodeNextToJavaDoc(): ASTNode =
+        (structuralPropertiesForType() as List<StructuralPropertyDescriptor>)
+            .asSequence()
+            .drop(1)
+            .flatMap {
+                when (it) {
+                    is ChildListPropertyDescriptor -> (getStructuralProperty(it) as List<ASTNode>).asSequence()
+                    is SimplePropertyDescriptor -> emptySequence()
+                    else -> sequenceOf(getStructuralProperty(it) as ASTNode?)
+                }
+            }
+            .filterNotNull()
+            .first()
 }
