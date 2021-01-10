@@ -1,23 +1,17 @@
 package io.github.t45k.nil.usecase
 
-import io.github.t45k.nil.entity.Id
 import io.github.t45k.nil.entity.InvertedIndex
+import io.github.t45k.nil.entity.NGramInfo
 import io.github.t45k.nil.entity.NGrams
 import io.reactivex.rxjava3.core.Flowable
 import io.reactivex.rxjava3.kotlin.toFlowable
-import kotlin.math.min
 
-class Location(private val invertedIndex: InvertedIndex, private val threshold: Int) {
-    fun collectCandidates(nGrams: NGrams, index: Int): Flowable<Id> =
+class Location(private val invertedIndex: InvertedIndex) {
+    fun locate(nGrams: NGrams, index: Int): Flowable<Map.Entry<NGramInfo, Int>> =
         nGrams.flatMap { invertedIndex[it] }
             .groupingBy { it }
             .eachCount()
             .asSequence()
             .toFlowable()
             .filter { (nGramInfo, _) -> index > nGramInfo.id }
-            .filter { (nGramInfo, count) ->
-                val min = min(nGrams.size, nGramInfo.size)
-                count * 100 / min >= threshold
-            }
-            .map { it.key.id }
 }

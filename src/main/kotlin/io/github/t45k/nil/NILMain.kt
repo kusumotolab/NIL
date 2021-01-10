@@ -1,10 +1,12 @@
 package io.github.t45k.nil
 
+import io.github.t45k.nil.entity.HuntSzymanskiLCS
 import io.github.t45k.nil.entity.InvertedIndex
 import io.github.t45k.nil.entity.TokenSequence
 import io.github.t45k.nil.entity.toNgrams
 import io.github.t45k.nil.presentor.logger.LoggerWrapperFactory
 import io.github.t45k.nil.presentor.output.FormatFactory
+import io.github.t45k.nil.usecase.Filter
 import io.github.t45k.nil.usecase.JavaPreprocess
 import io.github.t45k.nil.usecase.Location
 import io.github.t45k.nil.usecase.Verification
@@ -30,7 +32,9 @@ class NILMain(private val config: NILConfig) {
         val numOfPartitions = (tokenSequences.size + config.partitionSize - 1) / config.partitionSize
         logger.infoPartitionSize(numOfPartitions)
 
-        val verification = Verification(config)
+        val filteringPhase = Filter(config.filteringThreshold)
+        val verifyingPhase = Verification(HuntSzymanskiLCS(), config.verifyingThreshold)
+
         clonePairFile.bufferedWriter().use { bw ->
             repeat(numOfPartitions) { i ->
                 val startIndex: Int = i * config.partitionSize
@@ -39,14 +43,16 @@ class NILMain(private val config: NILConfig) {
                     InvertedIndex.create(config.partitionSize, config.gramSize, tokenSequences, startIndex)
                 logger.infoInvertedIndexCreationCompletion(i + 1)
 
-                val location = Location(invertedIndex, config.filteringThreshold)
+                val locatingPhase = Location(invertedIndex)
                 Flowable.range(startIndex, tokenSequences.size - startIndex)
                     .parallelIfSpecified(config.threads)
                     .runOn(Schedulers.computation())
                     .flatMap { index ->
                         val nGrams = tokenSequences[index].toNgrams(config.gramSize)
-                        location.collectCandidates(nGrams, index)
-                            .filter { verification.verify(tokenSequences[index], tokenSequences[it]) }
+                        locatingPhase.locate(nGrams, index)
+                            .filter { filteringPhase.filter(nGrams.size, it) }
+                            .map { it.key.id }
+                            .filter { verifyingPhase.verify(tokenSequences[index], tokenSequences[it]) }
                             .map { it to index }
                     }
                     .sequential()
