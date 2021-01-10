@@ -2,9 +2,11 @@ package io.github.t45k.nil.entity
 
 import kotlin.math.min
 
-
 class InvertedIndex private constructor() {
     companion object {
+        /**
+         * Alternative constructor
+         */
         fun create(
             partitionSize: Int,
             gramSize: Int,

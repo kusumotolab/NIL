@@ -5,11 +5,11 @@ import io.github.t45k.nil.entity.InvertedIndex
 import io.github.t45k.nil.entity.TokenSequence
 import io.github.t45k.nil.presenter.logger.LoggerWrapperFactory
 import io.github.t45k.nil.presenter.output.FormatFactory
-import io.github.t45k.nil.usecase.CloneDetection
-import io.github.t45k.nil.usecase.NGramBasedFilter
-import io.github.t45k.nil.usecase.JavaPreprocess
-import io.github.t45k.nil.usecase.NGramBasedLocation
-import io.github.t45k.nil.usecase.LCSBasedVerification
+import io.github.t45k.nil.usecase.cloneDetection.CloneDetection
+import io.github.t45k.nil.usecase.cloneDetection.NGramBasedFilter
+import io.github.t45k.nil.usecase.preprocess.JavaPreprocess
+import io.github.t45k.nil.usecase.cloneDetection.NGramBasedLocation
+import io.github.t45k.nil.usecase.cloneDetection.LCSBasedVerification
 import io.github.t45k.nil.util.parallelIfSpecified
 import io.github.t45k.nil.util.toTime
 import io.reactivex.rxjava3.core.Flowable

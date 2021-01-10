@@ -1,4 +1,4 @@
-package io.github.t45k.nil.usecase
+package io.github.t45k.nil.usecase.preprocess
 
 import io.github.t45k.nil.NILConfig
 import io.github.t45k.nil.entity.CodeBlock
@@ -14,5 +14,5 @@ class JavaPreprocess(private val config: NILConfig) : Preprocess(config.threads)
 
     override fun collectBlocks(srcFile: File): Flowable<CodeBlock> =
         Flowable.just(srcFile)
-            .flatMap { JavaParser(SymbolSeparator::tokenize, config).extractBlocks(it) }
+            .flatMap { JavaParser(SymbolSeparator.Companion::tokenize, config).extractBlocks(it) }
 }

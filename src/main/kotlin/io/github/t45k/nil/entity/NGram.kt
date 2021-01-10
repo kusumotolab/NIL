@@ -6,7 +6,7 @@ package io.github.t45k.nil.entity
 typealias NGram = Int
 
 /**
- * NGrams is a list of each N-gram's hash value.
+ * NGrams is a distinct list of each N-gram's hash value.
  */
 typealias NGrams = List<NGram>
 

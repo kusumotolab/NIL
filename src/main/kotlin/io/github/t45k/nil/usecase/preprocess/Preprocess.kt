@@ -1,4 +1,4 @@
-package io.github.t45k.nil.usecase
+package io.github.t45k.nil.usecase.preprocess
 
 import io.github.t45k.nil.NILMain.Companion.CODE_BLOCK_FILE_NAME
 import io.github.t45k.nil.entity.CodeBlock

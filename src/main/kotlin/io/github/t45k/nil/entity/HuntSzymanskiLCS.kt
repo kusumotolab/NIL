@@ -1,5 +1,9 @@
 package io.github.t45k.nil.entity
 
+/**
+ * Time complexity is O(N log (N)).
+ * https://dl.acm.org/doi/10.1145/359581.359603
+ */
 class HuntSzymanskiLCS : LCS {
     override fun calcLength(a: TokenSequence, b: TokenSequence): Int {
         val (shorter: TokenSequence, longer: TokenSequence) =

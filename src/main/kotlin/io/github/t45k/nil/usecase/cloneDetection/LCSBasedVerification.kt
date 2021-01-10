@@ -1,4 +1,4 @@
-package io.github.t45k.nil.usecase
+package io.github.t45k.nil.usecase.cloneDetection
 
 import io.github.t45k.nil.entity.LCS
 import io.github.t45k.nil.entity.TokenSequence
