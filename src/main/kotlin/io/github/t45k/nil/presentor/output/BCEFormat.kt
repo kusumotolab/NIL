@@ -1,8 +1,8 @@
-package io.github.t45k.nil.output
+package io.github.t45k.nil.presentor.output
 
 import java.io.File
 
-class BigCloneEvalFormat : Format() {
+class BCEFormat : Format() {
     override fun reformat(codeBlock1: String, codeBlock2: String): String =
         "${removeUnusedInformation(codeBlock1)},${removeUnusedInformation(codeBlock2)}"
 

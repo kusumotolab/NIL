@@ -5,9 +5,8 @@ import io.github.t45k.nil.core.Location
 import io.github.t45k.nil.core.Verification
 import io.github.t45k.nil.entity.TokenSequence
 import io.github.t45k.nil.entity.toNgrams
-import io.github.t45k.nil.output.BigCloneEvalFormat
-import io.github.t45k.nil.output.CSV
-import io.github.t45k.nil.util.LoggerWrapper
+import io.github.t45k.nil.presentor.logger.LoggerWrapperFactory
+import io.github.t45k.nil.presentor.output.FormatFactory
 import io.github.t45k.nil.util.parallelIfSpecified
 import io.github.t45k.nil.util.toTime
 import io.reactivex.rxjava3.core.Flowable
@@ -16,19 +15,20 @@ import io.reactivex.rxjava3.schedulers.Schedulers
 import java.io.File
 
 class NILMain(private val config: NILConfig) {
-    private val logger = LoggerWrapper(config.isForMutationInjectionFramework, this.javaClass)
+    private val logger =
+        LoggerWrapperFactory.create(config.isForMutationInjectionFramework, this.javaClass, config.outputFileName)
     private val codeBlockFile = File("code_blocks")
     private val clonePairFile = File("clone_pairs")
 
     fun run() {
         val startTime = System.currentTimeMillis()
-        logger.info("Start")
+        logger.infoStart()
 
         val tokenSequences: List<TokenSequence> = JavaPreprocess(config).collectTokenSequences(codeBlockFile)
-        logger.info("${tokenSequences.size} code blocks have been extracted.")
+        logger.infoPreprocessCompletion(tokenSequences.size)
 
         val numOfPartitions = (tokenSequences.size + config.partitionSize - 1) / config.partitionSize
-        logger.info("Code blocks were divided into $numOfPartitions partitions.")
+        logger.infoPartitionSize(numOfPartitions)
 
         val verification = Verification(config)
         clonePairFile.bufferedWriter().use { bw ->
@@ -36,7 +36,7 @@ class NILMain(private val config: NILConfig) {
                 val startIndex: Int = i * config.partitionSize
 
                 val location = Location.from(config, tokenSequences, startIndex)
-                logger.info("Partition ${i + 1}: Index creation has been completed.")
+                logger.infoInvertedIndexCreationCompletion(i + 1)
 
                 Flowable.range(startIndex, tokenSequences.size - startIndex)
                     .parallelIfSpecified(config.threads)
@@ -51,22 +51,14 @@ class NILMain(private val config: NILConfig) {
                     }
                     .sequential()
                     .blockingSubscribe { bw.appendLine("${it.first},${it.second}") }
-                logger.info("Partition ${i + 1}: Clone detection has been completed.")
+                logger.infoCloneDetectionCompletion(i + 1)
             }
         }
         val endTime = System.currentTimeMillis()
-        logger.info("End")
-        logger.info("time: ${(endTime - startTime).toTime()}")
+        logger.infoEnd((endTime - startTime).toTime())
 
-        if (config.isForBigCloneEval) {
-            BigCloneEvalFormat()
-        } else {
-            CSV()
-        }.convert(config.outputFileName, codeBlockFile, clonePairFile)
-
-        if (config.isForMutationInjectionFramework) {
-            println(config.outputFileName)
-        }
+        FormatFactory.create(config.isForBigCloneEval)
+            .convert(config.outputFileName, codeBlockFile, clonePairFile)
     }
 }
 
