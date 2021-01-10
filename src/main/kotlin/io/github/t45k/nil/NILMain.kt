@@ -32,18 +32,16 @@ class NILMain(private val config: NILConfig) {
         val tokenSequences: List<TokenSequence> = JavaPreprocess(config).collectTokenSequences(config.src)
         logger.infoPreprocessCompletion(tokenSequences.size)
 
-        val numOfPartitions = (tokenSequences.size + config.partitionSize - 1) / config.partitionSize
-        logger.infoPartitionSize(numOfPartitions)
-
+        val partitionSize = (tokenSequences.size + config.partitionNum - 1) / config.partitionNum
         val filteringPhase = NGramBasedFilter(config.filteringThreshold)
         val verifyingPhase = LCSBasedVerification(HuntSzymanskiLCS(), config.verifyingThreshold)
 
         File(CLONE_PAIR_FILE_NAME).bufferedWriter().use { bw ->
-            repeat(numOfPartitions) { i ->
-                val startIndex: Int = i * config.partitionSize
+            repeat(config.partitionNum) { i ->
+                val startIndex: Int = i * partitionSize
 
                 val invertedIndex =
-                    InvertedIndex.create(config.partitionSize, config.gramSize, tokenSequences, startIndex)
+                    InvertedIndex.create(partitionSize, config.gramSize, tokenSequences, startIndex)
                 logger.infoInvertedIndexCreationCompletion(i + 1)
 
                 val locatingPhase = NGramBasedLocation(invertedIndex)

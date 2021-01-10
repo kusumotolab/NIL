@@ -7,7 +7,7 @@ data class NILConfig(
     val minLine: Int = 6,
     val minToken: Int = 50,
     val gramSize: Int = 5,
-    val partitionSize: Int = 500_000,
+    val partitionNum: Int = 10,
     val filteringThreshold: Int = 10,
     val verifyingThreshold: Int = 70,
     val outputFileName: String = "result.csv",
@@ -21,7 +21,7 @@ fun parseArgs(args: Array<String>): NILConfig {
     var minLine = 6
     var minToken = 50
     var gramSize = 5
-    var partitionSize = 500_000
+    var partitionNum = 10
     var filteringThreshold = 10
     var verifyingThreshold = 70
     var outputFileName: String? = null
@@ -36,7 +36,7 @@ fun parseArgs(args: Array<String>): NILConfig {
             "-mil", "--min-line" -> minLine = iterator.next().toIntOrException(optionName)
             "-mit", "--min-token" -> minToken = iterator.next().toIntOrException(optionName)
             "-n", "--n-gram" -> gramSize = iterator.next().toIntOrException(optionName)
-            "-p", "--partition-size" -> partitionSize = iterator.next().toIntOrException(optionName)
+            "-p", "--partition-number" -> partitionNum = iterator.next().toIntOrException(optionName)
             "-f", "--filtering-threshold" -> filteringThreshold = iterator.next().toIntOrException(optionName)
             "-v", "--verifying-threshold" -> verifyingThreshold = iterator.next().toIntOrException(optionName)
             "-o", "--output" -> outputFileName = iterator.next()
@@ -56,7 +56,7 @@ fun parseArgs(args: Array<String>): NILConfig {
         minLine,
         minToken,
         gramSize,
-        partitionSize,
+        partitionNum,
         filteringThreshold,
         verifyingThreshold,
         outputFileName ?: "result_${gramSize}_${filteringThreshold}_${verifyingThreshold}.csv",
@@ -80,7 +80,7 @@ class InvalidOptionException(private val option: String) : RuntimeException() {
             |-mil, --min-line${'\t'}${'\t'}${'\t'}Minimum line (default: 6)
             |-mit, --min-token${'\t'}${'\t'}${'\t'}Minimum token (default: 50)
             |-n, --n-gram${'\t'}${'\t'}${'\t'}${'\t'}N of N-gram (default: 5)
-            |-p, --partition-size${'\t'}${'\t'}${'\t'}Size of partition (default: 500000)
+            |-p, --partition-number${'\t'}${'\t'}${'\t'}The number of partition (default: 10)   
             |-f, --filtering-threshold${'\t'}${'\t'}Filtering threshold (default: 10%)
             |-v, --verifying-threshold${'\t'}${'\t'}Verifying threshold (default: 70%)
             |-o, --output${'\t'}${'\t'}${'\t'}${'\t'}Output file name (default: result_{N-gram}_{filtering_threshold}_{verifying_threshold}.csv)
