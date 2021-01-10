@@ -1,5 +1,6 @@
 package io.github.t45k.nil
 
+import io.github.t45k.nil.entity.InvertedIndex
 import io.github.t45k.nil.usecase.JavaPreprocess
 import io.github.t45k.nil.usecase.Location
 import io.github.t45k.nil.usecase.Verification
@@ -35,9 +36,11 @@ class NILMain(private val config: NILConfig) {
             repeat(numOfPartitions) { i ->
                 val startIndex: Int = i * config.partitionSize
 
-                val location = Location.from(config, tokenSequences, startIndex)
+                val invertedIndex =
+                    InvertedIndex.create(config.partitionSize, config.gramSize, tokenSequences, startIndex)
                 logger.infoInvertedIndexCreationCompletion(i + 1)
 
+                val location = Location(invertedIndex, config.filteringThreshold)
                 Flowable.range(startIndex, tokenSequences.size - startIndex)
                     .parallelIfSpecified(config.threads)
                     .runOn(Schedulers.computation())
