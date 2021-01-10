@@ -1,6 +1,6 @@
-package io.github.t45k.nil.core
+package io.github.t45k.nil.usecase.preprocess
 
-import io.github.t45k.nil.NILConfig
+import io.github.t45k.nil.NILMain.Companion.CODE_BLOCK_FILE_NAME
 import io.github.t45k.nil.entity.CodeBlock
 import io.github.t45k.nil.entity.TokenSequence
 import io.github.t45k.nil.util.parallelIfSpecified
@@ -14,11 +14,14 @@ import java.io.File
  * all you have to do is extend this class
  * and write methods to collect the source files and code blocks of the language.
  */
-abstract class Preprocess(protected val config: NILConfig) {
-    fun collectTokenSequences(dest: File): List<TokenSequence> =
-        dest.bufferedWriter().use { bw ->
-            collectSourceFiles(config.src)
-                .parallelIfSpecified(config.threads)
+abstract class Preprocess(private val threads: Int) {
+    companion object {
+    }
+
+    fun collectTokenSequences(src: File): List<TokenSequence> =
+        File(CODE_BLOCK_FILE_NAME).bufferedWriter().use { bw ->
+            collectSourceFiles(src)
+                .parallelIfSpecified(threads)
                 .runOn(Schedulers.io())
                 .flatMap { collectBlocks(it) }
                 .sequential()

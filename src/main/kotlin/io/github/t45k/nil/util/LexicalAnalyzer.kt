@@ -1,4 +1,4 @@
-package io.github.t45k.nil.tokenizer
+package io.github.t45k.nil.util
 
 import org.eclipse.jdt.core.ToolFactory
 import org.eclipse.jdt.core.compiler.ITerminalSymbols.TokenNameEOF
