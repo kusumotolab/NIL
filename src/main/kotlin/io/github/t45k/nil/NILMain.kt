@@ -1,17 +1,16 @@
 package io.github.t45k.nil
 
 import io.github.t45k.nil.entity.InvertedIndex
-import io.github.t45k.nil.usecase.JavaPreprocess
-import io.github.t45k.nil.usecase.Location
-import io.github.t45k.nil.usecase.Verification
 import io.github.t45k.nil.entity.TokenSequence
 import io.github.t45k.nil.entity.toNgrams
 import io.github.t45k.nil.presentor.logger.LoggerWrapperFactory
 import io.github.t45k.nil.presentor.output.FormatFactory
+import io.github.t45k.nil.usecase.JavaPreprocess
+import io.github.t45k.nil.usecase.Location
+import io.github.t45k.nil.usecase.Verification
 import io.github.t45k.nil.util.parallelIfSpecified
 import io.github.t45k.nil.util.toTime
 import io.reactivex.rxjava3.core.Flowable
-import io.reactivex.rxjava3.kotlin.toFlowable
 import io.reactivex.rxjava3.schedulers.Schedulers
 import java.io.File
 
@@ -47,7 +46,6 @@ class NILMain(private val config: NILConfig) {
                     .flatMap { index ->
                         val nGrams = tokenSequences[index].toNgrams(config.gramSize)
                         location.collectCandidates(nGrams)
-                            .toFlowable()
                             .filter { index > it }
                             .filter { verification.verify(tokenSequences[index], tokenSequences[it]) }
                             .map { it to index }
