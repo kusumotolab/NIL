@@ -47,7 +47,7 @@ class NILMain(private val config: NILConfig) {
                 val locatingPhase = NGramBasedLocation(invertedIndex)
                 val cloneDetection =
                     CloneDetection(locatingPhase, filteringPhase, verifyingPhase, tokenSequences, config.gramSize)
-                Flowable.range(startIndex, tokenSequences.size - startIndex)
+                Flowable.range(startIndex + 1, tokenSequences.size - startIndex - 1)
                     .parallelIfSpecified(config.threads)
                     .runOn(Schedulers.computation())
                     .flatMap { cloneDetection.exec(it) }
