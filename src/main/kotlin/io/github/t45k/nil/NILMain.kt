@@ -6,7 +6,7 @@ import io.github.t45k.nil.entity.TokenSequence
 import io.github.t45k.nil.presenter.logger.LoggerWrapperFactory
 import io.github.t45k.nil.presenter.output.FormatFactory
 import io.github.t45k.nil.usecase.cloneDetection.CloneDetection
-import io.github.t45k.nil.usecase.cloneDetection.NGramBasedFilter
+import io.github.t45k.nil.usecase.cloneDetection.NGramBasedFiltration
 import io.github.t45k.nil.usecase.preprocess.JavaPreprocess
 import io.github.t45k.nil.usecase.cloneDetection.NGramBasedLocation
 import io.github.t45k.nil.usecase.cloneDetection.LCSBasedVerification
@@ -33,7 +33,7 @@ class NILMain(private val config: NILConfig) {
         logger.infoPreprocessCompletion(tokenSequences.size)
 
         val partitionSize = (tokenSequences.size + config.partitionNum - 1) / config.partitionNum
-        val filteringPhase = NGramBasedFilter(config.filteringThreshold)
+        val filteringPhase = NGramBasedFiltration(config.filteringThreshold)
         val verifyingPhase = LCSBasedVerification(HuntSzymanskiLCS(), config.verifyingThreshold)
 
         File(CLONE_PAIR_FILE_NAME).bufferedWriter().use { bw ->

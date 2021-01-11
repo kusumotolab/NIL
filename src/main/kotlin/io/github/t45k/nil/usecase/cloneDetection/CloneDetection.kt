@@ -7,7 +7,7 @@ import io.reactivex.rxjava3.core.Flowable
 
 class CloneDetection(
     private val locatingPhase: Location,
-    private val filteringPhase: Filter,
+    private val filteringPhase: Filtration,
     private val verifyingPhase: Verification,
     private val tokenSequences: List<TokenSequence>,
     private val gramSize: Int
