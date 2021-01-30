@@ -45,11 +45,11 @@ dependencies {
 
 application {
     // Define the main class for the application.
-    mainClassName = "io.github.t45k.nil.NILMainKt"
+    mainClassName = "jp.ac.osaka_u.sdl.nil.NILMainKt"
 }
 
 val jar by tasks.getting(Jar::class) {
     manifest {
-        attributes["Main-Class"] = "io.github.t45k.nil.NILMainKt"
+        attributes["Main-Class"] = "jp.ac.osaka_u.sdl.nil.NILMainKt"
     }
 }
