@@ -34,7 +34,7 @@ class NILMain(private val config: NILConfig) {
 
         val partitionSize = (tokenSequences.size + config.partitionNum - 1) / config.partitionNum
         val filtrationPhase = NGramBasedFiltration(config.filtrationThreshold)
-        val verificationPhase = LCSBasedVerification(HuntSzymanskiLCS(), config.verificationiThreshold)
+        val verificationPhase = LCSBasedVerification(HuntSzymanskiLCS(), config.verificationThreshold)
 
         File(CLONE_PAIR_FILE_NAME).bufferedWriter().use { bw ->
             repeat(config.partitionNum) { i ->

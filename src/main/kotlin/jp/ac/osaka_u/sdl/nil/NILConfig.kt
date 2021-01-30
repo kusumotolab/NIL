@@ -9,7 +9,7 @@ data class NILConfig(
     val gramSize: Int = 5,
     val partitionNum: Int = 10,
     val filtrationThreshold: Int = 10,
-    val verificationiThreshold: Int = 70,
+    val verificationThreshold: Int = 70,
     val outputFileName: String = "result.csv",
     val threads: Int = 0,
     val isForBigCloneEval: Boolean = false,
