@@ -8,8 +8,8 @@ data class NILConfig(
     val minToken: Int = 50,
     val gramSize: Int = 5,
     val partitionNum: Int = 10,
-    val filteringThreshold: Int = 10,
-    val verifyingThreshold: Int = 70,
+    val filtrationThreshold: Int = 10,
+    val verificationiThreshold: Int = 70,
     val outputFileName: String = "result.csv",
     val threads: Int = 0,
     val isForBigCloneEval: Boolean = false,
@@ -22,8 +22,8 @@ fun parseArgs(args: Array<String>): NILConfig {
     var minToken = 50
     var gramSize = 5
     var partitionNum = 10
-    var filteringThreshold = 10
-    var verifyingThreshold = 70
+    var filtrationThreshold = 10
+    var verificationThreshold = 70
     var outputFileName: String? = null
     var threads = 0
     var isForBigCloneEval = false
@@ -37,8 +37,8 @@ fun parseArgs(args: Array<String>): NILConfig {
             "-mit", "--min-token" -> minToken = iterator.next().toIntOrException(optionName)
             "-n", "--n-gram" -> gramSize = iterator.next().toIntOrException(optionName)
             "-p", "--partition-number" -> partitionNum = iterator.next().toIntOrException(optionName)
-            "-f", "--filtering-threshold" -> filteringThreshold = iterator.next().toIntOrException(optionName)
-            "-v", "--verifying-threshold" -> verifyingThreshold = iterator.next().toIntOrException(optionName)
+            "-f", "--filtering-threshold" -> filtrationThreshold = iterator.next().toIntOrException(optionName)
+            "-v", "--verifying-threshold" -> verificationThreshold = iterator.next().toIntOrException(optionName)
             "-o", "--output" -> outputFileName = iterator.next()
             "-t", "--threads" -> threads = iterator.next().toInt()
             "-bce", "--bigcloneeval" -> isForBigCloneEval = true
@@ -57,9 +57,9 @@ fun parseArgs(args: Array<String>): NILConfig {
         minToken,
         gramSize,
         partitionNum,
-        filteringThreshold,
-        verifyingThreshold,
-        outputFileName ?: "result_${gramSize}_${filteringThreshold}_${verifyingThreshold}.csv",
+        filtrationThreshold,
+        verificationThreshold,
+        outputFileName ?: "result_${gramSize}_${filtrationThreshold}_${verificationThreshold}.csv",
         threads,
         isForBigCloneEval,
         isForMutationInjectionFramework,

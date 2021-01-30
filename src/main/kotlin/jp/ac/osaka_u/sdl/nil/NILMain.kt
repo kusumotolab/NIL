@@ -33,8 +33,8 @@ class NILMain(private val config: NILConfig) {
         logger.infoPreprocessCompletion(tokenSequences.size)
 
         val partitionSize = (tokenSequences.size + config.partitionNum - 1) / config.partitionNum
-        val filteringPhase = NGramBasedFiltration(config.filteringThreshold)
-        val verifyingPhase = LCSBasedVerification(HuntSzymanskiLCS(), config.verifyingThreshold)
+        val filtrationPhase = NGramBasedFiltration(config.filtrationThreshold)
+        val verificationPhase = LCSBasedVerification(HuntSzymanskiLCS(), config.verificationiThreshold)
 
         File(CLONE_PAIR_FILE_NAME).bufferedWriter().use { bw ->
             repeat(config.partitionNum) { i ->
@@ -44,9 +44,9 @@ class NILMain(private val config: NILConfig) {
                     InvertedIndex.create(partitionSize, config.gramSize, tokenSequences, startIndex)
                 logger.infoInvertedIndexCreationCompletion(i + 1)
 
-                val locatingPhase = NGramBasedLocation(invertedIndex)
+                val locationPhase = NGramBasedLocation(invertedIndex)
                 val cloneDetection =
-                    CloneDetection(locatingPhase, filteringPhase, verifyingPhase, tokenSequences, config.gramSize)
+                    CloneDetection(locationPhase, filtrationPhase, verificationPhase, tokenSequences, config.gramSize)
                 Flowable.range(startIndex + 1, tokenSequences.size - startIndex - 1)
                     .parallelIfSpecified(config.threads)
                     .runOn(Schedulers.computation())
