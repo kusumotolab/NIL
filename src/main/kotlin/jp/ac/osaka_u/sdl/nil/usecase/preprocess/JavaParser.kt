@@ -33,18 +33,16 @@ class JavaParser(private val tokenizer: (String) -> List<Int>, private val confi
 
             val fileName = sourceFile.canonicalPath
             object : ASTVisitor() {
-                override fun visit(node: MethodDeclaration?): Boolean {
-                    node?.also {
-                        val startLine = if (it.javadoc == null) {
-                            compilationUnit.getLineNumber(it.startPosition)
-                        } else {
-                            compilationUnit.getLineNumber(node.getNodeNextToJavaDoc().startPosition)
-                        }
-                        val endLine = compilationUnit.getLineNumber(it.startPosition + it.length)
-                        it.javadoc = null
-                        if (endLine - startLine + 1 >= config.minLine && LexicalAnalyzer.countTokens(it.toString()) >= config.minToken) {
-                            emitter.onNext(CodeBlock(fileName, startLine, endLine, tokenizer(it.toString())))
-                        }
+                override fun visit(node: MethodDeclaration): Boolean {
+                    val startLine = if (node.javadoc == null) {
+                        compilationUnit.getLineNumber(node.startPosition)
+                    } else {
+                        compilationUnit.getLineNumber(node.getNodeNextToJavaDoc().startPosition)
+                    }
+                    val endLine = compilationUnit.getLineNumber(node.startPosition + node.length)
+                    node.javadoc = null
+                    if (endLine - startLine + 1 >= config.minLine && LexicalAnalyzer.countTokens(node.toString()) >= config.minToken) {
+                        emitter.onNext(CodeBlock(fileName, startLine, endLine, tokenizer(node.toString())))
                     }
                     return false
                 }
