@@ -18,7 +18,7 @@ NIL provides scalable large-variance clone detection.
 |:--:|:--|:--:|
 |`-s`,`--src`|Input source directory. You must specify the target dir.|None|
 |`-mil`,`--min-line`|Minimum number of lines that a code fragment must be to be treated as a clone.|`6`|
-|`-mit`,`--mit`|Minimum number of tokens that a code fragment must be to be treated as a clone.|`50`|
+|`-mit`,`--min-token`|Minimum number of tokens that a code fragment must be to be treated as a clone.|`50`|
 |`-n`,`--n-gram`|N for N-gram.|`5`|
 |`-p`,`--partition-size`|The number of partitions.|`10`|
 |`-f`,`--filtration-threshold`|Threshold used in the filtration phase (%).|`10`|
