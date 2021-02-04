@@ -5,9 +5,10 @@ import io.reactivex.rxjava3.core.Flowable
 import io.reactivex.rxjava3.core.Observable
 import jp.ac.osaka_u.sdl.nil.NILConfig
 import jp.ac.osaka_u.sdl.nil.entity.CodeBlock
-import jp.ac.osaka_u.sdl.nil.util.LexicalAnalyzer
 import org.eclipse.core.runtime.NullProgressMonitor
 import org.eclipse.jdt.core.JavaCore
+import org.eclipse.jdt.core.ToolFactory
+import org.eclipse.jdt.core.compiler.ITerminalSymbols
 import org.eclipse.jdt.core.dom.AST.JLS14
 import org.eclipse.jdt.core.dom.ASTNode
 import org.eclipse.jdt.core.dom.ASTParser
@@ -41,8 +42,19 @@ class JavaParser(private val tokenizer: (String) -> List<Int>, private val confi
                     }
                     val endLine = compilationUnit.getLineNumber(node.startPosition + node.length)
                     node.javadoc = null
-                    if (endLine - startLine + 1 >= config.minLine && LexicalAnalyzer.countTokens(node.toString()) >= config.minToken) {
-                        emitter.onNext(CodeBlock(fileName, startLine, endLine, tokenizer(node.toString())))
+
+                    val ts: List<String> = ToolFactory.createScanner(false, false, false, "14")
+                        .also { it.source = node.toString().toCharArray() }
+                        .let { scanner ->
+                            generateSequence { 0 }
+                                .map { scanner.nextToken }
+                                .takeWhile { it != ITerminalSymbols.TokenNameEOF }
+                                .map { String(scanner.currentTokenSource) }
+                                .toList()
+                        }
+                    if (endLine - startLine + 1 >= config.minLine && ts.size >= config.minToken) {
+                        val ts2 = ts.filterNot { SymbolSeparator.symbols.contains(it.first()) }.map { it.hashCode() }
+                        emitter.onNext(CodeBlock(fileName, startLine, endLine, ts2))
                     }
                     return false
                 }

@@ -14,5 +14,5 @@ class JavaPreprocess(private val config: NILConfig) : Preprocess(config.threads)
 
     override fun collectBlocks(srcFile: File): Flowable<CodeBlock> =
         Flowable.just(srcFile)
-            .flatMap { JavaParser(SymbolSeparator.Companion::tokenize, config).extractBlocks(it) }
+            .flatMap { JavaParser(SymbolSeparator::tokenize, config).extractBlocks(it) }
 }
