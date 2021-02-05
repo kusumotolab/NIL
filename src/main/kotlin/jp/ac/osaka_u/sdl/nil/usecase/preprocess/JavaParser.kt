@@ -26,9 +26,6 @@ class JavaParser(private val tokenizer: (String) -> List<Int>, private val confi
             '`',
             '~',
             '!',
-            '@',
-            '#',
-            '$',
             '%',
             '^',
             '&',
@@ -43,21 +40,14 @@ class JavaParser(private val tokenizer: (String) -> List<Int>, private val confi
             '}',
             ']',
             '|',
-            '\\',
             ':',
             ';',
-            '\"',
-            '\'',
             '<',
             ',',
             '>',
             '.',
             '/',
             '?',
-            ' ',
-            '\n',
-            '\r',
-            '\t'
         )
     }
 
@@ -92,7 +82,7 @@ class JavaParser(private val tokenizer: (String) -> List<Int>, private val confi
                                 .toList()
                         }
                     if (endLine - startLine + 1 >= config.minLine && ts.size >= config.minToken) {
-                        val ts2 = ts.filterNot { it.length == 1 && symbols.contains(it[0]) }.map { it.hashCode() }
+                        val ts2 = ts.filterNot { symbols.contains(it[0]) }.map { it.hashCode() }
                         emitter.onNext(CodeBlock(fileName, startLine, endLine, ts2))
                     }
                     return false
