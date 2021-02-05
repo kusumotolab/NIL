@@ -8,7 +8,7 @@ import jp.ac.osaka_u.sdl.nil.entity.TokenSequence
  */
 class SymbolSeparator {
     companion object {
-        val symbols = charArrayOf(
+        private val symbols = charArrayOf(
             '`',
             '~',
             '!',

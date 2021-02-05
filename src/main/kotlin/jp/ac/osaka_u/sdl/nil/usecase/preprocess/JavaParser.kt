@@ -21,6 +21,45 @@ import org.eclipse.jdt.core.dom.StructuralPropertyDescriptor
 import java.io.File
 
 class JavaParser(private val tokenizer: (String) -> List<Int>, private val config: NILConfig) {
+    companion object {
+        private val symbols = setOf(
+            '`',
+            '~',
+            '!',
+            '@',
+            '#',
+            '$',
+            '%',
+            '^',
+            '&',
+            '*',
+            '(',
+            ')',
+            '-',
+            '+',
+            '=',
+            '{',
+            '[',
+            '}',
+            ']',
+            '|',
+            '\\',
+            ':',
+            ';',
+            '\"',
+            '\'',
+            '<',
+            ',',
+            '>',
+            '.',
+            '/',
+            '?',
+            ' ',
+            '\n',
+            '\r',
+            '\t'
+        )
+    }
 
     fun extractBlocks(sourceFile: File): Flowable<CodeBlock> =
         Observable.create<CodeBlock> { emitter ->
@@ -53,7 +92,7 @@ class JavaParser(private val tokenizer: (String) -> List<Int>, private val confi
                                 .toList()
                         }
                     if (endLine - startLine + 1 >= config.minLine && ts.size >= config.minToken) {
-                        val ts2 = ts.filterNot { SymbolSeparator.symbols.contains(it.first()) }.map { it.hashCode() }
+                        val ts2 = ts.filterNot { it.length == 1 && symbols.contains(it[0]) }.map { it.hashCode() }
                         emitter.onNext(CodeBlock(fileName, startLine, endLine, ts2))
                     }
                     return false
