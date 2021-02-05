@@ -49,13 +49,7 @@ class JavaParser(private val tokenizer: (String) -> List<Int>, private val confi
                             generateSequence { 0 }
                                 .map { scanner.nextToken }
                                 .takeWhile { it != ITerminalSymbols.TokenNameEOF }
-                                .map {
-                                    if(it.isLiteral()){
-                                        "literal"
-                                    }else {
-                                        String(scanner.currentTokenSource)
-                                    }
-                                }
+                                .map { String(scanner.currentTokenSource) }
                                 .toList()
                         }
                     if (endLine - startLine + 1 >= config.minLine && ts.size >= config.minToken) {
@@ -83,15 +77,4 @@ class JavaParser(private val tokenizer: (String) -> List<Int>, private val confi
             }
             .filterNotNull()
             .first()
-
-    private fun Int.isLiteral() :Boolean =
-        when(this){
-            ITerminalSymbols.TokenNameCharacterLiteral,
-                ITerminalSymbols.TokenNameDoubleLiteral,
-                ITerminalSymbols.TokenNameFloatingPointLiteral,
-                ITerminalSymbols.TokenNameIntegerLiteral,
-                ITerminalSymbols.TokenNameLongLiteral,
-                ITerminalSymbols.TokenNameStringLiteral -> true
-            else -> false
-        }
 }
