@@ -8,13 +8,10 @@ import jp.ac.osaka_u.sdl.nil.entity.TokenSequence
  */
 class SymbolSeparator {
     companion object {
-        private val symbols = charArrayOf(
+        private val symbols = setOf(
             '`',
             '~',
             '!',
-            '@',
-            '#',
-            '$',
             '%',
             '^',
             '&',
@@ -29,26 +26,18 @@ class SymbolSeparator {
             '}',
             ']',
             '|',
-            '\\',
             ':',
             ';',
-            '\"',
-            '\'',
             '<',
             ',',
             '>',
             '.',
             '/',
             '?',
-            ' ',
-            '\n',
-            '\r',
-            '\t'
         )
 
-        fun tokenize(text: String): TokenSequence =
-            text.split(*symbols)
-                .filter { it.isNotEmpty() }
+        fun separate(tokens: List<String>): TokenSequence =
+            tokens.filterNot { symbols.contains(it[0]) }
                 .map { it.hashCode() }
     }
 }

@@ -1,9 +1,10 @@
-package jp.ac.osaka_u.sdl.nil.usecase.preprocess
+package jp.ac.osaka_u.sdl.nil.usecase.preprocess.java
 
 import io.reactivex.rxjava3.core.Flowable
 import io.reactivex.rxjava3.kotlin.toFlowable
 import jp.ac.osaka_u.sdl.nil.NILConfig
 import jp.ac.osaka_u.sdl.nil.entity.CodeBlock
+import jp.ac.osaka_u.sdl.nil.usecase.preprocess.Preprocess
 import java.io.File
 
 class JavaPreprocess(private val config: NILConfig) : Preprocess(config.threads) {
@@ -14,5 +15,5 @@ class JavaPreprocess(private val config: NILConfig) : Preprocess(config.threads)
 
     override fun collectBlocks(srcFile: File): Flowable<CodeBlock> =
         Flowable.just(srcFile)
-            .flatMap { JavaParser(SymbolSeparator.Companion::tokenize, config).extractBlocks(it) }
+            .flatMap { JavaParser(config).extractBlocks(it) }
 }

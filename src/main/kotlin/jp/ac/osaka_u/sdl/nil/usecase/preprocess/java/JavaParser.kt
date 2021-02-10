@@ -1,11 +1,11 @@
-package jp.ac.osaka_u.sdl.nil.usecase.preprocess
+package jp.ac.osaka_u.sdl.nil.usecase.preprocess.java
 
 import io.reactivex.rxjava3.core.BackpressureStrategy
 import io.reactivex.rxjava3.core.Flowable
 import io.reactivex.rxjava3.core.Observable
 import jp.ac.osaka_u.sdl.nil.NILConfig
 import jp.ac.osaka_u.sdl.nil.entity.CodeBlock
-import jp.ac.osaka_u.sdl.nil.util.LexicalAnalyzer
+import jp.ac.osaka_u.sdl.nil.usecase.preprocess.SymbolSeparator
 import org.eclipse.core.runtime.NullProgressMonitor
 import org.eclipse.jdt.core.JavaCore
 import org.eclipse.jdt.core.dom.AST.JLS14
@@ -19,7 +19,7 @@ import org.eclipse.jdt.core.dom.SimplePropertyDescriptor
 import org.eclipse.jdt.core.dom.StructuralPropertyDescriptor
 import java.io.File
 
-class JavaParser(private val tokenizer: (String) -> List<Int>, private val config: NILConfig) {
+class JavaParser(private val config: NILConfig) {
 
     fun extractBlocks(sourceFile: File): Flowable<CodeBlock> =
         Observable.create<CodeBlock> { emitter ->
@@ -34,15 +34,16 @@ class JavaParser(private val tokenizer: (String) -> List<Int>, private val confi
             val fileName = sourceFile.canonicalPath
             object : ASTVisitor() {
                 override fun visit(node: MethodDeclaration): Boolean {
-                    val startLine = if (node.javadoc == null) {
-                        compilationUnit.getLineNumber(node.startPosition)
-                    } else {
-                        compilationUnit.getLineNumber(node.getNodeNextToJavaDoc().startPosition)
-                    }
-                    val endLine = compilationUnit.getLineNumber(node.startPosition + node.length)
+                    val startLine: Int = compilationUnit.getStartLineNumber(node)
+                    val endLine: Int = compilationUnit.getEndLineNumber(node)
                     node.javadoc = null
-                    if (endLine - startLine + 1 >= config.minLine && LexicalAnalyzer.countTokens(node.toString()) >= config.minToken) {
-                        emitter.onNext(CodeBlock(fileName, startLine, endLine, tokenizer(node.toString())))
+                    if (endLine - startLine + 1 < config.minLine) {
+                        return false
+                    }
+
+                    val tokens: List<String> = JavaLexer.tokenize(node.toString())
+                    if (tokens.size >= config.minToken) {
+                        emitter.onNext(CodeBlock(fileName, startLine, endLine, SymbolSeparator.separate(tokens)))
                     }
                     return false
                 }
@@ -50,6 +51,15 @@ class JavaParser(private val tokenizer: (String) -> List<Int>, private val confi
             emitter.onComplete()
         }.toFlowable(BackpressureStrategy.BUFFER)
 
+    private fun CompilationUnit.getStartLineNumber(node: MethodDeclaration): Int =
+        if (node.javadoc == null) {
+            this.getLineNumber(node.startPosition)
+        } else {
+            this.getLineNumber(node.getNodeNextToJavaDoc().startPosition)
+        }
+
+    private fun CompilationUnit.getEndLineNumber(node: ASTNode): Int =
+        this.getLineNumber(node.startPosition + node.length)
 
     @Suppress("UNCHECKED_CAST")
     private fun MethodDeclaration.getNodeNextToJavaDoc(): ASTNode =
