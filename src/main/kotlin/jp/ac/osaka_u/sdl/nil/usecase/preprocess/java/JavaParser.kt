@@ -1,14 +1,13 @@
-package jp.ac.osaka_u.sdl.nil.usecase.preprocess
+package jp.ac.osaka_u.sdl.nil.usecase.preprocess.java
 
 import io.reactivex.rxjava3.core.BackpressureStrategy
 import io.reactivex.rxjava3.core.Flowable
 import io.reactivex.rxjava3.core.Observable
 import jp.ac.osaka_u.sdl.nil.NILConfig
 import jp.ac.osaka_u.sdl.nil.entity.CodeBlock
+import jp.ac.osaka_u.sdl.nil.usecase.preprocess.SymbolSeparator
 import org.eclipse.core.runtime.NullProgressMonitor
 import org.eclipse.jdt.core.JavaCore
-import org.eclipse.jdt.core.ToolFactory
-import org.eclipse.jdt.core.compiler.ITerminalSymbols
 import org.eclipse.jdt.core.dom.AST.JLS14
 import org.eclipse.jdt.core.dom.ASTNode
 import org.eclipse.jdt.core.dom.ASTParser
@@ -20,36 +19,7 @@ import org.eclipse.jdt.core.dom.SimplePropertyDescriptor
 import org.eclipse.jdt.core.dom.StructuralPropertyDescriptor
 import java.io.File
 
-class JavaParser(private val tokenizer: (String) -> List<Int>, private val config: NILConfig) {
-    companion object {
-        private val symbols = setOf(
-            '`',
-            '~',
-            '!',
-            '%',
-            '^',
-            '&',
-            '*',
-            '(',
-            ')',
-            '-',
-            '+',
-            '=',
-            '{',
-            '[',
-            '}',
-            ']',
-            '|',
-            ':',
-            ';',
-            '<',
-            ',',
-            '>',
-            '.',
-            '/',
-            '?',
-        )
-    }
+class JavaParser(private val config: NILConfig) {
 
     fun extractBlocks(sourceFile: File): Flowable<CodeBlock> =
         Observable.create<CodeBlock> { emitter ->
@@ -64,26 +34,16 @@ class JavaParser(private val tokenizer: (String) -> List<Int>, private val confi
             val fileName = sourceFile.canonicalPath
             object : ASTVisitor() {
                 override fun visit(node: MethodDeclaration): Boolean {
-                    val startLine = if (node.javadoc == null) {
-                        compilationUnit.getLineNumber(node.startPosition)
-                    } else {
-                        compilationUnit.getLineNumber(node.getNodeNextToJavaDoc().startPosition)
-                    }
-                    val endLine = compilationUnit.getLineNumber(node.startPosition + node.length)
+                    val startLine: Int = compilationUnit.getStartLineNumber(node)
+                    val endLine: Int = compilationUnit.getEndLineNumber(node)
                     node.javadoc = null
+                    if (endLine - startLine + 1 < config.minLine) {
+                        return false
+                    }
 
-                    val ts: List<String> = ToolFactory.createScanner(false, false, false, "14")
-                        .also { it.source = node.toString().toCharArray() }
-                        .let { scanner ->
-                            generateSequence { 0 }
-                                .map { scanner.nextToken }
-                                .takeWhile { it != ITerminalSymbols.TokenNameEOF }
-                                .map { String(scanner.currentTokenSource) }
-                                .toList()
-                        }
-                    if (endLine - startLine + 1 >= config.minLine && ts.size >= config.minToken) {
-                        val ts2 = ts.filterNot { symbols.contains(it[0]) }.map { it.hashCode() }
-                        emitter.onNext(CodeBlock(fileName, startLine, endLine, ts2))
+                    val tokens: List<String> = JavaLexer.tokenize(node.toString())
+                    if (tokens.size >= config.minToken) {
+                        emitter.onNext(CodeBlock(fileName, startLine, endLine, SymbolSeparator.separate(tokens)))
                     }
                     return false
                 }
@@ -91,6 +51,15 @@ class JavaParser(private val tokenizer: (String) -> List<Int>, private val confi
             emitter.onComplete()
         }.toFlowable(BackpressureStrategy.BUFFER)
 
+    private fun CompilationUnit.getStartLineNumber(node: MethodDeclaration): Int =
+        if (node.javadoc == null) {
+            this.getLineNumber(node.startPosition)
+        } else {
+            this.getLineNumber(node.getNodeNextToJavaDoc().startPosition)
+        }
+
+    private fun CompilationUnit.getEndLineNumber(node: ASTNode): Int =
+        this.getLineNumber(node.startPosition + node.length)
 
     @Suppress("UNCHECKED_CAST")
     private fun MethodDeclaration.getNodeNextToJavaDoc(): ASTNode =

@@ -11,7 +11,7 @@ import jp.ac.osaka_u.sdl.nil.usecase.cloneDetection.CloneDetection
 import jp.ac.osaka_u.sdl.nil.usecase.cloneDetection.LCSBasedVerification
 import jp.ac.osaka_u.sdl.nil.usecase.cloneDetection.NGramBasedFiltration
 import jp.ac.osaka_u.sdl.nil.usecase.cloneDetection.NGramBasedLocation
-import jp.ac.osaka_u.sdl.nil.usecase.preprocess.JavaPreprocess
+import jp.ac.osaka_u.sdl.nil.usecase.preprocess.java.JavaPreprocess
 import jp.ac.osaka_u.sdl.nil.util.parallelIfSpecified
 import jp.ac.osaka_u.sdl.nil.util.toTime
 import java.io.File
