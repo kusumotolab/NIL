@@ -42,6 +42,7 @@ dependencies {
     // Use the Kotlin JUnit integration.
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit")
 
+    // Use ANTLR
     antlr("org.antlr:antlr4:4.9.1")
 }
 
