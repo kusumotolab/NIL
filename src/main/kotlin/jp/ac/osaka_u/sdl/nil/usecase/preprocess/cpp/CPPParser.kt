@@ -1,8 +1,8 @@
 package jp.ac.osaka_u.sdl.nil.usecase.preprocess.cpp
 
-import antlr.cpp.CPP14Lexer
-import antlr.cpp.CPP14Parser
-import antlr.cpp.CPP14ParserBaseListener
+import jp.ac.osaka_u.sdl.nil.parser.cpp.CPP14Lexer
+import jp.ac.osaka_u.sdl.nil.parser.cpp.CPP14Parser
+import jp.ac.osaka_u.sdl.nil.parser.cpp.CPP14ParserBaseListener
 import io.reactivex.rxjava3.core.BackpressureStrategy
 import io.reactivex.rxjava3.core.Flowable
 import io.reactivex.rxjava3.core.Observable
@@ -38,7 +38,7 @@ class CPPParser(private val config: NILConfig) {
                                 emitter.onNext(CodeBlock(srcFile.canonicalPath, startLine, endLine, tokenSequence))
                             }
                         }
-                    }.also { walker.walk(it, this.translationUnit()) }
+                    }.also { walker.walk(it, this.declarationseq()) }
                 }
         }.toFlowable(BackpressureStrategy.BUFFER)
 }

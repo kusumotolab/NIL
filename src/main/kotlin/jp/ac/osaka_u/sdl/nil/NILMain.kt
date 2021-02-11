@@ -11,7 +11,7 @@ import jp.ac.osaka_u.sdl.nil.usecase.cloneDetection.CloneDetection
 import jp.ac.osaka_u.sdl.nil.usecase.cloneDetection.LCSBasedVerification
 import jp.ac.osaka_u.sdl.nil.usecase.cloneDetection.NGramBasedFiltration
 import jp.ac.osaka_u.sdl.nil.usecase.cloneDetection.NGramBasedLocation
-import jp.ac.osaka_u.sdl.nil.usecase.preprocess.java.JavaPreprocess
+import jp.ac.osaka_u.sdl.nil.usecase.preprocess.PreprocessFactory
 import jp.ac.osaka_u.sdl.nil.util.parallelIfSpecified
 import jp.ac.osaka_u.sdl.nil.util.toTime
 import java.io.File
@@ -29,7 +29,7 @@ class NILMain(private val config: NILConfig) {
         val startTime = System.currentTimeMillis()
         logger.infoStart()
 
-        val tokenSequences: List<TokenSequence> = JavaPreprocess(config).collectTokenSequences(config.src)
+        val tokenSequences: List<TokenSequence> = PreprocessFactory.create(config).collectTokenSequences(config.src)
         logger.infoPreprocessCompletion(tokenSequences.size)
 
         val partitionSize = (tokenSequences.size + config.partitionNum - 1) / config.partitionNum

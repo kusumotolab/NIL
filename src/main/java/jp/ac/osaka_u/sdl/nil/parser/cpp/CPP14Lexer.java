@@ -1,4 +1,4 @@
-package antlr.cpp;
+package jp.ac.osaka_u.sdl.nil.parser.cpp;
 
 // Generated from CPP14Lexer.g4 by ANTLR 4.9.1
 

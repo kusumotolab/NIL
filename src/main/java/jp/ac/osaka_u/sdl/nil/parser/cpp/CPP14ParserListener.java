@@ -1,6 +1,6 @@
 // Generated from CPP14Parser.g4 by ANTLR 4.9.1
 
-package antlr.cpp;
+package jp.ac.osaka_u.sdl.nil.parser.cpp;
 
 import org.antlr.v4.runtime.tree.ParseTreeListener;
 

@@ -1,6 +1,6 @@
 package jp.ac.osaka_u.sdl.nil.usecase.preprocess.cpp
 
-import antlr.cpp.CPP14Lexer
+import jp.ac.osaka_u.sdl.nil.parser.cpp.CPP14Lexer
 import jp.ac.osaka_u.sdl.nil.util.toCharStream
 import org.antlr.v4.runtime.CommonTokenStream
 import org.antlr.v4.runtime.Token
@@ -18,7 +18,7 @@ class CPPLexer {
                 .tokens
                 .filterNot { it.isComment() }
                 .map { it.text }
-                .filterNot { it.isNotBlank() && it != "<EOF>" }
+                .filter { it.isNotBlank() && it != "<EOF>" }
 
         private fun Token.isComment(): Boolean =
             this.type == BLOCK_COMMENT || this.type == LINE_COMMENT

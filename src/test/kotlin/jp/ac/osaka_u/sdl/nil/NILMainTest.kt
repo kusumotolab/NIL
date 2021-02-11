@@ -22,4 +22,14 @@ internal class NILMainTest {
         assertEquals(result, outputFile.readText().lines())
         outputFile.delete()
     }
+
+    @Test
+    fun testCPP() {
+        val config =
+            parseArgs(arrayOf("-s", "./src/test/resources/examples", "-bce", "-t", "1", "-p", "1", "-l", "cpp"))
+        NILMain(config).run()
+
+        val outputFile = File(config.outputFileName)
+        println(outputFile.readText())
+    }
 }
