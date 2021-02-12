@@ -82,7 +82,7 @@ fun String.toLangOrException(): Language =
         "java" -> Language.JAVA
         "c" -> Language.C
         "cpp" -> Language.CPP
-        "cs" -> Language.CS
+        "cs","csharp" -> Language.CS
         else -> throw InvalidOptionException("Language $this is invalid.")
     }
 

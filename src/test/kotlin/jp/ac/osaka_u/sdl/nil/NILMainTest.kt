@@ -35,7 +35,23 @@ internal class NILMainTest {
             ""
         )
 
-        assertEquals(result.sorted(),outputFile.readText().lines().sorted())
+        assertEquals(result.sorted(), outputFile.readText().lines().sorted())
+        outputFile.delete()
+    }
+
+    @Test
+    fun testCSharp() {
+        val config =
+            parseArgs(arrayOf("-s", "./src/test/resources/examples", "-bce", "-t", "1", "-p", "1", "-l", "cs"))
+        NILMain(config).run()
+
+        val outputFile = File(config.outputFileName)
+        val result = listOf(
+            "examples,FizzBuzz.cs,3,33,examples,FizzBuzz.cs,35,67",
+            ""
+        )
+
+        assertEquals(result.sorted(), outputFile.readText().lines().sorted())
         outputFile.delete()
     }
 }

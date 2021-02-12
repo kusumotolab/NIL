@@ -20,11 +20,11 @@ class CSharpTransformer(private val config: NILConfig) {
             val tokens: CommonTokenStream = srcFile.readText().toCharStream()
                 .let(::CSharpLexer)
                 .let(::CommonTokenStream)
-                .apply { fill() }
+            //.apply { fill() }
             tokens.let(::CSharpParser)
                 .also { parser ->
                     object : CSharpParserBaseListener() {
-                        override fun enterLocal_function_declaration(ctx: CSharpParser.Local_function_declarationContext) {
+                        override fun enterMethod_declaration(ctx: CSharpParser.Method_declarationContext) {
                             val startLine = ctx.start.line
                             val endLine = ctx.stop.line
                             if (endLine - startLine + 1 < config.minLine) {
@@ -33,9 +33,10 @@ class CSharpTransformer(private val config: NILConfig) {
 
                             val startToken: Int = ctx.sourceInterval.a
                             val endToken: Int = ctx.sourceInterval.b
-                            if (endToken - startToken + 1 >= config.minToken) {
+                            val filteredTokens = tokens.get(startToken, endToken).filterNot { it.text.isNegligible() }
+                            if (filteredTokens.size >= config.minToken) {
                                 val tokenSequence =
-                                    SymbolSeparator.separate(tokens.get(startToken, endToken).map { it.text })
+                                    SymbolSeparator.separate(filteredTokens.map { it.text })
                                 emitter.onNext(CodeBlock(srcFile.canonicalPath, startLine, endLine, tokenSequence))
                             }
                         }
@@ -43,4 +44,7 @@ class CSharpTransformer(private val config: NILConfig) {
                 }
             emitter.onComplete()
         }.toFlowable(BackpressureStrategy.BUFFER)
+
+    private fun String.isNegligible(): Boolean =
+        this[0] == '\n' || this[0] == ' ' || this.isEmpty() || this.startsWith("//") || this.startsWith("/*")
 }
