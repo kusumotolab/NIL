@@ -12,6 +12,7 @@ data class NILConfig(
     val verificationThreshold: Int = 70,
     val outputFileName: String = "result.csv",
     val threads: Int = 0,
+    val lang: Language = Language.JAVA,
     val isForBigCloneEval: Boolean = false,
     val isForMutationInjectionFramework: Boolean = false,
 )
@@ -26,6 +27,7 @@ fun parseArgs(args: Array<String>): NILConfig {
     var verificationThreshold = 70
     var outputFileName: String? = null
     var threads = 0
+    var lang = Language.JAVA
     var isForBigCloneEval = false
     var isForMutationInjectionFramework = false
 
@@ -41,6 +43,7 @@ fun parseArgs(args: Array<String>): NILConfig {
             "-v", "--verification-threshold" -> verificationThreshold = iterator.next().toIntOrException(optionName)
             "-o", "--output" -> outputFileName = iterator.next()
             "-t", "--threads" -> threads = iterator.next().toInt()
+            "-l", "--language" -> lang = iterator.next().toLangOrException()
             "-bce", "--bigcloneeval" -> isForBigCloneEval = true
             "-mif", "--mutationinjectionframework" -> isForMutationInjectionFramework = true
             else -> throw InvalidOptionException("$optionName is invalid option.")
@@ -61,6 +64,7 @@ fun parseArgs(args: Array<String>): NILConfig {
         verificationThreshold,
         outputFileName ?: "result_${gramSize}_${filtrationThreshold}_${verificationThreshold}.csv",
         threads,
+        lang,
         isForBigCloneEval,
         isForMutationInjectionFramework,
     )
@@ -71,6 +75,14 @@ fun String.toIntOrException(optionName: String): Int =
         this.toInt()
     } catch (e: NumberFormatException) {
         throw InvalidOptionException("$optionName value $this is not integer.")
+    }
+
+fun String.toLangOrException(): Language =
+    when (this.toLowerCase()) {
+        "java" -> Language.JAVA
+        "c" -> Language.C
+        "cpp" -> Language.CPP
+        else -> throw InvalidOptionException("Language $this is invalid.")
     }
 
 class InvalidOptionException(private val option: String) : RuntimeException() {
@@ -88,4 +100,8 @@ class InvalidOptionException(private val option: String) : RuntimeException() {
             |-bce, --bigcloneeval${'\t'}${'\t'}${'\t'}Output result feasible to BigCloneEval (default: false)
             |-mif, --mutationinjectionframework${'\t'}Output result feasible to MutationInjectionFramework (default: false)
         """.trimMargin()
+}
+
+enum class Language {
+    JAVA, CPP, C,
 }

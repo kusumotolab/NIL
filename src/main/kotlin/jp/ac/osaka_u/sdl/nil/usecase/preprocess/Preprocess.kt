@@ -15,8 +15,6 @@ import java.io.File
  * and write methods to collect the source files and code blocks of the language.
  */
 abstract class Preprocess(private val threads: Int) {
-    companion object {
-    }
 
     fun collectTokenSequences(src: File): List<TokenSequence> =
         File(CODE_BLOCK_FILE_NAME).bufferedWriter().use { bw ->

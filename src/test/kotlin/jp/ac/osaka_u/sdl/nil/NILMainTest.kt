@@ -12,14 +12,24 @@ internal class NILMainTest {
         NILMain(config).run()
 
         val outputFile = File(config.outputFileName)
-        val result = "examples,AssertContainClones.java,2,27,examples,AssertContainClones.java,30,55" +
-            System.lineSeparator() +
-            "examples,LargeGapClones.java,3,14,examples,LargeGapClones.java,16,39" +
-            System.lineSeparator() +
-            "examples,LargeVarianceClones.java,3,21,examples,LargeVarianceClones.java,23,54" +
-            System.lineSeparator()
+        val result = listOf(
+            "examples,AssertContainClones.java,2,27,examples,AssertContainClones.java,30,55",
+            "examples,LargeGapClones.java,3,14,examples,LargeGapClones.java,16,39",
+            "examples,LargeVarianceClones.java,3,21,examples,LargeVarianceClones.java,23,54",
+            ""
+        )
 
-        assertEquals(result, outputFile.readText())
+        assertEquals(result, outputFile.readText().lines())
         outputFile.delete()
+    }
+
+    @Test
+    fun testCPP() {
+        val config =
+            parseArgs(arrayOf("-s", "./src/test/resources/examples", "-bce", "-t", "1", "-p", "1", "-l", "cpp"))
+        NILMain(config).run()
+
+        val outputFile = File(config.outputFileName)
+        println(outputFile.readText())
     }
 }
