@@ -3,7 +3,7 @@
 
 int main1()
 {
-
+// Comment
 	int fizz = 0, buzz = 0, fizzbuzz = 0;
 
 	bool isFizz = false;
@@ -40,7 +40,9 @@ int main1()
 
 int main2()
 {
-
+/*
+Comment
+*/
 	int fizz = 0, buzz = 0, fizzbuzz = 0;
 
 	bool isFizz = false;
