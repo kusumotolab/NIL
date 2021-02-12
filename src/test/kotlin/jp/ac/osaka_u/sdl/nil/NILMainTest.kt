@@ -19,7 +19,7 @@ internal class NILMainTest {
             ""
         )
 
-        assertEquals(result, outputFile.readText().lines())
+        assertEquals(result.sorted(), outputFile.readText().lines().sorted())
         outputFile.delete()
     }
 
@@ -30,6 +30,12 @@ internal class NILMainTest {
         NILMain(config).run()
 
         val outputFile = File(config.outputFileName)
-        println(outputFile.readText())
+        val result = listOf(
+            "examples,FizzBuzz.cpp,4,39,examples,FizzBuzz.cpp,41,78",
+            ""
+        )
+
+        assertEquals(result.sorted(),outputFile.readText().lines().sorted())
+        outputFile.delete()
     }
 }

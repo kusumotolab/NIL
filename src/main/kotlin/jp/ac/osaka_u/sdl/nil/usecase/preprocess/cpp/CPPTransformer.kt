@@ -14,7 +14,7 @@ import org.antlr.v4.runtime.CommonTokenStream
 import org.antlr.v4.runtime.tree.ParseTreeWalker
 import java.io.File
 
-class CPPParser(private val config: NILConfig) {
+class CPPTransformer(private val config: NILConfig) {
     fun extractBlocks(srcFile: File): Flowable<CodeBlock> =
         Observable.create<CodeBlock> { emitter ->
             val tokens: CommonTokenStream = srcFile.readText().toCharStream()

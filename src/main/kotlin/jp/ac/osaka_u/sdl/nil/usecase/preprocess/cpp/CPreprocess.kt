@@ -18,5 +18,5 @@ class CPreprocess(private val config: NILConfig) : Preprocess(config.threads) {
 
     override fun collectBlocks(srcFile: File): Flowable<CodeBlock> =
         Flowable.just(srcFile)
-            .flatMap { CPPParser(config).extractBlocks(it) }
+            .flatMap { CPPTransformer(config).extractBlocks(it) }
 }
