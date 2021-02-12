@@ -1,30 +1,30 @@
-package jp.ac.osaka_u.sdl.nil.usecase.preprocess.cpp
+package jp.ac.osaka_u.sdl.nil.usecase.preprocess.cs
 
 import io.reactivex.rxjava3.core.BackpressureStrategy
 import io.reactivex.rxjava3.core.Flowable
 import io.reactivex.rxjava3.core.Observable
 import jp.ac.osaka_u.sdl.nil.NILConfig
 import jp.ac.osaka_u.sdl.nil.entity.CodeBlock
-import jp.ac.osaka_u.sdl.nil.parser.cpp.CPP14Lexer
-import jp.ac.osaka_u.sdl.nil.parser.cpp.CPP14Parser
-import jp.ac.osaka_u.sdl.nil.parser.cpp.CPP14ParserBaseListener
+import jp.ac.osaka_u.sdl.nil.parser.cs.CSharpLexer
+import jp.ac.osaka_u.sdl.nil.parser.cs.CSharpParser
+import jp.ac.osaka_u.sdl.nil.parser.cs.CSharpParserBaseListener
 import jp.ac.osaka_u.sdl.nil.usecase.preprocess.SymbolSeparator
 import jp.ac.osaka_u.sdl.nil.util.toCharStream
 import org.antlr.v4.runtime.CommonTokenStream
 import org.antlr.v4.runtime.tree.ParseTreeWalker
 import java.io.File
 
-class CPPParser(private val config: NILConfig) {
+class CSharpTransformer(private val config: NILConfig) {
     fun extractBlocks(srcFile: File): Flowable<CodeBlock> =
         Observable.create<CodeBlock> { emitter ->
             val tokens: CommonTokenStream = srcFile.readText().toCharStream()
-                .let(::CPP14Lexer)
+                .let(::CSharpLexer)
                 .let(::CommonTokenStream)
                 .apply { fill() }
-            tokens.let(::CPP14Parser)
+            tokens.let(::CSharpParser)
                 .also { parser ->
-                    object : CPP14ParserBaseListener() {
-                        override fun enterFunctionDefinition(ctx: CPP14Parser.FunctionDefinitionContext) {
+                    object : CSharpParserBaseListener() {
+                        override fun enterMethod_declaration(ctx: CSharpParser.Method_declarationContext) {
                             val startLine = ctx.start.line
                             val endLine = ctx.stop.line
                             if (endLine - startLine + 1 < config.minLine) {
@@ -33,14 +33,18 @@ class CPPParser(private val config: NILConfig) {
 
                             val startToken: Int = ctx.sourceInterval.a
                             val endToken: Int = ctx.sourceInterval.b
-                            if (endToken - startToken + 1 >= config.minToken) {
+                            val filteredTokens = tokens.get(startToken, endToken).filterNot { it.text.isNegligible() }
+                            if (filteredTokens.size >= config.minToken) {
                                 val tokenSequence =
-                                    SymbolSeparator.separate(tokens.get(startToken, endToken).map { it.text })
+                                    SymbolSeparator.separate(filteredTokens.map { it.text })
                                 emitter.onNext(CodeBlock(srcFile.canonicalPath, startLine, endLine, tokenSequence))
                             }
                         }
-                    }.also { ParseTreeWalker.DEFAULT.walk(it, parser.translationUnit()) }
+                    }.also { ParseTreeWalker.DEFAULT.walk(it, parser.compilation_unit()) }
                 }
             emitter.onComplete()
         }.toFlowable(BackpressureStrategy.BUFFER)
+
+    private fun String.isNegligible(): Boolean =
+        this[0] == '\n' || this[0] == ' ' || this.isEmpty() || this.startsWith("//") || this.startsWith("/*")
 }

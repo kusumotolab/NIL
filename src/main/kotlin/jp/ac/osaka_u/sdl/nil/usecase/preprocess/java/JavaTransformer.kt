@@ -19,7 +19,7 @@ import org.eclipse.jdt.core.dom.SimplePropertyDescriptor
 import org.eclipse.jdt.core.dom.StructuralPropertyDescriptor
 import java.io.File
 
-class JavaParser(private val config: NILConfig) {
+class JavaTransformer(private val config: NILConfig) {
 
     fun extractBlocks(sourceFile: File): Flowable<CodeBlock> =
         Observable.create<CodeBlock> { emitter ->
