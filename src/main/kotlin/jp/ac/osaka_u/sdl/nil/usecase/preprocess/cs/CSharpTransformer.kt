@@ -20,7 +20,7 @@ class CSharpTransformer(private val config: NILConfig) {
             val tokens: CommonTokenStream = srcFile.readText().toCharStream()
                 .let(::CSharpLexer)
                 .let(::CommonTokenStream)
-            //.apply { fill() }
+                .apply { fill() }
             tokens.let(::CSharpParser)
                 .also { parser ->
                     object : CSharpParserBaseListener() {
