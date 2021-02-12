@@ -25,7 +25,16 @@ NIL provides scalable large-variance clone detection.
 |`-v`,`--verification-threshold`|Threshold used in the verificatioin phase (%).|`70`|
 |`-o`,`--output`|Output file name.|`result_{n}_{f}_{v}.csv`|
 |`-t`,`--threads`|The number of threads used for parallel execution (both the *Preprocess* and *Clone detection* phases)|all threads|
+|`-l`,`--language`|[Target language](#Languages)|`java`|
 |`-bce`,`--bigcloneeval`|If you specify `-bce` option, NIL outputs result file feasible to BigCloneEval.|false|
 |`-mif`,`--mutationinjectionframework`|If you specify `-mif` option, NIL outputs nothing except for the output file name as standard output.|false|
+
+## Languages
+|Name|Option|Extension|
+|:--:|:--:|:--:|
+|Java|`java`|`.java`|
+|C|`c`|`.c`,`.h`|
+|C++|`cpp`|`.cpp`,`.hpp`|
+|C#|`cs`,`csharp`|`.cs`|
 
 If you execute NIL on 250-MLOC codebase, we recommend `-p` option to 135.
