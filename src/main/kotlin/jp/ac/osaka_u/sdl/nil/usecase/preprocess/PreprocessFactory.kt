@@ -6,6 +6,7 @@ import jp.ac.osaka_u.sdl.nil.usecase.preprocess.cpp.CPPPreprocess
 import jp.ac.osaka_u.sdl.nil.usecase.preprocess.cpp.CPreprocess
 import jp.ac.osaka_u.sdl.nil.usecase.preprocess.cs.CSharpPreprocess
 import jp.ac.osaka_u.sdl.nil.usecase.preprocess.java.JavaPreprocess
+import jp.ac.osaka_u.sdl.nil.usecase.preprocess.python.PythonPreprocess
 
 class PreprocessFactory {
     companion object {
@@ -15,6 +16,7 @@ class PreprocessFactory {
                 Language.C -> CPreprocess(config)
                 Language.CPP -> CPPPreprocess(config)
                 Language.CS -> CSharpPreprocess(config)
+                Language.PYTHON -> PythonPreprocess(config)
             }
     }
 }
