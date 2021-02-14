@@ -54,4 +54,20 @@ internal class NILMainTest {
         assertEquals(result.sorted(), outputFile.readText().lines().sorted())
         outputFile.delete()
     }
+
+    @Test
+    fun testPython() {
+        val config =
+            parseArgs(arrayOf("-s", "./src/test/resources/examples", "-bce", "-t", "1", "-p", "1", "-l", "py"))
+        NILMain(config).run()
+
+        val outputFile = File(config.outputFileName)
+        val result = listOf(
+            "examples,FizzBuzz.py,1,11,examples,FizzBuzz.py,13,23",
+            ""
+        )
+
+        assertEquals(result.sorted(), outputFile.readText().lines().sorted())
+        outputFile.delete()
+    }
 }
