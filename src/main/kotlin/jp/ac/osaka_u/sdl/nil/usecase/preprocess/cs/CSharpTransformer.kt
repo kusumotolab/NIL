@@ -1,51 +1,33 @@
 package jp.ac.osaka_u.sdl.nil.usecase.preprocess.cs
 
-import io.reactivex.rxjava3.core.BackpressureStrategy
-import io.reactivex.rxjava3.core.Flowable
-import io.reactivex.rxjava3.core.Observable
 import jp.ac.osaka_u.sdl.nil.NILConfig
-import jp.ac.osaka_u.sdl.nil.entity.CodeBlock
 import jp.ac.osaka_u.sdl.nil.parser.cs.CSharpLexer
 import jp.ac.osaka_u.sdl.nil.parser.cs.CSharpParser
 import jp.ac.osaka_u.sdl.nil.parser.cs.CSharpParserBaseListener
-import jp.ac.osaka_u.sdl.nil.usecase.preprocess.SymbolSeparator
-import jp.ac.osaka_u.sdl.nil.util.toCharStream
-import org.antlr.v4.runtime.CommonTokenStream
-import org.antlr.v4.runtime.tree.ParseTreeWalker
-import java.io.File
+import jp.ac.osaka_u.sdl.nil.usecase.preprocess.AntlrTransformer
+import org.antlr.v4.runtime.Parser
+import org.antlr.v4.runtime.ParserRuleContext
+import org.antlr.v4.runtime.Token
+import org.antlr.v4.runtime.tree.ParseTreeListener
 
-class CSharpTransformer(private val config: NILConfig) {
-    fun extractBlocks(srcFile: File): Flowable<CodeBlock> =
-        Observable.create<CodeBlock> { emitter ->
-            val tokens: CommonTokenStream = srcFile.readText().toCharStream()
-                .let(::CSharpLexer)
-                .let(::CommonTokenStream)
-                .apply { fill() }
-            tokens.let(::CSharpParser)
-                .also { parser ->
-                    object : CSharpParserBaseListener() {
-                        override fun enterMethod_declaration(ctx: CSharpParser.Method_declarationContext) {
-                            val startLine = ctx.start.line
-                            val endLine = ctx.stop.line
-                            if (endLine - startLine + 1 < config.minLine) {
-                                return
-                            }
+class CSharpTransformer(config: NILConfig) :
+    AntlrTransformer(
+        config,
+        ::CSharpLexer,
+        ::CSharpParser
+    ) {
+    override fun createVisitor(action: (ParserRuleContext) -> Unit): ParseTreeListener =
+        object : CSharpParserBaseListener() {
+            override fun enterMethod_declaration(ctx: CSharpParser.Method_declarationContext) =
+                action(ctx)
+        }
 
-                            val startToken: Int = ctx.sourceInterval.a
-                            val endToken: Int = ctx.sourceInterval.b
-                            val filteredTokens = tokens.get(startToken, endToken).filterNot { it.text.isNegligible() }
-                            if (filteredTokens.size >= config.minToken) {
-                                val tokenSequence =
-                                    SymbolSeparator.separate(filteredTokens.map { it.text })
-                                emitter.onNext(CodeBlock(srcFile.canonicalPath, startLine, endLine, tokenSequence))
-                            }
-                        }
-                    }.also { ParseTreeWalker.DEFAULT.walk(it, parser.compilation_unit()) }
-                }
-            emitter.onComplete()
-        }.toFlowable(BackpressureStrategy.BUFFER)
+    override fun Parser.extractRuleContext(): ParserRuleContext =
+        (this as CSharpParser).compilation_unit()
 
-    private fun String.isNegligible(): Boolean =
-        this[0] == '\n' || this[0] == ' ' || this[0] == '\r' ||
-            this.isEmpty() || this.startsWith("//") || this.startsWith("/*")
+    override fun Token.isNegligible(): Boolean =
+        this.text.run {
+            this[0] == '\n' || this[0] == ' ' || this[0] == '\r' ||
+                this.isEmpty() || this.startsWith("//") || this.startsWith("/*")
+        }
 }
