@@ -15,5 +15,5 @@ class CSharpPreprocess(private val config: NILConfig) : Preprocess(config.thread
 
     override fun collectBlocks(srcFile: File): Flowable<CodeBlock> =
         Flowable.just(srcFile)
-            .flatMap { CSharpTransformer(config).extractBlocks(it) }
+            .flatMap(CSharpTransformer(config)::extractBlocks)
 }
