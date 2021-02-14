@@ -70,4 +70,20 @@ internal class NILMainTest {
         assertEquals(result.sorted(), outputFile.readText().lines().sorted())
         outputFile.delete()
     }
+
+    @Test
+    fun testKotlin() {
+        val config =
+            parseArgs(arrayOf("-s", "./src/test/resources/examples", "-bce", "-t", "1", "-p", "1", "-l", "kt"))
+        NILMain(config).run()
+
+        val outputFile = File(config.outputFileName)
+        val result = listOf(
+            "examples,FizzBuzz.kt,1,13,examples,FizzBuzz.kt,15,29",
+            ""
+        )
+
+        assertEquals(result.sorted(), outputFile.readText().lines().sorted())
+        outputFile.delete()
+    }
 }
