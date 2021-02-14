@@ -46,5 +46,6 @@ class CSharpTransformer(private val config: NILConfig) {
         }.toFlowable(BackpressureStrategy.BUFFER)
 
     private fun String.isNegligible(): Boolean =
-        this[0] == '\n' || this[0] == ' ' || this.isEmpty() || this.startsWith("//") || this.startsWith("/*")
+        this[0] == '\n' || this[0] == ' ' || this[0] == '\r' ||
+            this.isEmpty() || this.startsWith("//") || this.startsWith("/*")
 }
