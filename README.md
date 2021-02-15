@@ -36,5 +36,7 @@ NIL provides scalable large-variance clone detection.
 |C|`c`|`.c`,`.h`|
 |C++|`cpp`|`.cpp`,`.hpp`|
 |C#|`cs`,`csharp`|`.cs`|
+|Python|`py`,`python`|`.py`|
+|Kotlin|`kt`,`kotlin`|`.kt`|
 
 If you execute NIL on 250-MLOC codebase, we recommend `-p` option to 135.
