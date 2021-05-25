@@ -7,10 +7,10 @@ import jp.ac.osaka_u.sdl.nil.entity.InvertedIndex
 import jp.ac.osaka_u.sdl.nil.entity.TokenSequence
 import jp.ac.osaka_u.sdl.nil.presenter.logger.LoggerWrapperFactory
 import jp.ac.osaka_u.sdl.nil.presenter.output.FormatFactory
-import jp.ac.osaka_u.sdl.nil.usecase.cloneDetection.CloneDetection
 import jp.ac.osaka_u.sdl.nil.usecase.cloneDetection.LCSBasedVerification
 import jp.ac.osaka_u.sdl.nil.usecase.cloneDetection.NGramBasedFiltration
 import jp.ac.osaka_u.sdl.nil.usecase.cloneDetection.NGramBasedLocation
+import jp.ac.osaka_u.sdl.nil.usecase.cloneDetection.OptimizedCloneDetection
 import jp.ac.osaka_u.sdl.nil.usecase.preprocess.PreprocessFactory
 import jp.ac.osaka_u.sdl.nil.util.parallelIfSpecified
 import jp.ac.osaka_u.sdl.nil.util.toTime
@@ -34,6 +34,7 @@ class NILMain(private val config: NILConfig) {
 
         val partitionSize = (tokenSequences.size + config.partitionNum - 1) / config.partitionNum
         val filtrationPhase = NGramBasedFiltration(config.filtrationThreshold)
+        val filtrationBasedVerificationPhase = NGramBasedFiltration(config.verificationThreshold)
         val verificationPhase = LCSBasedVerification(HuntSzymanskiLCS(), config.verificationThreshold)
 
         File(CLONE_PAIR_FILE_NAME).bufferedWriter().use { bw ->
@@ -46,7 +47,14 @@ class NILMain(private val config: NILConfig) {
 
                 val locationPhase = NGramBasedLocation(invertedIndex)
                 val cloneDetection =
-                    CloneDetection(locationPhase, filtrationPhase, verificationPhase, tokenSequences, config.gramSize)
+                    OptimizedCloneDetection(
+                        locationPhase,
+                        filtrationPhase,
+                        filtrationBasedVerificationPhase,
+                        verificationPhase,
+                        tokenSequences,
+                        config.gramSize
+                    )
                 Flowable.range(startIndex + 1, tokenSequences.size - startIndex - 1)
                     .parallelIfSpecified(config.threads)
                     .runOn(Schedulers.computation())
