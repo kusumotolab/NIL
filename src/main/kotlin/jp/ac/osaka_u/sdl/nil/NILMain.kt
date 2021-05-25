@@ -7,7 +7,7 @@ import jp.ac.osaka_u.sdl.nil.entity.InvertedIndex
 import jp.ac.osaka_u.sdl.nil.entity.TokenSequence
 import jp.ac.osaka_u.sdl.nil.presenter.logger.LoggerWrapperFactory
 import jp.ac.osaka_u.sdl.nil.presenter.output.FormatFactory
-import jp.ac.osaka_u.sdl.nil.usecase.cloneDetection.CloneDetection
+import jp.ac.osaka_u.sdl.nil.usecase.cloneDetection.NormalCloneDetection
 import jp.ac.osaka_u.sdl.nil.usecase.cloneDetection.LCSBasedVerification
 import jp.ac.osaka_u.sdl.nil.usecase.cloneDetection.NGramBasedFiltration
 import jp.ac.osaka_u.sdl.nil.usecase.cloneDetection.NGramBasedLocation
@@ -46,7 +46,7 @@ class NILMain(private val config: NILConfig) {
 
                 val locationPhase = NGramBasedLocation(invertedIndex)
                 val cloneDetection =
-                    CloneDetection(locationPhase, filtrationPhase, verificationPhase, tokenSequences, config.gramSize)
+                    NormalCloneDetection(locationPhase, filtrationPhase, verificationPhase, tokenSequences, config.gramSize)
                 Flowable.range(startIndex + 1, tokenSequences.size - startIndex - 1)
                     .parallelIfSpecified(config.threads)
                     .runOn(Schedulers.computation())
