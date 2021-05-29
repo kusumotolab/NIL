@@ -6,8 +6,8 @@ NIL provides scalable large-variance clone detection.
 - JDK 11+
 
 ## Usage
-- Clone this repository.
-- Move into NIL's directory and build NIL (`./gradlew ShadowJar`)
+- Clone this repository (`git clone https://github.com/kusumotolab/NIL`)
+- Move into NIL's directory (`cd NIL`) and build NIL (`./gradlew ShadowJar`)
 - Run NIL (`java -jar ./build/libs/NIL-all.jar [options]`)
 - Check the result file
   - If you didn't specify `-bce` option, the format is `/path/to/file_A,start_line_A,end_line_A,/path/to/file_B,start_line_B,end_line_B`.
@@ -26,8 +26,8 @@ NIL provides scalable large-variance clone detection.
 |`-o`,`--output`|Output file name.|`result_{n}_{f}_{v}.csv`|
 |`-t`,`--threads`|The number of threads used for parallel execution (both the *Preprocess* and *Clone detection* phases)|all threads|
 |`-l`,`--language`|[Target language](#Languages)|`java`|
-|`-bce`,`--bigcloneeval`|If you specify `-bce` option, NIL outputs result file feasible to BigCloneEval.|false|
-|`-mif`,`--mutationinjectionframework`|If you specify `-mif` option, NIL outputs nothing except for the output file name as standard output.|false|
+|`-bce`,`--bigcloneeval`|If you specify `-bce` option, NIL outputs result file feasible to BigCloneEval.|not specified|
+|`-mif`,`--mutationinjectionframework`|If you specify `-mif` option, NIL outputs nothing except for the output file name as standard output.|not specified|
 
 ## Languages
 |Name|Option|Extension|
