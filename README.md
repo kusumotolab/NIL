@@ -7,7 +7,7 @@ NIL provides scalable large-variance clone detection.
 
 ## Usage
 - Clone this repository.
-- Move NIL's directory and build NIL (`./gradlew ShadowJar`)
+- Move into NIL's directory and build NIL (`./gradlew ShadowJar`)
 - Run NIL (`java -jar ./build/libs/NIL-all.jar [options]`)
 - Check the result file
   - If you didn't specify `-bce` option, the format is `/path/to/file_A,start_line_A,end_line_A,/path/to/file_B,start_line_B,end_line_B`.
