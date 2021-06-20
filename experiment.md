@@ -48,6 +48,11 @@ Manual validation descriptions are available at https://zenodo.org/record/449084
 
 ### Recall
 
+We used our tool, [LVMutator](https://github.com/T45K/LVMutator/tree/101cfa84b4c1d935503a8a0d47b72de4141f6cbc), which is based on Mutation framework and perform large-variance clone generation and recall evaluation.
+The usage of LVMutator is specified at https://github.com/T45K/LVMutator/tree/master#readme.
+
+The generated large-variance clone pairs are available at https://zenodo.org/record/4491016.
+
 ## General clone detection
 
 ### Mutation Framework
