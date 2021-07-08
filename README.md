@@ -9,7 +9,7 @@ NIL provides scalable large-variance clone detection.
 ## Requirements
 - JDK 11+
 
-## Usage
+## Install & Usage
 - Clone this repository (`git clone https://github.com/kusumotolab/NIL`)
 - Move into NIL's directory (`cd NIL`) and build NIL (`./gradlew ShadowJar`)
 - Run NIL (`java -jar ./build/libs/NIL-all.jar [options]`)
