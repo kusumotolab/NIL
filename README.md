@@ -1,6 +1,6 @@
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.4492665.svg)](https://doi.org/10.5281/zenodo.4492665)
 
-FSE '21 paper implementation ([preprint](https://sdl.ist.osaka-u.ac.jp/pman/pman3.cgi?D=708))
+FSE '21 paper implementation ([preprint](./camera-ready.pdf))
 
 # NIL
 NIL is a clone detector using N-gram, Inverted index, and LCS.
@@ -44,3 +44,6 @@ NIL provides scalable large-variance clone detection.
 |Kotlin|`kt`,`kotlin`|`.kt`|
 
 If you execute NIL on 250-MLOC codebase, we recommend `-p` option to 135.
+
+## Experiments, datasets, and baseline tools
+- Please refer to [EXPERIMENTS.md](./EXPERIMENTS.md)
