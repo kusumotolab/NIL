@@ -1,6 +1,7 @@
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.4492665.svg)](https://doi.org/10.5281/zenodo.4492665)
 
-FSE '21 paper implementation ([preprint](./camera-ready.pdf))
+FSE '21 paper implementation ([preprint](./camera-ready.pdf))<br>
+DOI of submitted version executable file of NIL is `10.5281/zenodo.4492665`.
 
 # NIL
 NIL is a clone detector using N-gram, Inverted index, and LCS.
