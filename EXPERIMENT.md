@@ -17,7 +17,7 @@ The execution commands or steps are as follows.
   - `java -Xmx12G -jar ./build/libs/NIL-all.jar -s /path/to/src`
   - In the case of 250 MLOC codebase, we specifed `-p 135`.
 - CCAligner and LVMapper
-  - They come with shell files to run, so we ran them.
+  - They come with a shell file to run, named `runner`, so we ran it.
 - SourcererCC
   - We modified min length to six lines and the number of processes to four,
   - and ran it as described in README.md (https://github.com/Mondego/SourcererCC/tree/afc5755273fc91754ee08326a6946fad85e85b94#readme).
