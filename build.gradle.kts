@@ -14,13 +14,13 @@ repositories {
 
 dependencies {
     // Use RxKotlin
-    implementation("io.reactivex.rxjava3:rxkotlin:3.0.0")
+    implementation("io.reactivex.rxjava3:rxkotlin:3.0.1")
 
     // Use Logger
-    implementation("ch.qos.logback:logback-classic:1.2.3")
+    implementation("ch.qos.logback:logback-classic:1.4.12")
 
     // Use JDT
-    implementation("org.eclipse.jdt:org.eclipse.jdt.core:3.22.0")
+    implementation("org.eclipse.jdt:org.eclipse.jdt.core:3.37.0")
 
     // Use the Kotlin test library.
     testImplementation("org.jetbrains.kotlin:kotlin-test")

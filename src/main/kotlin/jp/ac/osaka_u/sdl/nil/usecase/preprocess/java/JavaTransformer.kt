@@ -8,7 +8,7 @@ import jp.ac.osaka_u.sdl.nil.entity.CodeBlock
 import jp.ac.osaka_u.sdl.nil.usecase.preprocess.SymbolSeparator
 import org.eclipse.core.runtime.NullProgressMonitor
 import org.eclipse.jdt.core.JavaCore
-import org.eclipse.jdt.core.dom.AST.JLS14
+import org.eclipse.jdt.core.dom.AST.JLS21
 import org.eclipse.jdt.core.dom.ASTNode
 import org.eclipse.jdt.core.dom.ASTParser
 import org.eclipse.jdt.core.dom.ASTVisitor
@@ -23,11 +23,11 @@ class JavaTransformer(private val config: NILConfig) {
 
     fun extractBlocks(sourceFile: File): Flowable<CodeBlock> =
         Observable.create<CodeBlock> { emitter ->
-            val compilationUnit: CompilationUnit = ASTParser.newParser(JLS14)
+            val compilationUnit: CompilationUnit = ASTParser.newParser(JLS21)
                 .apply { setSource(sourceFile.readText().toCharArray()) }
                 .apply {
                     setCompilerOptions(
-                        JavaCore.getOptions().apply { put(JavaCore.COMPILER_SOURCE, "11") })
+                        JavaCore.getOptions().apply { put(JavaCore.COMPILER_SOURCE, "21") })
                 }
                 .let { it.createAST(NullProgressMonitor()) as CompilationUnit }
 
