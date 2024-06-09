@@ -35,3 +35,11 @@ dependencies {
 application {
     mainClass.set("jp.ac.osaka_u.sdl.nil.NILMainKt")
 }
+
+tasks.generateGrammarSource {
+    enabled = false
+}
+
+tasks.generateTestGrammarSource {
+    enabled = false
+}
