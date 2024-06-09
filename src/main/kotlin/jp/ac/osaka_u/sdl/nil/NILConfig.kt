@@ -33,7 +33,7 @@ fun parseArgs(args: Array<String>): NILConfig {
 
     val iterator = args.iterator()
     while (iterator.hasNext()) {
-        when (val optionName = iterator.next().toLowerCase()) {
+        when (val optionName = iterator.next().lowercase()) {
             "-s", "--src" -> src = File(iterator.next())
             "-mil", "--min-line" -> minLine = iterator.next().toIntOrException(optionName)
             "-mit", "--min-token" -> minToken = iterator.next().toIntOrException(optionName)
@@ -78,7 +78,7 @@ fun String.toIntOrException(optionName: String): Int =
     }
 
 fun String.toLangOrException(): Language =
-    when (this.toLowerCase()) {
+    when (this.lowercase()) {
         "java" -> Language.JAVA
         "c" -> Language.C
         "cpp" -> Language.CPP
