@@ -8,7 +8,7 @@ NIL is a clone detector using N-gram, Inverted index, and LCS.
 NIL provides scalable large-variance clone detection.
 
 ## Requirements
-- JDK 11+
+- JDK 21+
 
 ## Install & Usage
 - Clone this repository (`git clone https://github.com/kusumotolab/NIL`)
