@@ -1,9 +1,9 @@
 package jp.ac.osaka_u.sdl.nil.usecase.preprocess.cpp
 
+import CPP14Lexer
+import CPP14Parser
+import CPP14ParserBaseListener
 import jp.ac.osaka_u.sdl.nil.NILConfig
-import jp.ac.osaka_u.sdl.nil.parser.cpp.CPP14Lexer
-import jp.ac.osaka_u.sdl.nil.parser.cpp.CPP14Parser
-import jp.ac.osaka_u.sdl.nil.parser.cpp.CPP14ParserBaseListener
 import jp.ac.osaka_u.sdl.nil.usecase.preprocess.AntlrTransformer
 import org.antlr.v4.runtime.Parser
 import org.antlr.v4.runtime.ParserRuleContext

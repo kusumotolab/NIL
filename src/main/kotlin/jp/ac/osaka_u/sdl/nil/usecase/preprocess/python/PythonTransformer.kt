@@ -1,11 +1,9 @@
 package jp.ac.osaka_u.sdl.nil.usecase.preprocess.python
 
+import PythonLexer
+import PythonParser
+import PythonParserBaseListener
 import jp.ac.osaka_u.sdl.nil.NILConfig
-import jp.ac.osaka_u.sdl.nil.parser.cpp.CPP14Parser
-import jp.ac.osaka_u.sdl.nil.parser.cpp.CPP14ParserBaseListener
-import jp.ac.osaka_u.sdl.nil.parser.python.Python3BaseListener
-import jp.ac.osaka_u.sdl.nil.parser.python.Python3Lexer
-import jp.ac.osaka_u.sdl.nil.parser.python.Python3Parser
 import jp.ac.osaka_u.sdl.nil.usecase.preprocess.AntlrTransformer
 import org.antlr.v4.runtime.Parser
 import org.antlr.v4.runtime.ParserRuleContext
@@ -15,17 +13,18 @@ import org.antlr.v4.runtime.tree.ParseTreeListener
 class PythonTransformer(config: NILConfig) :
     AntlrTransformer(
         config,
-        ::Python3Lexer,
-        ::Python3Parser
+        ::PythonLexer,
+        ::PythonParser
     ) {
     override fun createVisitor(action: (ParserRuleContext) -> Unit): ParseTreeListener =
-        object : Python3BaseListener() {
-            override fun enterFuncdef(ctx: Python3Parser.FuncdefContext) =
+        object : PythonParserBaseListener() {
+            override fun enterFunction_def(ctx: PythonParser.Function_defContext) {
                 action(ctx)
+            }
         }
 
     override fun Parser.extractRuleContext(): ParserRuleContext =
-        (this as Python3Parser).file_input()
+        (this as PythonParser).file_input()
 
     override fun Token.isNegligible(): Boolean =
         this.text.run {
