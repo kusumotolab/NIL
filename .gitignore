@@ -7,3 +7,8 @@ build
 .idea
 
 .DS_Store
+
+# Execution results
+clone_pairs
+code_blocks
+result_*.csv
