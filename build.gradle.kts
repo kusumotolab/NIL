@@ -1,12 +1,16 @@
 plugins {
     kotlin("jvm") version "2.0.0"
     id("com.github.johnrengelman.shadow") version "8.1.1"
-    id("antlr")
+
+    antlr
 
     application
 }
 
-java.sourceCompatibility = JavaVersion.VERSION_21
+java {
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
+}
 
 repositories {
     mavenCentral()
@@ -29,7 +33,7 @@ dependencies {
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit")
 
     // Use ANTLR
-    antlr("org.antlr:antlr4:4.9")
+    antlr("org.antlr:antlr4:4.13.2")
 }
 
 application {
@@ -37,7 +41,9 @@ application {
 }
 
 tasks.generateGrammarSource {
+    // Comment out when generating lexers and parsers from g4 file
     enabled = false
+    outputDirectory = file("$projectDir/src/main/java")
 }
 
 tasks.generateTestGrammarSource {

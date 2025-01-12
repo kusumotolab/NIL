@@ -63,7 +63,7 @@ internal class NILMainTest {
 
         val outputFile = File(config.outputFileName)
         val result = listOf(
-            "examples,FizzBuzz.py,1,11,examples,FizzBuzz.py,13,23",
+            "examples,FizzBuzz.py,1,13,examples,FizzBuzz.py,13,24",
             ""
         )
 

@@ -1,9 +1,9 @@
 package jp.ac.osaka_u.sdl.nil.usecase.preprocess.kotlin
 
+import KotlinLexer
+import KotlinParser
+import KotlinParserBaseListener
 import jp.ac.osaka_u.sdl.nil.NILConfig
-import jp.ac.osaka_u.sdl.nil.parser.kotlin.KotlinLexer
-import jp.ac.osaka_u.sdl.nil.parser.kotlin.KotlinParser
-import jp.ac.osaka_u.sdl.nil.parser.kotlin.KotlinParserBaseListener
 import jp.ac.osaka_u.sdl.nil.usecase.preprocess.AntlrTransformer
 import org.antlr.v4.runtime.Parser
 import org.antlr.v4.runtime.ParserRuleContext

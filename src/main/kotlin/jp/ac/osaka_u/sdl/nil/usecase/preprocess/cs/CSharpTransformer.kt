@@ -1,9 +1,9 @@
 package jp.ac.osaka_u.sdl.nil.usecase.preprocess.cs
 
+import CSharpLexer
+import CSharpParser
+import CSharpParserBaseListener
 import jp.ac.osaka_u.sdl.nil.NILConfig
-import jp.ac.osaka_u.sdl.nil.parser.cs.CSharpLexer
-import jp.ac.osaka_u.sdl.nil.parser.cs.CSharpParser
-import jp.ac.osaka_u.sdl.nil.parser.cs.CSharpParserBaseListener
 import jp.ac.osaka_u.sdl.nil.usecase.preprocess.AntlrTransformer
 import org.antlr.v4.runtime.Parser
 import org.antlr.v4.runtime.ParserRuleContext
