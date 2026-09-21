@@ -12,6 +12,7 @@ NIL flattens `.g4` files into `src/main/antlr/` and Java support classes into `s
 | C# | `csharp/v7/` | `CSharpLexer.g4`, `CSharpParser.g4` | `csharp/v7/Java/CSharpLexerBase.java`, `CSharpParserBase.java` |
 | Kotlin | `kotlin/kotlin/` | `KotlinLexer.g4`, `KotlinParser.g4`, `UnicodeClasses.g4` | none |
 | Python | `python/python3_14/` | `PythonLexer.g4`, `PythonParser.g4` | `python/python3_14/Java/PythonLexerBase.java` |
+| PHP | `php/` | `PhpLexer.g4`, `PhpParser.g4` | `php/Java/PhpLexerBase.java` |
 
 `UnicodeClasses.g4` is imported by `KotlinLexer.g4` — copy it together.
 
@@ -39,6 +40,7 @@ If a same-lineage update renames a rule, change only the matching call. If the n
 | `CSharpTransformer.kt` | `enterMethod_declaration` / `Method_declarationContext` | `compilation_unit()` |
 | `KotlinTransformer.kt` | `enterFunctionDeclaration` / `FunctionDeclarationContext` | `kotlinFile()` |
 | `PythonTransformer.kt` | `enterFunction_def` / `Function_defContext` | `file_input()` |
+| `PhpTransformer.kt` | `enterFunctionDeclaration` / `FunctionDeclarationContext` (and class methods via `enterClassStatement` when `methodBody()` is present) | `htmlDocument()` |
 
 ## generateGrammarSource
 

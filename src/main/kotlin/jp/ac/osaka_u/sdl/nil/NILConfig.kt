@@ -85,6 +85,7 @@ fun String.toLangOrException(): Language =
         "cs", "csharp" -> Language.CS
         "py", "python" -> Language.PYTHON
         "kt", "kotlin" -> Language.KOTLIN
+        "php" -> Language.PHP
         else -> throw InvalidOptionException("Language $this is invalid.")
     }
 
@@ -107,5 +108,5 @@ class InvalidOptionException(private val option: String) : RuntimeException() {
 }
 
 enum class Language {
-    JAVA, CPP, C, CS, PYTHON, KOTLIN
+    JAVA, CPP, C, CS, PYTHON, KOTLIN, PHP
 }
