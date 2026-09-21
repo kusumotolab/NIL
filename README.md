@@ -42,15 +42,20 @@ NIL provides scalable large-variance clone detection.
 
 ## Languages
 
-|  Name  |    Option     |   Extension   |
-|:------:|:-------------:|:-------------:|
-|  Java  |    `java`     |    `.java`    |
-|   C    |      `c`      |   `.c`,`.h`   |
-|  C++   |     `cpp`     | `.cpp`,`.hpp` |
-|   C#   | `cs`,`csharp` |     `.cs`     |
-| Python | `py`,`python` |     `.py`     |
-| Kotlin | `kt`,`kotlin` |     `.kt`     |
-|  PHP   |     `php`     |    `.php`     |
+|    Name    |      Option       |   Extension   |
+|:----------:|:-----------------:|:-------------:|
+|    Java    |      `java`       |    `.java`    |
+|     C      |        `c`        |   `.c`,`.h`   |
+|    C++     |       `cpp`       | `.cpp`,`.hpp` |
+|     C#     |   `cs`,`csharp`   |     `.cs`     |
+|   Python   |   `py`,`python`   |     `.py`     |
+|   Kotlin   |   `kt`,`kotlin`   |     `.kt`     |
+|    PHP     |       `php`       |    `.php`     |
+|     Go     |       `go`        |     `.go`     |
+| JavaScript | `js`,`javascript` |     `.js`     |
+| TypeScript | `ts`,`typescript` |     `.ts`     |
+|    Rust    |    `rs`,`rust`    |     `.rs`     |
+|   Swift    |      `swift`      |   `.swift`    |
 
 If you execute NIL on 250-MLOC codebase, we recommend `-p` option to 135.
 
