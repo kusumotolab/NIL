@@ -21,72 +21,41 @@ THE SOFTWARE.
  */
 
  /*
-  * Project      : an ANTLR4 lexer grammar for Python 3
-  *                https://github.com/RobEin/ANTLR4-parser-for-Python-3.12
+  * Project      : an ANTLR4 lexer grammar for Python 3 programming language
+  *                https://github.com/RobEin/ANTLR4-parser-for-Python-3.14
   * Developed by : Robert Einhorn, robert.einhorn.hu@gmail.com
   */
 
+// https://docs.python.org/3.14/reference/lexical_analysis.html
 lexer grammar PythonLexer;
 
+// the helper class for this grammar that assists in tokenizing indentation, interpolated strings, and the encoding declaration
 options { superClass=PythonLexerBase; }
 
 tokens {
-    INDENT, DEDENT // https://docs.python.org/3.12/reference/lexical_analysis.html#indentation
-  , TYPE_COMMENT // not supported, only for compatibility with the PythonParser.g4 grammar
+    ENCODING // https://docs.python.org/3.14/reference/lexical_analysis.html#encoding-declarations
+  , INDENT, DEDENT // https://docs.python.org/3.14/reference/lexical_analysis.html#indentation
+  , TYPE_COMMENT // not supported, only for compatibility with the parser grammar
   , FSTRING_START, FSTRING_MIDDLE, FSTRING_END // https://peps.python.org/pep-0701/#specification
+  , TSTRING_START, TSTRING_MIDDLE, TSTRING_END // https://peps.python.org/pep-0750/#specification
 }
-
-
-// https://docs.python.org/3.12/reference/lexical_analysis.html
 
 /*
  *  default lexer mode
  */
 
-// https://docs.python.org/3.12/reference/lexical_analysis.html#keywords
-FALSE    : 'False';
-AWAIT    : 'await';
-ELSE     : 'else';
-IMPORT   : 'import';
-PASS     : 'pass';
-NONE     : 'None';
-BREAK    : 'break';
-EXCEPT   : 'except';
-IN       : 'in';
-RAISE    : 'raise';
-TRUE     : 'True';
-CLASS    : 'class';
-FINALLY  : 'finally';
-IS       : 'is';
-RETURN   : 'return';
-AND      : 'and';
-CONTINUE : 'continue';
-FOR      : 'for';
-LAMBDA   : 'lambda';
-TRY      : 'try';
-AS       : 'as';
-DEF      : 'def';
-FROM     : 'from';
-NONLOCAL : 'nonlocal';
-WHILE    : 'while';
-ASSERT   : 'assert';
-DEL      : 'del';
-GLOBAL   : 'global';
-NOT      : 'not';
-WITH     : 'with';
-ASYNC    : 'async';
-ELIF     : 'elif';
-IF       : 'if';
-OR       : 'or';
-YIELD    : 'yield';
+// https://docs.python.org/3.14/reference/lexical_analysis.html#encoding-declarations
+BOM : '\uFEFF';
+// The BOM unicode character indicates that a BOM byte sequence (for Python is only UTF‑8: EF BB BF) was present at the start of the file.
+// It is not part of Python source code and is therefore skipped in PythonLexerBase.
 
-// https://docs.python.org/3.12/library/token.html#module-token
-LPAR             : '('; // OPEN_PAREN
-LSQB             : '['; // OPEN_BRACK
-LBRACE           : '{'; // OPEN_BRACE
-RPAR             : ')'; // CLOSE_PAREN
-RSQB             : ']'; // CLOSE_BRACK
-RBRACE           : '}'; // CLOSE_BRACE
+// https://docs.python.org/3.14/library/token.html#module-token
+LPAR             : '(';
+LSQB             : '[';
+LBRACE           : '{';
+RPAR             : ')';
+RSQB             : ']';
+RBRACE           : '}';
 DOT              : '.';
 COLON            : ':';
 COMMA            : ',';
@@ -130,136 +99,378 @@ ELLIPSIS         : '...';
 COLONEQUAL       : ':=';
 EXCLAMATION      : '!';
 
-// https://docs.python.org/3.12/reference/lexical_analysis.html#identifiers
-NAME
-    : ID_START ID_CONTINUE*
-    ;
+// https://docs.python.org/3.14/reference/lexical_analysis.html#keywords
+FALSE    : 'False';
+AWAIT    : 'await';
+ELSE     : 'else';
+IMPORT   : 'import';
+PASS     : 'pass';
+NONE     : 'None';
+BREAK    : 'break';
+EXCEPT   : 'except';
+IN       : 'in';
+RAISE    : 'raise';
+TRUE     : 'True';
+CLASS    : 'class';
+FINALLY  : 'finally';
+IS       : 'is';
+RETURN   : 'return';
+AND      : 'and';
+CONTINUE : 'continue';
+FOR      : 'for';
+LAMBDA   : 'lambda';
+TRY      : 'try';
+AS       : 'as';
+DEF      : 'def';
+FROM     : 'from';
+NONLOCAL : 'nonlocal';
+WHILE    : 'while';
+ASSERT   : 'assert';
+DEL      : 'del';
+GLOBAL   : 'global';
+NOT      : 'not';
+WITH     : 'with';
+ASYNC    : 'async';
+ELIF     : 'elif';
+IF       : 'if';
+OR       : 'or';
+YIELD    : 'yield';
 
-// https://docs.python.org/3.12/reference/lexical_analysis.html#numeric-literals
+// *** Soft Keywords: https://docs.python.org/3.14/reference/lexical_analysis.html#soft-keywords
+                            // the parser grammar determines whether it is an ...
+NAME_OR_TYPE     : 'type';  // ... identifier or a type  keyword,   depending on the source code context
+NAME_OR_MATCH    : 'match'; // ... identifier or a match keyword,   depending on the source code context
+NAME_OR_CASE     : 'case';  // ... identifier or a case  keyword,   depending on the source code context
+NAME_OR_WILDCARD : '_';     // ... identifier or a wildcard symbol, depending on the source code context
+
+// https://docs.python.org/3.14/reference/lexical_analysis.html#identifiers
+NAME : ID_START ID_CONTINUE*;
+
+// https://docs.python.org/3.14/reference/lexical_analysis.html#numeric-literals
 NUMBER
     : INTEGER
     | FLOAT_NUMBER
     | IMAG_NUMBER
     ;
 
-// https://docs.python.org/3.12/reference/lexical_analysis.html#string-and-bytes-literals
+// https://docs.python.org/3.14/reference/lexical_analysis.html#string-and-bytes-literals
 STRING
     : STRING_LITERAL
     | BYTES_LITERAL
     ;
 
-// https://docs.python.org/3.12/reference/lexical_analysis.html#physical-lines
+// https://docs.python.org/3.14/reference/lexical_analysis.html#physical-lines
 NEWLINE : '\r'? '\n'; // Unix, Windows
 
-// https://docs.python.org/3.12/reference/lexical_analysis.html#comments
-COMMENT : '#' ~[\r\n]*               -> channel(HIDDEN);
+// https://docs.python.org/3.14/reference/lexical_analysis.html#comments
+COMMENT : '#' ~[\r\n]*                    -> channel(HIDDEN);
 
-// https://docs.python.org/3.12/reference/lexical_analysis.html#whitespace-between-tokens
-WS : [ \t\f]+                        -> channel(HIDDEN);
+// https://docs.python.org/3.14/reference/lexical_analysis.html#whitespace-between-tokens
+WS : [ \t\f]+                             -> channel(HIDDEN);
 
-// https://docs.python.org/3.12/reference/lexical_analysis.html#explicit-line-joining
-EXPLICIT_LINE_JOINING : '\\' NEWLINE -> channel(HIDDEN);
+// https://docs.python.org/3.14/reference/lexical_analysis.html#explicit-line-joining
+EXPLICIT_LINE_JOINING : BACKSLASH_NEWLINE -> channel(HIDDEN);
 
-// https://docs.python.org/3.12/reference/lexical_analysis.html#formatted-string-literals
-SINGLE_QUOTE_FSTRING_START      : F_STRING_PREFIX [']       -> type(FSTRING_START), pushMode(SINGLE_QUOTE_FSTRING_MODE);
-DOUBLE_QUOTE_FSTRING_START      : F_STRING_PREFIX ["]       -> type(FSTRING_START), pushMode(DOUBLE_QUOTE_FSTRING_MODE);
-LONG_SINGLE_QUOTE_FSTRING_START : F_STRING_PREFIX ['][']['] -> type(FSTRING_START), pushMode(LONG_SINGLE_QUOTE_FSTRING_MODE);
-LONG_DOUBLE_QUOTE_FSTRING_START : F_STRING_PREFIX ["]["]["] -> type(FSTRING_START), pushMode(LONG_DOUBLE_QUOTE_FSTRING_MODE);
+// https://docs.python.org/3.14/reference/lexical_analysis.html#formatted-string-literals
+FSTRING_START : FSTRING_PREFIX STRING_QUOTES; // pushMode(...._FSTRING_MODE) is called in PythonLexerBase
+TSTRING_START : TSTRING_PREFIX STRING_QUOTES; // pushMode(...._TSTRING_MODE) is called in PythonLexerBase
 
-ERRORTOKEN : . ; // catch the unrecognized characters and redirect these errors to the parser
-
+// catch unrecognized characters
+ERRORTOKEN : . ; // the PythonLexerBase class reports a lexer error for them (ERRORTOKEN also triggers a parser error)
 
 /*
- *  other lexer modes
+ *  lexer modes for interpolation string literals
  */
 
-mode SINGLE_QUOTE_FSTRING_MODE;
-     SINGLE_QUOTE_FSTRING_END         : [']                          -> type(FSTRING_END), popMode;
-     SINGLE_QUOTE_FSTRING_MIDDLE      : SINGLE_QUOTE_FSTRING_LITERAL -> type(FSTRING_MIDDLE);
-     SINGLE_QUOTE_FSTRING_LBRACE      : '{'                          -> type(LBRACE); // will be closed in DEFAULT_MODE or SINGLE_QUOTE_FORMAT_SPECIFICATION_RBRACE
+// **********************************************************************
+// Abbreviations for interpolation string literals (f-strings, t-strings)
+// **********************************************************************
+// SQ1__ISTRING = short single quoted     interpolation string, e.g.:  f'Hello {name}'
+// DQ1__ISTRING = short double quoted     interpolation string, e.g.:  f"Hello {name}"
+// SQ1R_ISTRING = short single quoted raw interpolation string, e.g.: rf'Hello {name}'
+// DQ1R_ISTRING = short double quoted raw interpolation string, e.g.: rf"Hello {name}"
+//
+// SQ3__ISTRING = long  single quoted     interpolation string, e.g.:  f'''Hello {name}'''
+// DQ3__ISTRING = long  double quoted     interpolation string, e.g.:  f"""Hello {name}"""
+// SQ3R_ISTRING = long  single quoted raw interpolation string, e.g.: rf'''Hello {name}'''
+// DQ3R_ISTRING = long  double quoted raw interpolation string, e.g.: rf"""Hello {name}"""
 
-mode DOUBLE_QUOTE_FSTRING_MODE;
-     DOUBLE_QUOTE_FSTRING_END         : ["]                          -> type(FSTRING_END), popMode;
-     DOUBLE_QUOTE_FSTRING_MIDDLE      : DOUBLE_QUOTE_FSTRING_LITERAL -> type(FSTRING_MIDDLE);
-     DOUBLE_QUOTE_FSTRING_LBRACE      : '{'                          -> type(LBRACE); // will be closed in DEFAULT_MODE or DOUBLE_QUOTE_FORMAT_SPECIFICATION_RBRACE
+mode SQ1__FSTRING_MODE;
+     SQ1__FSTRING_END    : [']               -> type(FSTRING_END); // popMode() is called in PythonLexerBase
+     SQ1__FSTRING_MIDDLE : SQ1__ISTRING_ITEM -> type(FSTRING_MIDDLE);
+     SQ1__FSTRING_LBRACE : '{'               -> type(LBRACE);      // pushMode(SQ1__FSTRING_FORMAT_SPECIFICATION_MODE) is called in PythonLexerBase
+     SQ1__FSTRING_ERRORTOKEN : .             -> type(ERRORTOKEN);
 
-mode LONG_SINGLE_QUOTE_FSTRING_MODE;
-     LONG_SINGLE_QUOTE_FSTRING_END    : [']['][']                    -> type(FSTRING_END), popMode;
-     LONG_SINGLE_QUOTE_FSTRING_MIDDLE : SINGLE_QUOTE_FSTRING_LITERAL -> type(FSTRING_MIDDLE);
-     LONG_SINGLE_QUOTE_FSTRING_LBRACE : '{'                          -> type(LBRACE); // will be closed in DEFAULT_MODE or SINGLE_QUOTE_FORMAT_SPECIFICATION_RBRACE
+mode SQ1__TSTRING_MODE;
+     SQ1__TSTRING_END    : [']               -> type(TSTRING_END); // popMode() is called in PythonLexerBase
+     SQ1__TSTRING_MIDDLE : SQ1__ISTRING_ITEM -> type(TSTRING_MIDDLE);
+     SQ1__TSTRING_LBRACE : '{'               -> type(LBRACE);      // pushMode(SQ1__TSTRING_FORMAT_SPECIFICATION_MODE) is called in PythonLexerBase
+     SQ1__TSTRING_ERRORTOKEN : .             -> type(ERRORTOKEN);
 
-mode LONG_DOUBLE_QUOTE_FSTRING_MODE;
-     LONG_DOUBLE_QUOTE_FSTRING_END    : ["]["]["]                    -> type(FSTRING_END), popMode;
-     LONG_DOUBLE_QUOTE_FSTRING_MIDDLE : DOUBLE_QUOTE_FSTRING_LITERAL -> type(FSTRING_MIDDLE);
-     LONG_DOUBLE_QUOTE_FSTRING_LBRACE : '{'                          -> type(LBRACE); // will be closed in DEFAULT_MODE or DOUBLE_QUOTE_FORMAT_SPECIFICATION_RBRACE
 
-mode SINGLE_QUOTE_FORMAT_SPECIFICATION_MODE; // only used after a format specifier colon
-     SINGLE_QUOTE_FORMAT_SPECIFICATION_FSTRING_MIDDLE : FORMAT_SPEC_CHAR_NO_SINGLE_QUOTE+ -> type(FSTRING_MIDDLE);
-     SINGLE_QUOTE_FORMAT_SPECIFICATION_LBRACE : '{'                                       -> type(LBRACE); // will be closed in DEFAULT_MODE    by PythonLexerBase class
-     SINGLE_QUOTE_FORMAT_SPECIFICATION_RBRACE : '}'                                       -> type(RBRACE); // popMode to ..._QUOTE_FSTRING_MODE by PythonLexerBase class
 
-mode DOUBLE_QUOTE_FORMAT_SPECIFICATION_MODE; // only used after a format specifier colon
-     DOUBLE_QUOTE_FORMAT_SPECIFICATION_FSTRING_MIDDLE : FORMAT_SPEC_CHAR_NO_DOUBLE_QUOTE+ -> type(FSTRING_MIDDLE);
-     DOUBLE_QUOTE_FORMAT_SPECIFICATION_LBRACE : '{'                                       -> type(LBRACE); // will be closed in DEFAULT_MODE    by PythonLexerBase class
-     DOUBLE_QUOTE_FORMAT_SPECIFICATION_RBRACE : '}'                                       -> type(RBRACE); // popMode to ..._QUOTE_FSTRING_MODE by PythonLexerBase class
+mode SQ1R_FSTRING_MODE;
+     SQ1R_FSTRING_END    : [']               -> type(FSTRING_END); // popMode() is called in PythonLexerBase
+     SQ1R_FSTRING_MIDDLE : SQ1R_ISTRING_ITEM -> type(FSTRING_MIDDLE);
+     SQ1R_FSTRING_LBRACE : '{'               -> type(LBRACE);      // pushMode(SQ1R_FSTRING_FORMAT_SPECIFICATION_MODE) is called in PythonLexerBase
+     SQ1R_FSTRING_ERRORTOKEN : .             -> type(ERRORTOKEN);
+
+mode SQ1R_TSTRING_MODE;
+     SQ1R_TSTRING_END    : [']               -> type(TSTRING_END); // popMode() is called in PythonLexerBase
+     SQ1R_TSTRING_MIDDLE : SQ1R_ISTRING_ITEM -> type(TSTRING_MIDDLE);
+     SQ1R_TSTRING_LBRACE : '{'               -> type(LBRACE);      // pushMode(SQ1R_TSTRING_FORMAT_SPECIFICATION_MODE) is called in PythonLexerBase
+     SQ1R_TSTRING_ERRORTOKEN : .             -> type(ERRORTOKEN);
+
+
+
+mode DQ1__FSTRING_MODE;
+     DQ1__FSTRING_END    : ["]               -> type(FSTRING_END); // popMode() is called in PythonLexerBase
+     DQ1__FSTRING_MIDDLE : DQ1__ISTRING_ITEM -> type(FSTRING_MIDDLE);
+     DQ1__FSTRING_LBRACE : '{'               -> type(LBRACE);      // pushMode(DQ1__FSTRING_FORMAT_SPECIFICATION_MODE) is called in PythonLexerBase
+     DQ1__FSTRING_ERRORTOKEN : .             -> type(ERRORTOKEN);
+
+mode DQ1__TSTRING_MODE;
+     DQ1__TSTRING_END    : ["]               -> type(TSTRING_END); // popMode() is called in PythonLexerBase
+     DQ1__TSTRING_MIDDLE : DQ1__ISTRING_ITEM -> type(TSTRING_MIDDLE);
+     DQ1__TSTRING_LBRACE : '{'               -> type(LBRACE);      // pushMode(DQ1__TSTRING_FORMAT_SPECIFICATION_MODE) is called in PythonLexerBase
+     DQ1__TSTRING_ERRORTOKEN : .             -> type(ERRORTOKEN);
+
+
+
+mode DQ1R_FSTRING_MODE;
+     DQ1R_FSTRING_END    : ["]               -> type(FSTRING_END); // popMode() is called in PythonLexerBase
+     DQ1R_FSTRING_MIDDLE : DQ1R_ISTRING_ITEM -> type(FSTRING_MIDDLE);
+     DQ1R_FSTRING_LBRACE : '{'               -> type(LBRACE);      // pushMode(DQ1R_FSTRING_FORMAT_SPECIFICATION_MODE) is called in PythonLexerBase
+     DQ1R_FSTRING_ERRORTOKEN : .             -> type(ERRORTOKEN);
+
+mode DQ1R_TSTRING_MODE;
+     DQ1R_TSTRING_END    : ["]               -> type(TSTRING_END); // popMode() is called in PythonLexerBase
+     DQ1R_TSTRING_MIDDLE : DQ1R_ISTRING_ITEM -> type(TSTRING_MIDDLE);
+     DQ1R_TSTRING_LBRACE : '{'               -> type(LBRACE);      // pushMode(DQ1R_TSTRING_FORMAT_SPECIFICATION_MODE) is called in PythonLexerBase
+     DQ1R_TSTRING_ERRORTOKEN : .             -> type(ERRORTOKEN);
+
+
+
+mode SQ3__FSTRING_MODE;
+     SQ3__FSTRING_END    : [']['][']         -> type(FSTRING_END); // popMode() is called in PythonLexerBase
+     SQ3__FSTRING_MIDDLE : SQ3__ISTRING_ITEM -> type(FSTRING_MIDDLE);
+     SQ3__FSTRING_LBRACE : '{'               -> type(LBRACE);      // pushMode(SQ3__FSTRING_FORMAT_SPECIFICATION_MODE) is called in PythonLexerBase
+     SQ3__FSTRING_ERRORTOKEN : .             -> type(ERRORTOKEN);
+
+mode SQ3__TSTRING_MODE;
+     SQ3__TSTRING_END    : [']['][']         -> type(TSTRING_END); // popMode() is called in PythonLexerBase
+     SQ3__TSTRING_MIDDLE : SQ3__ISTRING_ITEM -> type(TSTRING_MIDDLE);
+     SQ3__TSTRING_LBRACE : '{'               -> type(LBRACE);      // pushMode(SQ3__TSTRING_FORMAT_SPECIFICATION_MODE) is called in PythonLexerBase
+     SQ3__TSTRING_ERRORTOKEN : .             -> type(ERRORTOKEN);
+
+
+
+mode SQ3R_FSTRING_MODE;
+     SQ3R_FSTRING_END    : [']['][']         -> type(FSTRING_END); // popMode() is called in PythonLexerBase
+     SQ3R_FSTRING_MIDDLE : SQ3R_ISTRING_ITEM -> type(FSTRING_MIDDLE);
+     SQ3R_FSTRING_LBRACE : '{'               -> type(LBRACE);      // pushMode(SQ3R_FSTRING_FORMAT_SPECIFICATION_MODE) is called in PythonLexerBase
+     SQ3R_FSTRING_ERRORTOKEN : .             -> type(ERRORTOKEN);
+
+mode SQ3R_TSTRING_MODE;
+     SQ3R_TSTRING_END    : [']['][']         -> type(TSTRING_END); // popMode() is called in PythonLexerBase
+     SQ3R_TSTRING_MIDDLE : SQ3R_ISTRING_ITEM -> type(TSTRING_MIDDLE);
+     SQ3R_TSTRING_LBRACE : '{'               -> type(LBRACE);      // pushMode(SQ3R_TSTRING_FORMAT_SPECIFICATION_MODE) is called in PythonLexerBase
+     SQ3R_TSTRING_ERRORTOKEN : .             -> type(ERRORTOKEN);
+
+
+
+mode DQ3__FSTRING_MODE;
+     DQ3__FSTRING_END    : ["]["]["]         -> type(FSTRING_END); // popMode() is called in PythonLexerBase
+     DQ3__FSTRING_MIDDLE : DQ3__ISTRING_ITEM -> type(FSTRING_MIDDLE);
+     DQ3__FSTRING_LBRACE : '{'               -> type(LBRACE);      // pushMode(DQ3__FSTRING_FORMAT_SPECIFICATION_MODE) is called in PythonLexerBase
+     DQ3__FSTRING_ERRORTOKEN : .             -> type(ERRORTOKEN);
+
+mode DQ3__TSTRING_MODE;
+     DQ3__TSTRING_END    : ["]["]["]         -> type(TSTRING_END); // popMode() is called in PythonLexerBase
+     DQ3__TSTRING_MIDDLE : DQ3__ISTRING_ITEM -> type(TSTRING_MIDDLE);
+     DQ3__TSTRING_LBRACE : '{'               -> type(LBRACE);      // pushMode(DQ3__TSTRING_FORMAT_SPECIFICATION_MODE) is called in PythonLexerBase
+     DQ3__TSTRING_ERRORTOKEN : .             -> type(ERRORTOKEN);
+
+
+
+mode DQ3R_FSTRING_MODE;
+     DQ3R_FSTRING_END    : ["]["]["]         -> type(FSTRING_END); // popMode() is called in PythonLexerBase
+     DQ3R_FSTRING_MIDDLE : DQ3R_ISTRING_ITEM -> type(FSTRING_MIDDLE);
+     DQ3R_FSTRING_LBRACE : '{'               -> type(LBRACE);      // pushMode(DQ3R_FSTRING_FORMAT_SPECIFICATION_MODE) is called in PythonLexerBase
+     DQ3R_FSTRING_ERRORTOKEN : .             -> type(ERRORTOKEN);
+
+mode DQ3R_TSTRING_MODE;
+     DQ3R_TSTRING_END    : ["]["]["]         -> type(TSTRING_END); // popMode() is called in PythonLexerBase
+     DQ3R_TSTRING_MIDDLE : DQ3R_ISTRING_ITEM -> type(TSTRING_MIDDLE);
+     DQ3R_TSTRING_LBRACE : '{'               -> type(LBRACE);      // pushMode(DQ3R_TSTRING_FORMAT_SPECIFICATION_MODE) is called in PythonLexerBase
+     DQ3R_TSTRING_ERRORTOKEN : .             -> type(ERRORTOKEN);
+
+
+
+// *** format specification modes for interpolated strings ***
+mode SQ1__FSTRING_FORMAT_SPECIFICATION_MODE; // called from the PythonLexerBase class; only used after a format specifier colon
+     SQ1__FSTRING_FORMAT_SPECIFICATION_FSTRING_MIDDLE : SQ1__ISTRING_PART+ -> type(FSTRING_MIDDLE);
+     SQ1__FSTRING_FORMAT_SPECIFICATION_LBRACE         : '{'                -> type(LBRACE); // closed in DEFAULT_MODE by the PythonLexerBase class
+     SQ1__FSTRING_FORMAT_SPECIFICATION_RBRACE         : '}'                -> type(RBRACE); // popMode() to SQ1__FSTRING_MODE is called in PythonLexerBase
+     SQ1__FSTRING_FORMAT_SPECIFICATION_ERRORTOKEN     : .                  -> type(ERRORTOKEN);
+
+mode SQ1__TSTRING_FORMAT_SPECIFICATION_MODE; // called from the PythonLexerBase class; only used after a format specifier colon
+     SQ1__TSTRING_FORMAT_SPECIFICATION_TSTRING_MIDDLE : SQ1__ISTRING_PART+ -> type(TSTRING_MIDDLE);
+     SQ1__TSTRING_FORMAT_SPECIFICATION_LBRACE         : '{'                -> type(LBRACE); // closed in DEFAULT_MODE by the PythonLexerBase class
+     SQ1__TSTRING_FORMAT_SPECIFICATION_RBRACE         : '}'                -> type(RBRACE); // popMode() to SQ1__TSTRING_MODE is called in PythonLexerBase
+     SQ1__TSTRING_FORMAT_SPECIFICATION_ERRORTOKEN     : .                  -> type(ERRORTOKEN);
+
+
+
+mode SQ1R_FSTRING_FORMAT_SPECIFICATION_MODE; // called from the PythonLexerBase class; only used after a format specifier colon
+     SQ1R_FSTRING_FORMAT_SPECIFICATION_FSTRING_MIDDLE : SQ1R_ISTRING_PART+ -> type(FSTRING_MIDDLE);
+     SQ1R_FSTRING_FORMAT_SPECIFICATION_LBRACE         : '{'                -> type(LBRACE); // closed in DEFAULT_MODE by the PythonLexerBase class
+     SQ1R_FSTRING_FORMAT_SPECIFICATION_RBRACE         : '}'                -> type(RBRACE); // popMode() to SQ1R_FSTRING_MODE is called in PythonLexerBase
+     SQ1R_FSTRING_FORMAT_SPECIFICATION_ERRORTOKEN     : .                  -> type(ERRORTOKEN);
+
+mode SQ1R_TSTRING_FORMAT_SPECIFICATION_MODE; // called from the PythonLexerBase class; only used after a format specifier colon
+     SQ1R_TSTRING_FORMAT_SPECIFICATION_TSTRING_MIDDLE : SQ1R_ISTRING_PART+ -> type(TSTRING_MIDDLE);
+     SQ1R_TSTRING_FORMAT_SPECIFICATION_LBRACE         : '{'                -> type(LBRACE); // closed in DEFAULT_MODE by the PythonLexerBase class
+     SQ1R_TSTRING_FORMAT_SPECIFICATION_RBRACE         : '}'                -> type(RBRACE); // popMode() to SQ1R_TSTRING_MODE is called in PythonLexerBase
+     SQ1R_TSTRING_FORMAT_SPECIFICATION_ERRORTOKEN     : .                  -> type(ERRORTOKEN);
+
+
+
+mode DQ1__FSTRING_FORMAT_SPECIFICATION_MODE; // called from the PythonLexerBase class; only used after a format specifier colon
+     DQ1__FSTRING_FORMAT_SPECIFICATION_FSTRING_MIDDLE : DQ1__ISTRING_PART+ -> type(FSTRING_MIDDLE);
+     DQ1__FSTRING_FORMAT_SPECIFICATION_LBRACE         : '{'                -> type(LBRACE); // closed in DEFAULT_MODE by the PythonLexerBase class
+     DQ1__FSTRING_FORMAT_SPECIFICATION_RBRACE         : '}'                -> type(RBRACE); // popMode() to DQ1__FSTRING_MODE is called in PythonLexerBase
+     DQ1__FSTRING_FORMAT_SPECIFICATION_ERRORTOKEN     : .                  -> type(ERRORTOKEN);
+
+mode DQ1__TSTRING_FORMAT_SPECIFICATION_MODE; // called from the PythonLexerBase class; only used after a format specifier colon
+     DQ1__TSTRING_FORMAT_SPECIFICATION_TSTRING_MIDDLE : DQ1__ISTRING_PART+ -> type(TSTRING_MIDDLE);
+     DQ1__TSTRING_FORMAT_SPECIFICATION_LBRACE         : '{'                -> type(LBRACE); // closed in DEFAULT_MODE by the PythonLexerBase class
+     DQ1__TSTRING_FORMAT_SPECIFICATION_RBRACE         : '}'                -> type(RBRACE); // popMode() to DQ1__TSTRING_MODE is called in PythonLexerBase
+     DQ1__TSTRING_FORMAT_SPECIFICATION_ERRORTOKEN     : .                  -> type(ERRORTOKEN);
+
+
+
+mode DQ1R_FSTRING_FORMAT_SPECIFICATION_MODE; // called from the PythonLexerBase class; only used after a format specifier colon
+     DQ1R_FSTRING_FORMAT_SPECIFICATION_FSTRING_MIDDLE : DQ1R_ISTRING_PART+ -> type(FSTRING_MIDDLE);
+     DQ1R_FSTRING_FORMAT_SPECIFICATION_LBRACE         : '{'                -> type(LBRACE); // closed in DEFAULT_MODE by the PythonLexerBase class
+     DQ1R_FSTRING_FORMAT_SPECIFICATION_RBRACE         : '}'                -> type(RBRACE); // popMode() to DQ1R_FSTRING_MODE is called in PythonLexerBase
+     DQ1R_FSTRING_FORMAT_SPECIFICATION_ERRORTOKEN     : .                  -> type(ERRORTOKEN);
+
+mode DQ1R_TSTRING_FORMAT_SPECIFICATION_MODE; // called from the PythonLexerBase class; only used after a format specifier colon
+     DQ1R_TSTRING_FORMAT_SPECIFICATION_TSTRING_MIDDLE : DQ1R_ISTRING_PART+ -> type(TSTRING_MIDDLE);
+     DQ1R_TSTRING_FORMAT_SPECIFICATION_LBRACE         : '{'                -> type(LBRACE); // closed in DEFAULT_MODE by the PythonLexerBase class
+     DQ1R_TSTRING_FORMAT_SPECIFICATION_RBRACE         : '}'                -> type(RBRACE); // popMode() to DQ1R_TSTRING_MODE is called in PythonLexerBase
+     DQ1R_TSTRING_FORMAT_SPECIFICATION_ERRORTOKEN     : .                  -> type(ERRORTOKEN);
+
+
+
+mode SQ3__FSTRING_FORMAT_SPECIFICATION_MODE; // called from the PythonLexerBase class; only used after a format specifier colon
+     SQ3__FSTRING_FORMAT_SPECIFICATION_FSTRING_MIDDLE : SQ3__ISTRING_PART+ -> type(FSTRING_MIDDLE);
+     SQ3__FSTRING_FORMAT_SPECIFICATION_LBRACE         : '{'                -> type(LBRACE); // closed in DEFAULT_MODE by the PythonLexerBase class
+     SQ3__FSTRING_FORMAT_SPECIFICATION_RBRACE         : '}'                -> type(RBRACE); // popMode() to SQ3__FSTRING_MODE is called in PythonLexerBase
+     SQ3__FSTRING_FORMAT_SPECIFICATION_ERRORTOKEN     : .                  -> type(ERRORTOKEN);
+
+mode SQ3__TSTRING_FORMAT_SPECIFICATION_MODE; // called from the PythonLexerBase class; only used after a format specifier colon
+     SQ3__TSTRING_FORMAT_SPECIFICATION_TSTRING_MIDDLE : SQ3__ISTRING_PART+ -> type(TSTRING_MIDDLE);
+     SQ3__TSTRING_FORMAT_SPECIFICATION_LBRACE         : '{'                -> type(LBRACE); // closed in DEFAULT_MODE by the PythonLexerBase class
+     SQ3__TSTRING_FORMAT_SPECIFICATION_RBRACE         : '}'                -> type(RBRACE); // popMode() to SQ3__TSTRING_MODE is called in PythonLexerBase
+     SQ3__TSTRING_FORMAT_SPECIFICATION_ERRORTOKEN     : .                  -> type(ERRORTOKEN);
+
+
+
+mode SQ3R_FSTRING_FORMAT_SPECIFICATION_MODE; // called from the PythonLexerBase class; only used after a format specifier colon
+     SQ3R_FSTRING_FORMAT_SPECIFICATION_FSTRING_MIDDLE : SQ3R_ISTRING_PART+ -> type(FSTRING_MIDDLE);
+     SQ3R_FSTRING_FORMAT_SPECIFICATION_LBRACE         : '{'                -> type(LBRACE); // closed in DEFAULT_MODE by the PythonLexerBase class
+     SQ3R_FSTRING_FORMAT_SPECIFICATION_RBRACE         : '}'                -> type(RBRACE); // popMode() to SQ3R_FSTRING_MODE is called in PythonLexerBase
+     SQ3R_FSTRING_FORMAT_SPECIFICATION_ERRORTOKEN     : .                  -> type(ERRORTOKEN);
+
+mode SQ3R_TSTRING_FORMAT_SPECIFICATION_MODE; // called from the PythonLexerBase class; only used after a format specifier colon
+     SQ3R_TSTRING_FORMAT_SPECIFICATION_TSTRING_MIDDLE : SQ3R_ISTRING_PART+ -> type(TSTRING_MIDDLE);
+     SQ3R_TSTRING_FORMAT_SPECIFICATION_LBRACE         : '{'                -> type(LBRACE); // closed in DEFAULT_MODE by the PythonLexerBase class
+     SQ3R_TSTRING_FORMAT_SPECIFICATION_RBRACE         : '}'                -> type(RBRACE); // popMode() to SQ3R_TSTRING_MODE is called in PythonLexerBase
+     SQ3R_TSTRING_FORMAT_SPECIFICATION_ERRORTOKEN     : .                  -> type(ERRORTOKEN);
+
+
+
+mode DQ3__FSTRING_FORMAT_SPECIFICATION_MODE; // called from the PythonLexerBase class; only used after a format specifier colon
+     DQ3__FSTRING_FORMAT_SPECIFICATION_FSTRING_MIDDLE : DQ3__ISTRING_PART+ -> type(FSTRING_MIDDLE);
+     DQ3__FSTRING_FORMAT_SPECIFICATION_LBRACE         : '{'                -> type(LBRACE); // closed in DEFAULT_MODE by the PythonLexerBase class
+     DQ3__FSTRING_FORMAT_SPECIFICATION_RBRACE         : '}'                -> type(RBRACE); // popMode() to DQ3__FSTRING_MODE is called in PythonLexerBase
+     DQ3__FSTRING_FORMAT_SPECIFICATION_ERRORTOKEN     : .                  -> type(ERRORTOKEN);
+
+mode DQ3__TSTRING_FORMAT_SPECIFICATION_MODE; // called from the PythonLexerBase class; only used after a format specifier colon
+     DQ3__TSTRING_FORMAT_SPECIFICATION_TSTRING_MIDDLE : DQ3__ISTRING_PART+ -> type(TSTRING_MIDDLE);
+     DQ3__TSTRING_FORMAT_SPECIFICATION_LBRACE         : '{'                -> type(LBRACE); // closed in DEFAULT_MODE by the PythonLexerBase class
+     DQ3__TSTRING_FORMAT_SPECIFICATION_RBRACE         : '}'                -> type(RBRACE); // popMode() to DQ3__TSTRING_MODE is called in PythonLexerBase
+     DQ3__TSTRING_FORMAT_SPECIFICATION_ERRORTOKEN     : .                  -> type(ERRORTOKEN);
+
+
+
+mode DQ3R_FSTRING_FORMAT_SPECIFICATION_MODE; // called from the PythonLexerBase class; only used after a format specifier colon
+     DQ3R_FSTRING_FORMAT_SPECIFICATION_FSTRING_MIDDLE : DQ3R_ISTRING_PART+ -> type(FSTRING_MIDDLE);
+     DQ3R_FSTRING_FORMAT_SPECIFICATION_LBRACE         : '{'                -> type(LBRACE); // closed in DEFAULT_MODE by the PythonLexerBase class
+     DQ3R_FSTRING_FORMAT_SPECIFICATION_RBRACE         : '}'                -> type(RBRACE); // popMode() to DQ3R_FSTRING_MODE is called in PythonLexerBase
+     DQ3R_FSTRING_FORMAT_SPECIFICATION_ERRORTOKEN     : .                  -> type(ERRORTOKEN);
+
+mode DQ3R_TSTRING_FORMAT_SPECIFICATION_MODE; // called from the PythonLexerBase class; only used after a format specifier colon
+     DQ3R_TSTRING_FORMAT_SPECIFICATION_TSTRING_MIDDLE : DQ3R_ISTRING_PART+ -> type(TSTRING_MIDDLE);
+     DQ3R_TSTRING_FORMAT_SPECIFICATION_LBRACE         : '{'                -> type(LBRACE); // closed in DEFAULT_MODE by the PythonLexerBase class
+     DQ3R_TSTRING_FORMAT_SPECIFICATION_RBRACE         : '}'                -> type(RBRACE); // popMode() to DQ3R_TSTRING_MODE is called in PythonLexerBase
+     DQ3R_TSTRING_FORMAT_SPECIFICATION_ERRORTOKEN     : .                  -> type(ERRORTOKEN);
 
 
 /*
  *  fragments
  */
 
-fragment IGNORE: 'ignore';
-
-// https://docs.python.org/3.12/reference/lexical_analysis.html#literals
-
-// https://docs.python.org/3.12/reference/lexical_analysis.html#string-and-bytes-literals
+// https://docs.python.org/3.14/reference/lexical_analysis.html#literals
+//
+// https://docs.python.org/3.14/reference/lexical_analysis.html#string-and-bytes-literals
 fragment STRING_LITERAL : STRING_PREFIX? (SHORT_STRING | LONG_STRING);
-fragment STRING_PREFIX  : 'r' | 'u' | 'R' | 'U';
+fragment STRING_PREFIX options { caseInsensitive=true; }  : 'r' | 'u'; // 'r' | 'u' | 'R' | 'U'
 
 fragment SHORT_STRING
-    : '\'' SHORT_STRING_ITEM_FOR_SINGLE_QUOTE* '\''
-    | '"'  SHORT_STRING_ITEM_FOR_DOUBLE_QUOTE* '"'
+    : ['] SHORT_STRING_ITEM_FOR_SINGLE_QUOTE* [']
+    | ["] SHORT_STRING_ITEM_FOR_DOUBLE_QUOTE* ["]
     ;
 
 fragment LONG_STRING
-    : '\'\'\'' LONG_STRING_ITEM*? '\'\'\''
-    | '"""'    LONG_STRING_ITEM*? '"""'
+    : ['][']['] LONG__STRING_ITEM*? ['][']['] // nongreede
+    | ["]["]["] LONG__STRING_ITEM*? ["]["]["] // nongreede
     ;
 
+// https://docs.python.org/3/faq/design.html#why-can-t-raw-strings-r-strings-end-with-a-backslash
 fragment SHORT_STRING_ITEM_FOR_SINGLE_QUOTE : SHORT_STRING_CHAR_NO_SINGLE_QUOTE | STRING_ESCAPE_SEQ;
 fragment SHORT_STRING_ITEM_FOR_DOUBLE_QUOTE : SHORT_STRING_CHAR_NO_DOUBLE_QUOTE | STRING_ESCAPE_SEQ;
-
-fragment LONG_STRING_ITEM : LONG_STRING_CHAR | STRING_ESCAPE_SEQ;
+fragment LONG__STRING_ITEM                  : LONG__STRING_CHAR                 | STRING_ESCAPE_SEQ;
 
 fragment SHORT_STRING_CHAR_NO_SINGLE_QUOTE : ~[\\\r\n'];       // <any source character except "\" or newline or single quote>
 fragment SHORT_STRING_CHAR_NO_DOUBLE_QUOTE : ~[\\\r\n"];       // <any source character except "\" or newline or double quote>
+fragment LONG__STRING_CHAR                 : ~[\\];            // <any source character except "\">
 
-fragment LONG_STRING_CHAR  : ~'\\';                            // <any source character except "\">
+// https://docs.python.org/3/reference/lexical_analysis.html#escape-sequences
+fragment STRING_ESCAPE_SEQ : ESCAPE_SEQ_NEWLINE | '\\' .;       // "\" <any source character>
 
-fragment STRING_ESCAPE_SEQ // https://docs.python.org/3/reference/lexical_analysis.html#escape-sequences
-    : '\\' '\r' '\n'  // for the two-character Windows line break: \<newline> escape sequence (string literal line continuation)
-    | '\\' .                                                   // "\" <any source character>
-    ;
-
+// https://docs.python.org/3.14/reference/lexical_analysis.html#string-and-bytes-literals
 fragment BYTES_LITERAL : BYTES_PREFIX (SHORT_BYTES | LONG_BYTES);
-fragment BYTES_PREFIX  : 'b' | 'B' | 'br' | 'Br' | 'bR' | 'BR' | 'rb' | 'rB' | 'Rb' | 'RB';
+fragment BYTES_PREFIX options { caseInsensitive=true; } : 'b' | 'br' | 'rb'; // 'b' | 'B' | 'br' | 'Br' | 'bR' | 'BR' | 'rb' | 'rB' | 'Rb' | 'RB'
 
 fragment SHORT_BYTES
-    : '\'' SHORT_BYTES_ITEM_FOR_SINGLE_QUOTE* '\''
-    | '"'  SHORT_BYTES_ITEM_FOR_DOUBLE_QUOTE* '"'
+    : ['] SHORT_BYTES_ITEM_FOR_SINGLE_QUOTE* [']
+    | ["] SHORT_BYTES_ITEM_FOR_DOUBLE_QUOTE* ["]
     ;
 
 fragment LONG_BYTES
-    : '\'\'\'' LONG_BYTES_ITEM*? '\'\'\''
-    | '"""'    LONG_BYTES_ITEM*? '"""'
+    : ['][']['] LONG_BYTES_ITEM*? ['][']['] // nongreede
+    | ["]["]["] LONG_BYTES_ITEM*? ["]["]["] // nongreede
     ;
 
-fragment SHORT_BYTES_ITEM_FOR_SINGLE_QUOTE :  SHORT_BYTES_CHAR_NO_SINGLE_QUOTE | BYTES_ESCAPE_SEQ;
-fragment SHORT_BYTES_ITEM_FOR_DOUBLE_QUOTE :  SHORT_BYTES_CHAR_NO_DOUBLE_QUOTE | BYTES_ESCAPE_SEQ;
+fragment SHORT_BYTES_ITEM_FOR_SINGLE_QUOTE : SHORT_SINGLE_QUOTED_BYTES_CHAR | BYTES_ESCAPE_SEQ;
+fragment SHORT_BYTES_ITEM_FOR_DOUBLE_QUOTE : SHORT_DOUBLE_QUOTED_BYTES_CHAR | BYTES_ESCAPE_SEQ;
 
-fragment LONG_BYTES_ITEM  : LONG_BYTES_CHAR | BYTES_ESCAPE_SEQ;
+fragment LONG_BYTES_ITEM : LONG_BYTES_CHAR | BYTES_ESCAPE_SEQ;
 
-fragment SHORT_BYTES_CHAR_NO_SINGLE_QUOTE                      // <any ASCII character except "\" or newline or single quote>
+fragment SHORT_SINGLE_QUOTED_BYTES_CHAR                        // <any ASCII character except "\" or newline or single quote>
     : [\u0000-\u0009]
     | [\u000B-\u000C]
     | [\u000E-\u0026]
@@ -267,7 +478,7 @@ fragment SHORT_BYTES_CHAR_NO_SINGLE_QUOTE                      // <any ASCII cha
     | [\u005D-\u007F]
     ;
 
-fragment SHORT_BYTES_CHAR_NO_DOUBLE_QUOTE                      // <any ASCII character except "\" or newline or double quote>
+fragment SHORT_DOUBLE_QUOTED_BYTES_CHAR                        // <any ASCII character except "\" or newline or double quote>
     : [\u0000-\u0009]
     | [\u000B-\u000C]
     | [\u000E-\u0021]
@@ -278,17 +489,69 @@ fragment SHORT_BYTES_CHAR_NO_DOUBLE_QUOTE                      // <any ASCII cha
 fragment LONG_BYTES_CHAR  : [\u0000-\u005B] | [\u005D-\u007F]; // <any ASCII character except "\">
 fragment BYTES_ESCAPE_SEQ : '\\' [\u0000-\u007F];              // "\" <any ASCII character>
 
-// https://docs.python.org/3.12/library/string.html#format-specification-mini-language
-fragment SINGLE_QUOTE_FSTRING_LITERAL : (FORMAT_SPEC_CHAR_NO_SINGLE_QUOTE | DOUBLE_BRACES)+;
-fragment DOUBLE_QUOTE_FSTRING_LITERAL : (FORMAT_SPEC_CHAR_NO_DOUBLE_QUOTE | DOUBLE_BRACES)+;
+// https://docs.python.org/3.14/reference/lexical_analysis.html#formatted-string-literals
+fragment FSTRING_PREFIX options { caseInsensitive=true; } : 'f' | 'fr' | 'rf'; // 'f' | 'F' | 'fr' | 'Fr' | 'fR' | 'FR' | 'rf' | 'rF' | 'Rf' | 'RF'
+fragment TSTRING_PREFIX options { caseInsensitive=true; } : 't' | 'tr' | 'rt'; // 't' | 'T' | 'tr' | 'Tr' | 'tR' | 'TR' | 'rt' | 'rT' | 'Rt' | 'RT'
+fragment STRING_QUOTES : [']
+                       | ["]
+                       | [']['][']
+                       | ["]["]["]
+                       ;
 
-// https://docs.python.org/3.12/reference/lexical_analysis.html#formatted-string-literals
-fragment F_STRING_PREFIX  : 'f' | 'F' | 'fr' | 'Fr' | 'fR' | 'FR' | 'rf' | 'rF' | 'Rf' | 'RF';
-fragment FORMAT_SPEC_CHAR_NO_SINGLE_QUOTE : ~[{}'];
-fragment FORMAT_SPEC_CHAR_NO_DOUBLE_QUOTE : ~[{}"];
-fragment DOUBLE_BRACES : '{{' | '}}';
+fragment SQ1__ISTRING_ITEM : (SQ1__ISTRING_PART+ TERMINATING_ISTRING_MIDDLE?)      | TERMINATING_ISTRING_MIDDLE;
+fragment DQ1__ISTRING_ITEM : (DQ1__ISTRING_PART+ TERMINATING_ISTRING_MIDDLE?)      | TERMINATING_ISTRING_MIDDLE;
+fragment SQ3__ISTRING_ITEM : (SQ3__ISTRING_PART+ TERMINATING_SQ3__ISTRING_MIDDLE?) | TERMINATING_SQ3__ISTRING_MIDDLE;
+fragment DQ3__ISTRING_ITEM : (DQ3__ISTRING_PART+ TERMINATING_DQ3__ISTRING_MIDDLE?) | TERMINATING_DQ3__ISTRING_MIDDLE;
 
-// https://docs.python.org/3.12/reference/lexical_analysis.html#integer-literals
+fragment SQ1R_ISTRING_ITEM : (SQ1R_ISTRING_PART+ TERMINATING_ISTRING_MIDDLE_RAW?)  | TERMINATING_ISTRING_MIDDLE_RAW;
+fragment DQ1R_ISTRING_ITEM : (DQ1R_ISTRING_PART+ TERMINATING_ISTRING_MIDDLE_RAW?)  | TERMINATING_ISTRING_MIDDLE_RAW;
+fragment SQ3R_ISTRING_ITEM : (SQ3R_ISTRING_PART+ TERMINATING_SQ3R_ISTRING_MIDDLE?) | TERMINATING_SQ3R_ISTRING_MIDDLE;
+fragment DQ3R_ISTRING_ITEM : (DQ3R_ISTRING_PART+ TERMINATING_DQ3R_ISTRING_MIDDLE?) | TERMINATING_DQ3R_ISTRING_MIDDLE;
+
+
+
+fragment SQ1__ISTRING_PART :                     SQ1_ISTRING_CHAR | ISTRING_ESCAPE_SEQ;
+fragment DQ1__ISTRING_PART :                     DQ1_ISTRING_CHAR | ISTRING_ESCAPE_SEQ;
+fragment SQ3__ISTRING_PART : ONE_OR_TWO_SQUOTE? (SQ3_ISTRING_CHAR | ISTRING_ESCAPE_SEQ);
+fragment DQ3__ISTRING_PART : ONE_OR_TWO_DQUOTE? (DQ3_ISTRING_CHAR | ISTRING_ESCAPE_SEQ);
+
+fragment SQ1R_ISTRING_PART :                     SQ1_ISTRING_CHAR | ISTRING_ESCAPE_SEQ_RAW;
+fragment DQ1R_ISTRING_PART :                     DQ1_ISTRING_CHAR | ISTRING_ESCAPE_SEQ_RAW;
+fragment SQ3R_ISTRING_PART : ONE_OR_TWO_SQUOTE? (SQ3_ISTRING_CHAR | ISTRING_ESCAPE_SEQ_RAW);
+fragment DQ3R_ISTRING_PART : ONE_OR_TWO_DQUOTE? (DQ3_ISTRING_CHAR | ISTRING_ESCAPE_SEQ_RAW);
+
+
+
+fragment SQ1_ISTRING_CHAR : ~[\\{}'\r\n];                      // <any source character except "\" or open/close brace or single quote or newline>
+fragment DQ1_ISTRING_CHAR : ~[\\{}"\r\n];                      // <any source character except "\" or open/close brace or double quote or newline>
+fragment SQ3_ISTRING_CHAR : ~[\\{}'];                          // <any source character except "\" or open/close brace or single quote>
+fragment DQ3_ISTRING_CHAR : ~[\\{}"];                          // <any source character except "\" or open/close brace or double quote>
+
+
+
+fragment TERMINATING_SQ3__ISTRING_MIDDLE : ONE_OR_TWO_SQUOTE_LBRACE | ONE_OR_TWO_SQUOTE? TERMINATING_ISTRING_MIDDLE;
+fragment TERMINATING_DQ3__ISTRING_MIDDLE : ONE_OR_TWO_DQUOTE_LBRACE | ONE_OR_TWO_DQUOTE? TERMINATING_ISTRING_MIDDLE;
+fragment TERMINATING_SQ3R_ISTRING_MIDDLE : ONE_OR_TWO_SQUOTE_LBRACE | ONE_OR_TWO_SQUOTE? TERMINATING_ISTRING_MIDDLE_RAW;
+fragment TERMINATING_DQ3R_ISTRING_MIDDLE : ONE_OR_TWO_DQUOTE_LBRACE | ONE_OR_TWO_DQUOTE? TERMINATING_ISTRING_MIDDLE_RAW;
+fragment ONE_OR_TWO_SQUOTE_LBRACE : ONE_OR_TWO_SQUOTE '{';
+fragment ONE_OR_TWO_DQUOTE_LBRACE : ONE_OR_TWO_DQUOTE '{';
+
+fragment TERMINATING_ISTRING_MIDDLE : TERMINATING_ISTRING_MIDDLE_RAW | ESCAPE_SEQ_NAMED_CHAR;
+fragment TERMINATING_ISTRING_MIDDLE_RAW : '\\'? DOUBLE_BRACE | '\\{' ; // https://docs.python.org/3/faq/design.html#why-can-t-raw-strings-r-strings-end-with-a-backslash
+
+fragment ISTRING_ESCAPE_SEQ     : ESCAPE_SEQ_NEWLINE | '\\' ~[{}N]; // f"\\}" causes a lexer error
+fragment ISTRING_ESCAPE_SEQ_RAW : ESCAPE_SEQ_NEWLINE | '\\' ~[{}];  // fr"\}" causes a lexer error
+
+fragment ONE_OR_TWO_SQUOTE : ['][']?;
+fragment ONE_OR_TWO_DQUOTE : ["]["]?;
+fragment DOUBLE_BRACE : '{{' | '}}'; // PythonLexerBase replaces double brace with single brace
+
+fragment ESCAPE_SEQ_NAMED_CHAR : '\\N{' .*? '}'; // an escape sequence for a Unicode character specified by name
+fragment ESCAPE_SEQ_NEWLINE    : BACKSLASH_NEWLINE; // this escape sequence acts as a line continuation in string literals
+                                                    // the backslash and newline are ignored by the Python interpreter
+fragment BACKSLASH_NEWLINE : '\\' NEWLINE;
+
+// https://docs.python.org/3.14/reference/lexical_analysis.html#integer-literals
 fragment INTEGER        : DEC_INTEGER | BIN_INTEGER | OCT_INTEGER | HEX_INTEGER;
 fragment DEC_INTEGER    : NON_ZERO_DIGIT ('_'? DIGIT)* | '0'+ ('_'? '0')*;
 fragment BIN_INTEGER    : '0' ('b' | 'B') ('_'? BIN_DIGIT)+;
@@ -300,7 +563,7 @@ fragment BIN_DIGIT      : '0' | '1';
 fragment OCT_DIGIT      : [0-7];
 fragment HEX_DIGIT      : DIGIT | [a-f] | [A-F];
 
-// https://docs.python.org/3.12/reference/lexical_analysis.html#floating-point-literals
+// https://docs.python.org/3.14/reference/lexical_analysis.html#floating-point-literals
 fragment FLOAT_NUMBER   : POINT_FLOAT | EXPONENT_FLOAT;
 fragment POINT_FLOAT    : DIGIT_PART? FRACTION | DIGIT_PART '.';
 fragment EXPONENT_FLOAT : (DIGIT_PART | POINT_FLOAT) EXPONENT;
@@ -308,12 +571,12 @@ fragment DIGIT_PART     : DIGIT ('_'? DIGIT)*;
 fragment FRACTION       : '.' DIGIT_PART;
 fragment EXPONENT       : ('e' | 'E') ('+' | '-')? DIGIT_PART;
 
-// https://docs.python.org/3.12/reference/lexical_analysis.html#imaginary-literals
+// https://docs.python.org/3.14/reference/lexical_analysis.html#imaginary-literals
 fragment IMAG_NUMBER : (FLOAT_NUMBER | DIGIT_PART) ('j' | 'J');
 
-// https://github.com/RobEin/ANTLR4-parser-for-Python-3.12/tree/main/valid_chars_in_py_identifiers
-fragment ID_CONTINUE:
-    ID_START
+// https://github.com/RobEin/ANTLR4-parser-for-Python-3.14/tree/main/utils/valid_chars_in_py_identifiers
+fragment ID_CONTINUE // for Python 3.14.2
+    : ID_START
     | '\u{0030}' .. '\u{0039}'
     | '\u{00B7}'
     | '\u{0300}' .. '\u{036F}'
@@ -343,7 +606,7 @@ fragment ID_CONTINUE:
     | '\u{0825}' .. '\u{0827}'
     | '\u{0829}' .. '\u{082D}'
     | '\u{0859}' .. '\u{085B}'
-    | '\u{0898}' .. '\u{089F}'
+    | '\u{0897}' .. '\u{089F}'
     | '\u{08CA}' .. '\u{08E1}'
     | '\u{08E3}' .. '\u{0903}'
     | '\u{093A}' .. '\u{093C}'
@@ -490,6 +753,7 @@ fragment ID_CONTINUE:
     | '\u{1CF4}'
     | '\u{1CF7}' .. '\u{1CF9}'
     | '\u{1DC0}' .. '\u{1DFF}'
+    | '\u{200C}' .. '\u{200D}'
     | '\u{203F}' .. '\u{2040}'
     | '\u{2054}'
     | '\u{20D0}' .. '\u{20DC}'
@@ -500,6 +764,7 @@ fragment ID_CONTINUE:
     | '\u{2DE0}' .. '\u{2DFF}'
     | '\u{302A}' .. '\u{302F}'
     | '\u{3099}' .. '\u{309A}'
+    | '\u{30FB}'
     | '\u{A620}' .. '\u{A629}'
     | '\u{A66F}'
     | '\u{A674}' .. '\u{A67D}'
@@ -544,6 +809,7 @@ fragment ID_CONTINUE:
     | '\u{FE4D}' .. '\u{FE4F}'
     | '\u{FF10}' .. '\u{FF19}'
     | '\u{FF3F}'
+    | '\u{FF65}'
     | '\u{FF9E}' .. '\u{FF9F}'
     | '\u{101FD}'
     | '\u{102E0}'
@@ -557,8 +823,10 @@ fragment ID_CONTINUE:
     | '\u{10AE5}' .. '\u{10AE6}'
     | '\u{10D24}' .. '\u{10D27}'
     | '\u{10D30}' .. '\u{10D39}'
+    | '\u{10D40}' .. '\u{10D49}'
+    | '\u{10D69}' .. '\u{10D6D}'
     | '\u{10EAB}' .. '\u{10EAC}'
-    | '\u{10EFD}' .. '\u{10EFF}'
+    | '\u{10EFC}' .. '\u{10EFF}'
     | '\u{10F46}' .. '\u{10F50}'
     | '\u{10F82}' .. '\u{10F85}'
     | '\u{11000}' .. '\u{11002}'
@@ -592,6 +860,13 @@ fragment ID_CONTINUE:
     | '\u{11362}' .. '\u{11363}'
     | '\u{11366}' .. '\u{1136C}'
     | '\u{11370}' .. '\u{11374}'
+    | '\u{113B8}' .. '\u{113C0}'
+    | '\u{113C2}'
+    | '\u{113C5}'
+    | '\u{113C7}' .. '\u{113CA}'
+    | '\u{113CC}' .. '\u{113D0}'
+    | '\u{113D2}'
+    | '\u{113E1}' .. '\u{113E2}'
     | '\u{11435}' .. '\u{11446}'
     | '\u{11450}' .. '\u{11459}'
     | '\u{1145E}'
@@ -604,6 +879,7 @@ fragment ID_CONTINUE:
     | '\u{11650}' .. '\u{11659}'
     | '\u{116AB}' .. '\u{116B7}'
     | '\u{116C0}' .. '\u{116C9}'
+    | '\u{116D0}' .. '\u{116E3}'
     | '\u{1171D}' .. '\u{1172B}'
     | '\u{11730}' .. '\u{11739}'
     | '\u{1182C}' .. '\u{1183A}'
@@ -623,6 +899,7 @@ fragment ID_CONTINUE:
     | '\u{11A47}'
     | '\u{11A51}' .. '\u{11A5B}'
     | '\u{11A8A}' .. '\u{11A99}'
+    | '\u{11BF0}' .. '\u{11BF9}'
     | '\u{11C2F}' .. '\u{11C36}'
     | '\u{11C38}' .. '\u{11C3F}'
     | '\u{11C50}' .. '\u{11C59}'
@@ -643,20 +920,23 @@ fragment ID_CONTINUE:
     | '\u{11F03}'
     | '\u{11F34}' .. '\u{11F3A}'
     | '\u{11F3E}' .. '\u{11F42}'
-    | '\u{11F50}' .. '\u{11F59}'
+    | '\u{11F50}' .. '\u{11F5A}'
     | '\u{13440}'
     | '\u{13447}' .. '\u{13455}'
+    | '\u{1611E}' .. '\u{16139}'
     | '\u{16A60}' .. '\u{16A69}'
     | '\u{16AC0}' .. '\u{16AC9}'
     | '\u{16AF0}' .. '\u{16AF4}'
     | '\u{16B30}' .. '\u{16B36}'
     | '\u{16B50}' .. '\u{16B59}'
+    | '\u{16D70}' .. '\u{16D79}'
     | '\u{16F4F}'
     | '\u{16F51}' .. '\u{16F87}'
     | '\u{16F8F}' .. '\u{16F92}'
     | '\u{16FE4}'
     | '\u{16FF0}' .. '\u{16FF1}'
     | '\u{1BC9D}' .. '\u{1BC9E}'
+    | '\u{1CCF0}' .. '\u{1CCF9}'
     | '\u{1CF00}' .. '\u{1CF2D}'
     | '\u{1CF30}' .. '\u{1CF46}'
     | '\u{1D165}' .. '\u{1D169}'
@@ -683,16 +963,17 @@ fragment ID_CONTINUE:
     | '\u{1E2AE}'
     | '\u{1E2EC}' .. '\u{1E2F9}'
     | '\u{1E4EC}' .. '\u{1E4F9}'
+    | '\u{1E5EE}' .. '\u{1E5EF}'
+    | '\u{1E5F1}' .. '\u{1E5FA}'
     | '\u{1E8D0}' .. '\u{1E8D6}'
     | '\u{1E944}' .. '\u{1E94A}'
     | '\u{1E950}' .. '\u{1E959}'
     | '\u{1FBF0}' .. '\u{1FBF9}'
     | '\u{E0100}' .. '\u{E01EF}'
-;
+    ;
 
-// https://github.com/RobEin/ANTLR4-parser-for-Python-3.12/tree/main/valid_chars_in_py_identifiers
-fragment ID_START:
-    '\u{0041}' .. '\u{005A}'
+fragment ID_START // for Python 3.14.2
+    : '\u{0041}' .. '\u{005A}'
     | '\u{005F}'
     | '\u{0061}' .. '\u{007A}'
     | '\u{00AA}'
@@ -917,7 +1198,7 @@ fragment ID_START:
     | '\u{1C00}' .. '\u{1C23}'
     | '\u{1C4D}' .. '\u{1C4F}'
     | '\u{1C5A}' .. '\u{1C7D}'
-    | '\u{1C80}' .. '\u{1C88}'
+    | '\u{1C80}' .. '\u{1C8A}'
     | '\u{1C90}' .. '\u{1CBA}'
     | '\u{1CBD}' .. '\u{1CBF}'
     | '\u{1CE9}' .. '\u{1CEC}'
@@ -1000,10 +1281,10 @@ fragment ID_START:
     | '\u{A6A0}' .. '\u{A6EF}'
     | '\u{A717}' .. '\u{A71F}'
     | '\u{A722}' .. '\u{A788}'
-    | '\u{A78B}' .. '\u{A7CA}'
+    | '\u{A78B}' .. '\u{A7CD}'
     | '\u{A7D0}' .. '\u{A7D1}'
     | '\u{A7D3}'
-    | '\u{A7D5}' .. '\u{A7D9}'
+    | '\u{A7D5}' .. '\u{A7DC}'
     | '\u{A7F2}' .. '\u{A801}'
     | '\u{A803}' .. '\u{A805}'
     | '\u{A807}' .. '\u{A80A}'
@@ -1108,6 +1389,7 @@ fragment ID_START:
     | '\u{105A3}' .. '\u{105B1}'
     | '\u{105B3}' .. '\u{105B9}'
     | '\u{105BB}' .. '\u{105BC}'
+    | '\u{105C0}' .. '\u{105F3}'
     | '\u{10600}' .. '\u{10736}'
     | '\u{10740}' .. '\u{10755}'
     | '\u{10760}' .. '\u{10767}'
@@ -1144,8 +1426,11 @@ fragment ID_START:
     | '\u{10C80}' .. '\u{10CB2}'
     | '\u{10CC0}' .. '\u{10CF2}'
     | '\u{10D00}' .. '\u{10D23}'
+    | '\u{10D4A}' .. '\u{10D65}'
+    | '\u{10D6F}' .. '\u{10D85}'
     | '\u{10E80}' .. '\u{10EA9}'
     | '\u{10EB0}' .. '\u{10EB1}'
+    | '\u{10EC2}' .. '\u{10EC4}'
     | '\u{10F00}' .. '\u{10F1C}'
     | '\u{10F27}'
     | '\u{10F30}' .. '\u{10F45}'
@@ -1184,6 +1469,13 @@ fragment ID_START:
     | '\u{1133D}'
     | '\u{11350}'
     | '\u{1135D}' .. '\u{11361}'
+    | '\u{11380}' .. '\u{11389}'
+    | '\u{1138B}'
+    | '\u{1138E}'
+    | '\u{11390}' .. '\u{113B5}'
+    | '\u{113B7}'
+    | '\u{113D1}'
+    | '\u{113D3}'
     | '\u{11400}' .. '\u{11434}'
     | '\u{11447}' .. '\u{1144A}'
     | '\u{1145F}' .. '\u{11461}'
@@ -1218,6 +1510,7 @@ fragment ID_START:
     | '\u{11A5C}' .. '\u{11A89}'
     | '\u{11A9D}'
     | '\u{11AB0}' .. '\u{11AF8}'
+    | '\u{11BC0}' .. '\u{11BE0}'
     | '\u{11C00}' .. '\u{11C08}'
     | '\u{11C0A}' .. '\u{11C2E}'
     | '\u{11C40}'
@@ -1241,7 +1534,9 @@ fragment ID_START:
     | '\u{12F90}' .. '\u{12FF0}'
     | '\u{13000}' .. '\u{1342F}'
     | '\u{13441}' .. '\u{13446}'
+    | '\u{13460}' .. '\u{143FA}'
     | '\u{14400}' .. '\u{14646}'
+    | '\u{16100}' .. '\u{1611D}'
     | '\u{16800}' .. '\u{16A38}'
     | '\u{16A40}' .. '\u{16A5E}'
     | '\u{16A70}' .. '\u{16ABE}'
@@ -1250,6 +1545,7 @@ fragment ID_START:
     | '\u{16B40}' .. '\u{16B43}'
     | '\u{16B63}' .. '\u{16B77}'
     | '\u{16B7D}' .. '\u{16B8F}'
+    | '\u{16D40}' .. '\u{16D6C}'
     | '\u{16E40}' .. '\u{16E7F}'
     | '\u{16F00}' .. '\u{16F4A}'
     | '\u{16F50}'
@@ -1258,7 +1554,7 @@ fragment ID_START:
     | '\u{16FE3}'
     | '\u{17000}' .. '\u{187F7}'
     | '\u{18800}' .. '\u{18CD5}'
-    | '\u{18D00}' .. '\u{18D08}'
+    | '\u{18CFF}' .. '\u{18D08}'
     | '\u{1AFF0}' .. '\u{1AFF3}'
     | '\u{1AFF5}' .. '\u{1AFFB}'
     | '\u{1AFFD}' .. '\u{1AFFE}'
@@ -1311,6 +1607,8 @@ fragment ID_START:
     | '\u{1E290}' .. '\u{1E2AD}'
     | '\u{1E2C0}' .. '\u{1E2EB}'
     | '\u{1E4D0}' .. '\u{1E4EB}'
+    | '\u{1E5D0}' .. '\u{1E5ED}'
+    | '\u{1E5F0}'
     | '\u{1E7E0}' .. '\u{1E7E6}'
     | '\u{1E7E8}' .. '\u{1E7EB}'
     | '\u{1E7ED}' .. '\u{1E7EE}'
@@ -1356,7 +1654,8 @@ fragment ID_START:
     | '\u{2B740}' .. '\u{2B81D}'
     | '\u{2B820}' .. '\u{2CEA1}'
     | '\u{2CEB0}' .. '\u{2EBE0}'
+    | '\u{2EBF0}' .. '\u{2EE5D}'
     | '\u{2F800}' .. '\u{2FA1D}'
     | '\u{30000}' .. '\u{3134A}'
     | '\u{31350}' .. '\u{323AF}'
-;
+    ;
