@@ -9,11 +9,13 @@ End-to-end maintenance playbook captured from the dependency + JDK 25 session (P
 
 Use this skill when the user asks to update dependencies, bump the JDK/LTS (project **and** analysis target), update ANTLR grammars, open/merge a maintenance PR, or publish a patch release. If they ask for the full maintenance pass, run every phase in order. If they ask for a subset, run only that phase but keep later phases available.
 
+Adding a **new** language is `add-lang`, not this skill. After a language is added, this skill's `references/grammars.md` (and the Phase 3 list below) must include it so later refreshes copy it.
+
 ## Pipeline
 
 1. **Dependencies** — bump plugins, libraries, and the Gradle wrapper.
 2. **JDK LTS** — project toolchain **and** Java clone-analysis target, plus docs.
-3. **ANTLR grammars** — replace C++/C#/Kotlin/Python `.g4` files from antlr/grammars-v4 and regenerate Java lexers/parsers.
+3. **ANTLR grammars** — replace C++/C#/Kotlin/Python/PHP `.g4` files from antlr/grammars-v4 and regenerate Java lexers/parsers.
 4. **Verify** — `./gradlew test shadowJar` on the target JDK.
 5. **PR and merge** — branch, commit, PR into `master`, merge commit.
 6. **Patch release** — tag `vX.Y.Z+1`, attach `NIL-all.jar`.

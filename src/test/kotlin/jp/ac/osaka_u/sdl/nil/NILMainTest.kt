@@ -86,4 +86,20 @@ internal class NILMainTest {
         assertEquals(result.sorted(), outputFile.readText().lines().sorted())
         outputFile.delete()
     }
+
+    @Test
+    fun testPHP() {
+        val config =
+            parseArgs(arrayOf("-s", "./src/test/resources/examples", "-bce", "-t", "1", "-p", "1", "-l", "php"))
+        NILMain(config).run()
+
+        val outputFile = File(config.outputFileName)
+        val result = listOf(
+            "examples,FizzBuzz.php,2,15,examples,FizzBuzz.php,17,30",
+            ""
+        )
+
+        assertEquals(result.sorted(), outputFile.readText().lines().sorted())
+        outputFile.delete()
+    }
 }
