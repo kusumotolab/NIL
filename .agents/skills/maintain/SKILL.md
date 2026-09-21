@@ -15,7 +15,7 @@ Adding a **new** language is `add-lang`, not this skill. After a language is add
 
 1. **Dependencies** — bump plugins, libraries, and the Gradle wrapper.
 2. **JDK LTS** — project toolchain **and** Java clone-analysis target, plus docs.
-3. **ANTLR grammars** — replace C++/C#/Kotlin/Python/PHP `.g4` files from antlr/grammars-v4 and regenerate Java lexers/parsers.
+3. **ANTLR grammars** — replace C++/C#/Kotlin/Python/PHP/Go/JavaScript/TypeScript/Rust/Swift `.g4` files from antlr/grammars-v4 and regenerate Java lexers/parsers.
 4. **Verify** — `./gradlew test shadowJar` on the target JDK.
 5. **PR and merge** — branch, commit, PR into `master`, merge commit.
 6. **Patch release** — tag `vX.Y.Z+1`, attach `NIL-all.jar`.
