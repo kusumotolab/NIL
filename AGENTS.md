@@ -4,7 +4,7 @@ NIL is a scalable code clone detector using N-gram, inverted index, and LCS.
 
 ## Setup commands
 
-- Requires JDK 21+
+- Requires JDK 25+
 - Build fat JAR: `./gradlew shadowJar`
 - Run: `java -jar ./build/libs/NIL-all.jar -s <src-dir>`
 - Tests: `./gradlew test`

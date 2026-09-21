@@ -1,6 +1,6 @@
 plugins {
-    kotlin("jvm") version "2.0.0"
-    id("com.github.johnrengelman.shadow") version "8.1.1"
+    kotlin("jvm") version "2.4.20"
+    id("com.gradleup.shadow") version "9.6.1"
 
     antlr
 
@@ -8,8 +8,8 @@ plugins {
 }
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_21
-    targetCompatibility = JavaVersion.VERSION_21
+    sourceCompatibility = JavaVersion.VERSION_25
+    targetCompatibility = JavaVersion.VERSION_25
 }
 
 repositories {
@@ -21,10 +21,10 @@ dependencies {
     implementation("io.reactivex.rxjava3:rxkotlin:3.0.1")
 
     // Use Logger
-    implementation("ch.qos.logback:logback-classic:1.4.12")
+    implementation("ch.qos.logback:logback-classic:1.6.3")
 
     // Use JDT
-    implementation("org.eclipse.jdt:org.eclipse.jdt.core:3.37.0")
+    implementation("org.eclipse.jdt:org.eclipse.jdt.core:3.47.0")
 
     // Use the Kotlin test library.
     testImplementation("org.jetbrains.kotlin:kotlin-test")

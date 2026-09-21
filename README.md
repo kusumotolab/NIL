@@ -10,7 +10,7 @@ NIL provides scalable large-variance clone detection.
 
 ## Requirements
 
-- JDK 21+
+- JDK 25+
 
 ## Install & Usage
 
