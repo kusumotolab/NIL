@@ -61,4 +61,4 @@ If you execute NIL on 250-MLOC codebase, we recommend `-p` option to 135.
 
 ## Experiments, datasets, and baseline tools
 
-- Please refer to [EXPERIMENTS.md](./EXPERIMENTS.md)
+- Please refer to [EXPERIMENT.md](./EXPERIMENT.md)
